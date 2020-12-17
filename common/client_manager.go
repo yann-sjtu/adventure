@@ -52,12 +52,12 @@ func getAllInvariantClients(hosts []string, fee string, gas ...uint64) []*gosdk.
 
 func initClientConfig(fee string, host string, gas ...uint64) (cfg types.ClientConfig) {
 	if fee == AUTO {
-		cfg, _ = types.NewClientConfig(host, "okexchainevm-8", types.BroadcastBlock, "", 20000000, 1.5, "0.00000001"+NativeToken)
+		cfg, _ = types.NewClientConfig(host, "okexchaintestnet-1", types.BroadcastBlock, "", 2000000, 1.5, "0.00000001"+NativeToken)
 	} else {
 		if len(gas) != 0 {
-			cfg, _ = types.NewClientConfig(host, "okexchainevm-8", types.BroadcastBlock, fee, gas[0], 0, "")
+			cfg, _ = types.NewClientConfig(host, "okexchaintestnet-1", types.BroadcastBlock, fee, gas[0], 0, "")
 		} else {
-			cfg, _ = types.NewClientConfig(host, "okexchainevm-8", types.BroadcastBlock, fee, 2000000, 0, "")
+			cfg, _ = types.NewClientConfig(host, "okexchaintestnet-1", types.BroadcastBlock, fee, 2000000, 0, "")
 		}
 	}
 	return

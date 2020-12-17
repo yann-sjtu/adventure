@@ -10,6 +10,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	mnemonic = ""
+
+	issue_token_num = 0
+)
+
 func createCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create",
@@ -19,8 +25,8 @@ func createCmd() *cobra.Command {
 	}
 
 	flags := cmd.Flags()
-	flags.StringVarP(&mnemonic, "mnemonic", "m", "skate tomato unusual mixed sunset network razor buyer donate much tuition maple", "set account mnemonic")
-	//flags.Uint64VarP(&num, "num", "n", 1000, "set num of issusing token")
+	flags.StringVarP(&mnemonic, "mnemonic", "m", "giggle sibling fun arrow elevator spoon blood grocery laugh tortoise culture tool", "set account mnemonic")
+	flags.IntVarP(&issue_token_num, "issue_num", "n", 1000, "set num of issusing token")
 
 	return cmd
 }
@@ -28,24 +34,24 @@ func createCmd() *cobra.Command {
 //nohup adventure order maker -p="btc-8bb_usdk-739" -q="btc_usdt"  -m "puzzle glide follow cruel say burst deliver wild tragic galaxy lumber offer" -t >> ~/btc-8bb_usdk-739-maker.log 2>&1 &
 //okchaincli  tx dex list --from captain --gas-prices="0.00000001okt" --gas "400000"  --base-asset btc-8bb --quote-asset usdk-739 -y -b block
 func createLoop(cmd *cobra.Command, args []string) {
-	//cfg, _ := types.NewClientConfig(host, "okexchain", types.BroadcastSync, "", 400000, 1.1, "0.00000001"+common.NativeToken)
-
-	info, _, err := utils.CreateAccountWithMnemo(mnemonic, fmt.Sprintf("acc%d", 1), "12345678")
+	info, _, err := utils.CreateAccountWithMnemo(mnemonic, fmt.Sprintf("acc"), "12345678")
 	if err != nil {
 		return
 	}
 
-	clis := common.NewClientManager(common.Cfg.Hosts, "auto")
+	clis := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
 	cli := clis.GetClient()
 	accInfo, err := cli.Auth().QueryAccount(info.GetAddress().String())
+	accNum, seqNum := accInfo.GetAccountNumber(), accInfo.GetSequence()
+	fmt.Println("accNum", accNum, "seqNum", seqNum)
 	if err != nil {
 		fmt.Println(err, common.CreateExchange)
 		return
 	}
 
+	// TODO: issue tokens
+
 	acc, _ := cli.Auth().QueryAccount(info.GetAddress().String())
-	accNum, seqNum := accInfo.GetAccountNumber(), accInfo.GetSequence()
-	fmt.Println("accNum", accNum, "seqNum", seqNum)
 	coins := acc.GetCoins()
 	for i, token := range coins {
 		var token2 sdk.Coin
@@ -62,7 +68,7 @@ func createLoop(cmd *cobra.Command, args []string) {
 			fmt.Println(err, common.CreateExchange, info.GetAddress().String())
 			return
 		}
-		fmt.Println(i, common.CreateExchange, token.Denom, " done")
+		fmt.Println(i, common.CreateExchange, token.Denom+"_"+token2.Denom, " done")
 	}
 
 	select {}

@@ -31,8 +31,6 @@ func arbitrageCmd() *cobra.Command {
 var (
 	btc  = "btc-8bb"
 	usdk = "usdk-739"
-
-	mnemonic = ""
 )
 
 //nohup adventure order maker -p="btc-8bb_usdk-739" -q="btc_usdt"  -m "puzzle glide follow cruel say burst deliver wild tragic galaxy lumber offer" -t >> ~/btc-8bb_usdk-739-maker.log 2>&1 &
