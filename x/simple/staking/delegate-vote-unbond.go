@@ -7,7 +7,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	"github.com/okex/adventure/common"
 	"github.com/okex/adventure/common/config"
-	"github.com/okex/adventure/common/logger"
 	gosdk "github.com/okex/okexchain-go-sdk"
 	"github.com/okex/okexchain-go-sdk/module/auth/types"
 	stakingTypes "github.com/okex/okexchain-go-sdk/module/staking/types"
@@ -40,7 +39,7 @@ func sendTx(cli *gosdk.Client, info keys.Info, phase string) {
 	addr := info.GetAddress().String()
 	accInfo, err = cli.Auth().QueryAccount(addr)
 	if err != nil {
-		logger.PrintQueryAccountError(err, phase, info)
+		common.PrintQueryAccountError(err, phase, info)
 		return
 	}
 
@@ -64,10 +63,10 @@ func sendTx(cli *gosdk.Client, info keys.Info, phase string) {
 	}
 
 	if err != nil {
-		logger.PrintExecuteTxError(err, phase, info)
+		common.PrintExecuteTxError(err, phase, info)
 		return
 	}
-	logger.PrintExecuteTxSuccess(phase, info)
+	common.PrintExecuteTxSuccess(phase, info)
 }
 
 func getValditorAddrs(cli *gosdk.Client) []string {

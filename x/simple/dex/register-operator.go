@@ -3,7 +3,6 @@ package dex
 import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	"github.com/okex/adventure/common"
-	"github.com/okex/adventure/common/logger"
 	gosdk "github.com/okex/okexchain-go-sdk"
 )
 
@@ -12,7 +11,7 @@ const registerOperator = common.RegisterOperator
 func RegisterOperator(cli *gosdk.Client, info keys.Info) {
 	accInfo, err := cli.Auth().QueryAccount(info.GetAddress().String())
 	if err != nil {
-		logger.PrintQueryAccountError(err, registerOperator, info)
+		common.PrintQueryAccountError(err, registerOperator, info)
 		return
 	}
 
@@ -20,8 +19,8 @@ func RegisterOperator(cli *gosdk.Client, info keys.Info) {
 		info.GetAddress().String(), "http://xxx/operator.json",
 		"", accInfo.GetAccountNumber(), accInfo.GetSequence())
 	if err != nil {
-		logger.PrintExecuteTxError(err, registerOperator, info)
+		common.PrintExecuteTxError(err, registerOperator, info)
 		return
 	}
-	logger.PrintExecuteTxSuccess(registerOperator, info)
+	common.PrintExecuteTxSuccess(registerOperator, info)
 }

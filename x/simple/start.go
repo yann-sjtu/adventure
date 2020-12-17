@@ -10,7 +10,6 @@ import (
 	"github.com/mitchellh/mapstructure"
 	"github.com/okex/adventure/common"
 	"github.com/okex/adventure/common/config"
-	"github.com/okex/adventure/common/logger"
 	ammswap2 "github.com/okex/adventure/x/simple/ammswap"
 	"github.com/okex/adventure/x/simple/dex"
 	"github.com/okex/adventure/x/simple/distribution"
@@ -44,8 +43,7 @@ func RunStart(cmd *cobra.Command, args []string) error {
 		cfg.TxConfigPath = txConfigPath
 	}
 	fmt.Println(cfg)
-	//init logger
-	logger.InitLogger(cfg.LogLevel, cfg.LogListenUrl)
+
 	//init test cases
 	cases, err := config.ReadTestCases(cfg.TxConfigPath)
 	if err != nil {

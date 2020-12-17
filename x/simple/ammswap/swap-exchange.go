@@ -8,7 +8,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/adventure/common"
-	"github.com/okex/adventure/common/logger"
 	gosdk "github.com/okex/okexchain-go-sdk"
 	swapTypes "github.com/okex/okexchain/x/ammswap/types"
 )
@@ -18,7 +17,7 @@ const swapExchange = common.SwapExchange
 func SwapExchange(cli *gosdk.Client, info keys.Info) {
 	accInfo, err := cli.Auth().QueryAccount(info.GetAddress().String())
 	if err != nil {
-		logger.PrintQueryAccountError(err, swapExchange, info)
+		common.PrintQueryAccountError(err, swapExchange, info)
 		return
 	}
 
@@ -49,10 +48,10 @@ func SwapExchange(cli *gosdk.Client, info keys.Info) {
 			t1, t2,
 			"", accInfo.GetAccountNumber(), accInfo.GetSequence())
 		if err != nil {
-			logger.PrintExecuteTxError(err, createExchange, info)
+			common.PrintExecuteTxError(err, createExchange, info)
 			return
 		}
-		logger.PrintExecuteTxSuccess(createExchange, info)
+		common.PrintExecuteTxSuccess(createExchange, info)
 		return
 	}
 
@@ -60,8 +59,8 @@ func SwapExchange(cli *gosdk.Client, info keys.Info) {
 		"0.001"+token1.Denom, "0.00000001"+token2.Denom, info.GetAddress().String(), "10m",
 		"", accInfo.GetAccountNumber(), accInfo.GetSequence())
 	if err != nil {
-		logger.PrintExecuteTxError(err, swapExchange, info)
+		common.PrintExecuteTxError(err, swapExchange, info)
 		return
 	}
-	logger.PrintExecuteTxSuccess(swapExchange, info)
+	common.PrintExecuteTxSuccess(swapExchange, info)
 }

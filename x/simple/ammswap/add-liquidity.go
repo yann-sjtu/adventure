@@ -8,7 +8,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/adventure/common"
-	"github.com/okex/adventure/common/logger"
 	gosdk "github.com/okex/okexchain-go-sdk"
 	swapTypes "github.com/okex/okexchain/x/ammswap/types"
 )
@@ -18,7 +17,7 @@ const addLiquidity = common.AddLiquidity
 func AddLiquidity(cli *gosdk.Client, info keys.Info) {
 	accInfo, err := cli.Auth().QueryAccount(info.GetAddress().String())
 	if err != nil {
-		logger.PrintQueryAccountError(err, addLiquidity, info)
+		common.PrintQueryAccountError(err, addLiquidity, info)
 		return
 	}
 
@@ -49,10 +48,10 @@ func AddLiquidity(cli *gosdk.Client, info keys.Info) {
 			t1, t2,
 			"", accInfo.GetAccountNumber(), accInfo.GetSequence())
 		if err != nil {
-			logger.PrintExecuteTxError(err, createExchange, info)
+			common.PrintExecuteTxError(err, createExchange, info)
 			return
 		}
-		logger.PrintExecuteTxSuccess(createExchange, info)
+		common.PrintExecuteTxSuccess(createExchange, info)
 		return
 	}
 
@@ -60,8 +59,8 @@ func AddLiquidity(cli *gosdk.Client, info keys.Info) {
 		"0.001", "1"+token1.Denom, "0.00001"+token2.Denom, "10m",
 		"", accInfo.GetAccountNumber(), accInfo.GetSequence())
 	if err != nil {
-		logger.PrintExecuteTxError(err, addLiquidity+" "+tokenPairName, info)
+		common.PrintExecuteTxError(err, addLiquidity+" "+tokenPairName, info)
 		return
 	}
-	logger.PrintExecuteTxSuccess(addLiquidity+" "+tokenPairName, info)
+	common.PrintExecuteTxSuccess(addLiquidity+" "+tokenPairName, info)
 }

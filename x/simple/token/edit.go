@@ -6,7 +6,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	"github.com/okex/adventure/common"
-	"github.com/okex/adventure/common/logger"
 	gosdk "github.com/okex/okexchain-go-sdk"
 )
 
@@ -22,13 +21,13 @@ const (
 func Edit(cli *gosdk.Client, info keys.Info) {
 	tokens, err := cli.Token().QueryTokenInfo(info.GetAddress().String(), "")
 	if err != nil || len(tokens) == 0 {
-		logger.PrintQueryTokensError(err, common.Edit, info)
+		common.PrintQueryTokensError(err, common.Edit, info)
 		return
 	}
 
 	accInfo, err := cli.Auth().QueryAccount(info.GetAddress().String())
 	if err != nil {
-		logger.PrintQueryAccountError(err, common.Edit, info)
+		common.PrintQueryAccountError(err, common.Edit, info)
 		return
 	}
 
@@ -38,10 +37,10 @@ func Edit(cli *gosdk.Client, info keys.Info) {
 		symbol, time.Now().String()+" "+newWholeName, newWholeName,
 		"", isDescEdit, isWholeNameEdit, accInfo.GetAccountNumber(), accInfo.GetSequence())
 	if err != nil {
-		logger.PrintExecuteTxError(err, common.Edit, info)
+		common.PrintExecuteTxError(err, common.Edit, info)
 		return
 	}
-	logger.PrintExecuteTxSuccess(common.Edit, info)
+	common.PrintExecuteTxSuccess(common.Edit, info)
 }
 
 func getRandomString(length int) string {

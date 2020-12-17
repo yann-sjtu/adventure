@@ -10,7 +10,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	"github.com/okex/adventure/common"
 	"github.com/okex/adventure/common/config"
-	"github.com/okex/adventure/common/logger"
 	gosdk "github.com/okex/okexchain-go-sdk"
 	"github.com/okex/okexchain-go-sdk/utils"
 )
@@ -73,7 +72,7 @@ func Proxy(cli *gosdk.Client, info keys.Info) {
 func bindProxyTx(cli *gosdk.Client, info keys.Info, proxy keys.Info) {
 	accInfo, err := cli.Auth().QueryAccount(info.GetAddress().String())
 	if err != nil {
-		logger.PrintQueryAccountError(err, bindProxy, info)
+		common.PrintQueryAccountError(err, bindProxy, info)
 		return
 	}
 
@@ -81,8 +80,8 @@ func bindProxyTx(cli *gosdk.Client, info keys.Info, proxy keys.Info) {
 		proxy.GetAddress().String(),
 		"", accInfo.GetAccountNumber(), accInfo.GetSequence())
 	if err != nil {
-		logger.PrintExecuteTxError(err, bindProxy, info)
+		common.PrintExecuteTxError(err, bindProxy, info)
 		return
 	}
-	logger.PrintExecuteTxSuccess(bindProxy, info)
+	common.PrintExecuteTxSuccess(bindProxy, info)
 }

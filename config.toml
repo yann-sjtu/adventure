@@ -11,8 +11,6 @@ hosts = [
     "http://10.0.240.32:20057", "http://10.0.240.32:20157", "http://10.0.240.32:20257",
 ]
 
-log_level = -1
-
 [order]
 	[order.new]
 	products = ["xxb-36e_tokt","xxb-2f7_tokt","xxb-062_tokt","xxb-c4d_tokt","xxb-bef_tokt"]

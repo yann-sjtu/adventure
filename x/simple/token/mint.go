@@ -5,7 +5,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	"github.com/okex/adventure/common"
-	"github.com/okex/adventure/common/logger"
 	gosdk "github.com/okex/okexchain-go-sdk"
 )
 
@@ -16,13 +15,13 @@ const (
 func Mint(cli *gosdk.Client, info keys.Info) {
 	tokens, err := cli.Token().QueryTokenInfo(info.GetAddress().String(), "")
 	if err != nil || len(tokens) == 0 {
-		logger.PrintQueryTokensError(err, common.Mint, info)
+		common.PrintQueryTokensError(err, common.Mint, info)
 		return
 	}
 
 	accInfo, err := cli.Auth().QueryAccount(info.GetAddress().String())
 	if err != nil {
-		logger.PrintQueryAccountError(err, common.Mint, info)
+		common.PrintQueryAccountError(err, common.Mint, info)
 		return
 	}
 
@@ -31,8 +30,8 @@ func Mint(cli *gosdk.Client, info keys.Info) {
 		coinForMint+symbol,
 		"", accInfo.GetAccountNumber(), accInfo.GetSequence())
 	if err != nil {
-		logger.PrintExecuteTxError(err, common.Mint, info)
+		common.PrintExecuteTxError(err, common.Mint, info)
 		return
 	}
-	logger.PrintExecuteTxSuccess(common.Mint, info)
+	common.PrintExecuteTxSuccess(common.Mint, info)
 }

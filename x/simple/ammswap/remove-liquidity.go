@@ -8,7 +8,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/adventure/common"
-	"github.com/okex/adventure/common/logger"
 	gosdk "github.com/okex/okexchain-go-sdk"
 	swapTypes "github.com/okex/okexchain/x/ammswap/types"
 )
@@ -18,7 +17,7 @@ const removeLiquidity = common.RemoveLiquidity
 func RemoveLiquidity(cli *gosdk.Client, info keys.Info) {
 	accInfo, err := cli.Auth().QueryAccount(info.GetAddress().String())
 	if err != nil {
-		logger.PrintQueryAccountError(err, removeLiquidity, info)
+		common.PrintQueryAccountError(err, removeLiquidity, info)
 		return
 	}
 
@@ -49,10 +48,10 @@ func RemoveLiquidity(cli *gosdk.Client, info keys.Info) {
 			t1, t2,
 			"", accInfo.GetAccountNumber(), accInfo.GetSequence())
 		if err != nil {
-			logger.PrintExecuteTxError(err, createExchange, info)
+			common.PrintExecuteTxError(err, createExchange, info)
 			return
 		}
-		logger.PrintExecuteTxSuccess(createExchange, info)
+		common.PrintExecuteTxSuccess(createExchange, info)
 		return
 	}
 
@@ -60,8 +59,8 @@ func RemoveLiquidity(cli *gosdk.Client, info keys.Info) {
 		"0.001", "0"+token1.Denom, "0"+token2.Denom, "10m",
 		"", accInfo.GetAccountNumber(), accInfo.GetSequence())
 	if err != nil {
-		logger.PrintExecuteTxError(err, removeLiquidity+" "+token1.Denom+"_"+token2.Denom, info)
+		common.PrintExecuteTxError(err, removeLiquidity+" "+token1.Denom+"_"+token2.Denom, info)
 		return
 	}
-	logger.PrintExecuteTxSuccess(removeLiquidity+" "+token1.Denom+"_"+token2.Denom, info)
+	common.PrintExecuteTxSuccess(removeLiquidity+" "+token1.Denom+"_"+token2.Denom, info)
 }

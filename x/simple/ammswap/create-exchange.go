@@ -6,7 +6,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	"github.com/okex/adventure/common"
-	"github.com/okex/adventure/common/logger"
 	gosdk "github.com/okex/okexchain-go-sdk"
 )
 
@@ -15,7 +14,7 @@ const createExchange = common.CreateExchange
 func CreateExchange(cli *gosdk.Client, info keys.Info) {
 	accInfo, err := cli.Auth().QueryAccount(info.GetAddress().String())
 	if err != nil {
-		logger.PrintQueryAccountError(err, createExchange, info)
+		common.PrintQueryAccountError(err, createExchange, info)
 		return
 	}
 
@@ -35,8 +34,8 @@ func CreateExchange(cli *gosdk.Client, info keys.Info) {
 		t1, t2,
 		"", accInfo.GetAccountNumber(), accInfo.GetSequence())
 	if err != nil {
-		logger.PrintExecuteTxError(err, createExchange, info)
+		common.PrintExecuteTxError(err, createExchange, info)
 		return
 	}
-	logger.PrintExecuteTxSuccess(createExchange, info)
+	common.PrintExecuteTxSuccess(createExchange, info)
 }

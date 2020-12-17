@@ -8,7 +8,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/adventure/common"
 	"github.com/okex/adventure/common/config"
-	"github.com/okex/adventure/common/logger"
 	gosdk "github.com/okex/okexchain-go-sdk"
 	tokenTypes "github.com/okex/okexchain-go-sdk/module/token/types"
 )
@@ -33,7 +32,7 @@ func MultiSend(cli *gosdk.Client, info keys.Info) {
 
 	acc, err := cli.Auth().QueryAccount(info.GetAddress().String())
 	if err != nil || len(acc.GetCoins()) == 0 {
-		logger.PrintQueryTokensError(err, common.MultiSend, info)
+		common.PrintQueryTokensError(err, common.MultiSend, info)
 		return
 	}
 
@@ -58,10 +57,10 @@ func topUp(rich keys.Info, accAddrs []types.AccAddress, coinStr string, cli *gos
 		transferUnit,
 		"", accInfo.GetAccountNumber(), accInfo.GetSequence())
 	if err != nil {
-		logger.PrintExecuteTxError(err, common.MultiSend, rich)
+		common.PrintExecuteTxError(err, common.MultiSend, rich)
 		return
 	}
-	logger.PrintExecuteTxSuccess(common.MultiSend, rich)
+	common.PrintExecuteTxSuccess(common.MultiSend, rich)
 
 }
 
