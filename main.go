@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/okex/adventure/account"
-	"github.com/okex/adventure/version"
+	"github.com/okex/adventure/tools/account"
+	"github.com/okex/adventure/tools/version"
 	"github.com/okex/adventure/x/simple"
 	"github.com/okex/adventure/x/strategy/ammswap/strategy"
 	"github.com/okex/adventure/x/strategy/evm"

@@ -1,7 +1,7 @@
 export GO111MODULE=on
 
 COMMIT := $(shell git rev-parse HEAD)
-Version=v0.11.1
+Version=dev
 Name=adventure
 GLOBAL_CONFIG_PATH := $(shell pwd)/config.toml
 TX_CONFIG_PATH := $(shell pwd)/template/sample.json
@@ -10,9 +10,9 @@ ifeq ($(VERSION),)
     VERSION = $(COMMIT)
 endif
 
-ldflags = -X github.com/okex/adventure/version.Version=$(Version) \
-	-X github.com/okex/adventure/version.Name=$(Name) \
-  	-X github.com/okex/adventure/version.Commit=$(COMMIT) \
+ldflags = -X github.com/okex/adventure/tools/version.Version=$(Version) \
+	-X github.com/okex/adventure/tools/version.Name=$(Name) \
+  	-X github.com/okex/adventure/tools/version.Commit=$(COMMIT) \
   	-X github.com/okex/adventure/common/config.GlobalConfigPath=$(GLOBAL_CONFIG_PATH) \
   	-X github.com/okex/adventure/common/config.TxConfigPath=$(TX_CONFIG_PATH) \
 
