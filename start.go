@@ -11,12 +11,12 @@ import (
 	"github.com/okex/adventure/common"
 	"github.com/okex/adventure/common/config"
 	"github.com/okex/adventure/common/logger"
-	"github.com/okex/adventure/x/ammswap"
-	"github.com/okex/adventure/x/dex"
-	"github.com/okex/adventure/x/distribution"
-	"github.com/okex/adventure/x/order"
-	"github.com/okex/adventure/x/staking"
-	"github.com/okex/adventure/x/token"
+	ammswap2 "github.com/okex/adventure/x/simple/ammswap"
+	"github.com/okex/adventure/x/simple/dex"
+	"github.com/okex/adventure/x/simple/distribution"
+	order2 "github.com/okex/adventure/x/simple/order"
+	staking2 "github.com/okex/adventure/x/simple/staking"
+	token2 "github.com/okex/adventure/x/simple/token"
 	gosdk "github.com/okex/okexchain-go-sdk"
 	"github.com/spf13/cobra"
 )
@@ -91,15 +91,15 @@ func excuteTxsInParallel(c config.TestCase, hosts []string) {
 		case common.WithdrawRewards:
 			handler = distribution.WithdrawRewards
 		case common.Issue:
-			handler = token.Issue
+			handler = token2.Issue
 		case common.Mint:
-			handler = token.Mint
+			handler = token2.Mint
 		case common.Burn:
-			handler = token.Burn
+			handler = token2.Burn
 		case common.Edit:
-			handler = token.Edit
+			handler = token2.Edit
 		case common.MultiSend:
-			handler = token.MultiSend
+			handler = token2.MultiSend
 		case common.Deposit:
 			handler = dex.Deposit
 		case common.Withdraw:
@@ -111,19 +111,19 @@ func excuteTxsInParallel(c config.TestCase, hosts []string) {
 		case common.EditOperator:
 			handler = dex.EditOperator
 		case common.Order:
-			handler = order.Orders
+			handler = order2.Orders
 		case common.DelegateVoteUnbond:
-			handler = staking.DelegateVoteUnbond
+			handler = staking2.DelegateVoteUnbond
 		case common.Proxy:
-			handler = staking.Proxy
+			handler = staking2.Proxy
 		case common.AddLiquidity:
-			handler = ammswap.AddLiquidity
+			handler = ammswap2.AddLiquidity
 		case common.RemoveLiquidity:
-			handler = ammswap.RemoveLiquidity
+			handler = ammswap2.RemoveLiquidity
 		case common.CreateExchange:
-			handler = ammswap.CreateExchange
+			handler = ammswap2.CreateExchange
 		case common.SwapExchange:
-			handler = ammswap.SwapExchange
+			handler = ammswap2.SwapExchange
 		default:
 			fmt.Printf("the types '%s' of tx is not supported now\n", tx.Type)
 		}
