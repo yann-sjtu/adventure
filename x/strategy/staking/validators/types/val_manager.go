@@ -11,7 +11,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/okex/adventure/common/config"
+	"github.com/okex/adventure/common"
 	"github.com/okex/adventure/x/strategy/staking/validators/val"
 	"github.com/okex/okexchain-go-sdk"
 	stakingTypes "github.com/okex/okexchain-go-sdk/module/staking/types"
@@ -53,7 +53,7 @@ func GetValManager() ValManager {
 // GetValidators gets all validators
 func (vm *ValManager) GetValidators() ([]stakingTypes.Validator, error) {
 	// pick a client randomly
-	hosts := config.Cfg.Hosts
+	hosts := common.Cfg.Hosts
 	luckyNum := rand.Intn(len(hosts))
 	cli := gosdk.NewClient(types.ClientConfig{
 		NodeURI:       hosts[luckyNum],

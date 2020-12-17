@@ -6,7 +6,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/okex/adventure/common"
-	"github.com/okex/adventure/common/config"
 	"github.com/spf13/cobra"
 )
 
@@ -31,7 +30,7 @@ func runUnjailScript(cmd *cobra.Command, args []string) error {
 	valInfos := valManager.GetInfos()
 
 	//create rpc client
-	clientManager := common.NewClientManager(config.Cfg.Hosts, config.AUTO)
+	clientManager := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
 	for i, info := range valInfos {
 		client := clientManager.GetClient()
 		addr := info.GetAddress().String()

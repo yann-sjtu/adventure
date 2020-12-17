@@ -6,7 +6,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/adventure/common"
-	"github.com/okex/adventure/common/config"
 	"github.com/okex/okexchain-go-sdk/utils"
 	"github.com/spf13/cobra"
 )
@@ -36,7 +35,7 @@ func createLoop(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	clis := common.NewClientManager(config.Cfg.Hosts, "auto")
+	clis := common.NewClientManager(common.Cfg.Hosts, "auto")
 	cli := clis.GetClient()
 	accInfo, err := cli.Auth().QueryAccount(info.GetAddress().String())
 	if err != nil {
@@ -60,7 +59,7 @@ func createLoop(cmd *cobra.Command, args []string) {
 			token.Denom, token2.Denom,
 			"", accNum, seqNum+uint64(i))
 		if err != nil {
-			fmt.Println(err, common.CreateExchange, info)
+			fmt.Println(err, common.CreateExchange, info.GetAddress().String())
 			return
 		}
 		fmt.Println(i, common.CreateExchange, token.Denom, " done")

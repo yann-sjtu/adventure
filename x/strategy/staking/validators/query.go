@@ -12,7 +12,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/okex/adventure/common"
-	"github.com/okex/adventure/common/config"
 	"github.com/spf13/cobra"
 )
 
@@ -38,7 +37,7 @@ func queryValidatorsCmd() *cobra.Command {
 }
 
 func runQueryScript(cmd *cobra.Command, args []string) error {
-	clientManager := common.NewClientManager(config.Cfg.Hosts, config.AUTO)
+	clientManager := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
 	client := clientManager.GetRandomClient()
 	mode, err := cmd.Flags().GetUint8(flagMode)
 	if err != nil {

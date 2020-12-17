@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/okex/adventure/common"
-	"github.com/okex/adventure/common/config"
 	"github.com/okex/okexchain-go-sdk/utils"
 	orderkeeper "github.com/okex/okexchain/x/order/keeper"
 	"github.com/spf13/cobra"
@@ -40,7 +39,7 @@ var (
 //okchaincli  tx dex list --from captain --gas-prices="0.00000001okt" --gas "400000"  --base-asset btc-8bb --quote-asset usdk-739 -y -b block
 func arbitrageLoop(cmd *cobra.Command, args []string) {
 	//clientManager := common.NewClientManager(config.Cfg.Hosts, config.AUTO)
-	clientManager := common.NewClientManager([]string{"http://127.0.0.1:26657"}, config.AUTO)
+	clientManager := common.NewClientManager([]string{"http://127.0.0.1:26657"}, common.AUTO)
 	info, _, _ := utils.CreateAccountWithMnemo(mnemonic, "test", "12345678")
 
 	for {

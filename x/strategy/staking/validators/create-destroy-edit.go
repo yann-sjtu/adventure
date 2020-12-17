@@ -86,7 +86,7 @@ func runValsLoop(cmd *cobra.Command, args []string) error {
 		}
 
 		// TX: destroy validator randomly
-		rand.Seed(time.Now().Unix())
+		rand.Seed(time.Now().UnixNano())
 		numToDestroy := rand.Intn(maxToDestroy)
 		quitValAddrs := pickQuitVals(icbValAddrs, numToDestroy)
 		logging("DESTROY validators", quitValAddrs)

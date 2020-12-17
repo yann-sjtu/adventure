@@ -7,7 +7,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	"github.com/okex/adventure/common"
-	"github.com/okex/adventure/common/config"
 	"github.com/spf13/cobra"
 )
 
@@ -40,7 +39,7 @@ var (
 )
 
 func issueTokenLoop(cmd *cobra.Command, args []string) {
-	clis := common.NewClientManager(config.Cfg.Hosts, "auto")
+	clis := common.NewClientManager(common.Cfg.Hosts, "auto")
 	//cfg, _ := types.NewClientConfig(host, "okexchain", types.BroadcastSync, "", 400000, 1.1, "0.00000001"+common.NativeToken)
 
 	accs := common.GetAccountManagerFromFile(mnemonicPath)

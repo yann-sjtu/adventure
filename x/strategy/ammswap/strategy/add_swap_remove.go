@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/okex/adventure/common"
-	"github.com/okex/adventure/common/config"
 	gosdk "github.com/okex/okexchain-go-sdk"
 	"github.com/spf13/cobra"
 )
@@ -42,7 +41,7 @@ type tokenPair struct {
 }
 
 func addSwapRemoveScripts(cmd *cobra.Command, args []string) error {
-	clis := common.NewClientManager(config.Cfg.Hosts, config.AUTO)
+	clis := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
 
 	// init the pair names in swap pool. (map[name1] -> name2)
 	swapPairs, err := clis.GetRandomClient().AmmSwap().QuerySwapTokenPairs()
@@ -92,7 +91,7 @@ func addSwapRemoveScripts(cmd *cobra.Command, args []string) error {
 
 				// pick one random token
 				var name1, name2 string
-				rand.Seed(time.Now().Unix() + rand.Int63n(10000))
+				rand.Seed(time.Now().UnixNano() + rand.Int63n(10000))
 				name1 = tokens[rand.Intn(len(tokens))]
 				if tmp, ok := tokenPairsMap1[name1]; ok {
 					for _, name := range tmp {

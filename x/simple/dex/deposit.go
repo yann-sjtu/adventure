@@ -8,16 +8,18 @@ import (
 	gosdk "github.com/okex/okexchain-go-sdk"
 )
 
+const deposit = common.Deposit
+
 func Deposit(cli *gosdk.Client, info keys.Info) {
 	tokenPairs, err := cli.Dex().QueryProducts(info.GetAddress().String(), 1, 300)
 	if err != nil || len(tokenPairs) == 0 {
-		common.PrintQueryProductsError(err, common.Deposit, info)
+		common.PrintQueryProductsError(err, deposit, info)
 		return
 	}
 
 	accInfo, err := cli.Auth().QueryAccount(info.GetAddress().String())
 	if err != nil {
-		common.PrintQueryAccountError(err, common.Deposit, info)
+		common.PrintQueryAccountError(err, deposit, info)
 		return
 	}
 
@@ -27,8 +29,8 @@ func Deposit(cli *gosdk.Client, info keys.Info) {
 		product, "10"+common.NativeToken,
 		"", accInfo.GetAccountNumber(), accInfo.GetSequence())
 	if err != nil {
-		common.PrintExecuteTxError(err, common.Deposit, info)
+		common.PrintExecuteTxError(err, deposit, info)
 		return
 	}
-	common.PrintExecuteTxSuccess(common.Deposit, info)
+	common.PrintExecuteTxSuccess(deposit, info)
 }

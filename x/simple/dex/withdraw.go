@@ -8,16 +8,18 @@ import (
 	gosdk "github.com/okex/okexchain-go-sdk"
 )
 
+const withdraw = common.Withdraw
+
 func Withdraw(cli *gosdk.Client, info keys.Info) {
 	tokenPairs, err := cli.Dex().QueryProducts(info.GetAddress().String(), 1, 300)
 	if err != nil || len(tokenPairs) == 0 {
-		common.PrintQueryProductsError(err, common.Withdraw, info)
+		common.PrintQueryProductsError(err, withdraw, info)
 		return
 	}
 
 	accInfo, err := cli.Auth().QueryAccount(info.GetAddress().String())
 	if err != nil {
-		common.PrintQueryAccountError(err, common.Withdraw, info)
+		common.PrintQueryAccountError(err, withdraw, info)
 		return
 	}
 
@@ -27,8 +29,8 @@ func Withdraw(cli *gosdk.Client, info keys.Info) {
 		product, "1.0"+common.NativeToken,
 		"", accInfo.GetAccountNumber(), accInfo.GetSequence())
 	if err != nil {
-		common.PrintExecuteTxError(err, common.Withdraw, info)
+		common.PrintExecuteTxError(err, withdraw, info)
 		return
 	}
-	common.PrintExecuteTxSuccess(common.Withdraw, info)
+	common.PrintExecuteTxSuccess(withdraw, info)
 }

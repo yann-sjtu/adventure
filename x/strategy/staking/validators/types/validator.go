@@ -11,7 +11,6 @@ import (
 	gokeys "github.com/cosmos/cosmos-sdk/crypto/keys"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/adventure/common"
-	"github.com/okex/adventure/common/config"
 	"github.com/okex/adventure/x/strategy/staking/validators/val"
 	gosdk "github.com/okex/okexchain-go-sdk"
 )
@@ -39,7 +38,7 @@ func NewValidator(operKey gokeys.Info, id int, consPubKey string) *Validator {
 func (v *Validator) Edit(wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	hosts := config.Cfg.Hosts
+	hosts := common.Cfg.Hosts
 	// pick a client randomly
 	luckyNum := rand.Intn(len(hosts))
 	config, _ := gosdk.NewClientConfig(
@@ -71,7 +70,7 @@ func (v *Validator) Edit(wg *sync.WaitGroup) {
 func (v *Validator) Create(wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	hosts := config.Cfg.Hosts
+	hosts := common.Cfg.Hosts
 	// pick a client randomly
 	luckyNum := rand.Intn(len(hosts))
 	config, _ := gosdk.NewClientConfig(
@@ -106,7 +105,7 @@ func (v *Validator) Create(wg *sync.WaitGroup) {
 func (v *Validator) Destroy(wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	hosts := config.Cfg.Hosts
+	hosts := common.Cfg.Hosts
 	/// pick a client randomly
 	luckyNum := rand.Intn(len(hosts))
 	config, _ := gosdk.NewClientConfig(

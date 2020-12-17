@@ -1,12 +1,12 @@
 package common
 
 import (
-	"github.com/okex/adventure/common/config"
-	gosdk "github.com/okex/okexchain-go-sdk"
-	"github.com/okex/okexchain-go-sdk/types"
 	"math/rand"
 	"sync"
 	"time"
+
+	gosdk "github.com/okex/okexchain-go-sdk"
+	"github.com/okex/okexchain-go-sdk/types"
 )
 
 type ClientManager struct {
@@ -25,7 +25,7 @@ func (r *ClientManager) GetClient() *gosdk.Client {
 }
 
 func (r *ClientManager) GetRandomClient() *gosdk.Client {
-	rand.Seed(int64(time.Now().Nanosecond()))
+	rand.Seed(time.Now().UnixNano())
 	return r.clients[rand.Intn(r.sum)]
 }
 
@@ -51,7 +51,7 @@ func getAllInvariantClients(hosts []string, fee string, gas ...uint64) []*gosdk.
 }
 
 func initClientConfig(fee string, host string, gas ...uint64) (cfg types.ClientConfig) {
-	if fee == config.AUTO {
+	if fee == AUTO {
 		cfg, _ = types.NewClientConfig(host, "okexchaintestnet-1", types.BroadcastBlock, "", 200000, 1.5, "0.00000001"+NativeToken)
 	} else {
 		if len(gas) != 0 {

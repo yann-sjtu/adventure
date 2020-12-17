@@ -9,13 +9,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	"github.com/mitchellh/mapstructure"
 	"github.com/okex/adventure/common"
-	"github.com/okex/adventure/common/config"
-	ammswap2 "github.com/okex/adventure/x/simple/ammswap"
 	"github.com/okex/adventure/x/simple/dex"
 	"github.com/okex/adventure/x/simple/distribution"
-	order2 "github.com/okex/adventure/x/simple/order"
-	staking2 "github.com/okex/adventure/x/simple/staking"
-	token2 "github.com/okex/adventure/x/simple/token"
+	"github.com/okex/adventure/x/simple/staking"
+	"github.com/okex/adventure/x/simple/token"
 	gosdk "github.com/okex/okexchain-go-sdk"
 	"github.com/spf13/cobra"
 )
@@ -38,14 +35,14 @@ func TxCmd() *cobra.Command {
 
 func RunStart(cmd *cobra.Command, args []string) error {
 	//init config
-	cfg := config.GetConfig()
+	cfg := common.GetConfig()
 	if txConfigPath != "" {
-		cfg.TxConfigPath = txConfigPath
+		cfg.TestCaesPath = txConfigPath
 	}
 	fmt.Println(cfg)
 
 	//init test cases
-	cases, err := config.ReadTestCases(cfg.TxConfigPath)
+	cases, err := common.ReadTestCases(cfg.TestCaesPath)
 	if err != nil {
 		return err
 	}
@@ -55,12 +52,12 @@ func RunStart(cmd *cobra.Command, args []string) error {
 	var wg sync.WaitGroup
 	for _, c := range cases {
 		wg.Add(1)
-		go func(c config.TestCase) {
+		go func(c common.TestCase) {
 			defer wg.Done()
 			switch c.RunTxMode {
-			case "", config.Parallel:
+			case "", common.Parallel:
 				excuteTxsInParallel(c, cfg.Hosts)
-			case config.Serial:
+			case common.Serial:
 				log.Fatalln("the serial mode is still in developing")
 			default:
 				log.Fatalf("not support of the '%s' mode", c.RunTxMode)
@@ -72,10 +69,10 @@ func RunStart(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func excuteTxsInParallel(c config.TestCase, hosts []string) {
+func excuteTxsInParallel(c common.TestCase, hosts []string) {
 	manager := common.GetAccountManagerFromFile(c.MnemonicPath)
 	for _, tx := range c.Transactions {
-		var arg config.BaseParam
+		var arg common.BaseParam
 		err := mapstructure.Decode(tx.Args, &arg)
 		if err != nil {
 			log.Fatalf("failed to decode args config. error: %s\n", err.Error())
@@ -89,15 +86,15 @@ func excuteTxsInParallel(c config.TestCase, hosts []string) {
 		case common.WithdrawRewards:
 			handler = distribution.WithdrawRewards
 		case common.Issue:
-			handler = token2.Issue
+			handler = token.Issue
 		case common.Mint:
-			handler = token2.Mint
+			handler = token.Mint
 		case common.Burn:
-			handler = token2.Burn
+			handler = token.Burn
 		case common.Edit:
-			handler = token2.Edit
+			handler = token.Edit
 		case common.MultiSend:
-			handler = token2.MultiSend
+			handler = token.MultiSend
 		case common.Deposit:
 			handler = dex.Deposit
 		case common.Withdraw:
@@ -108,20 +105,10 @@ func excuteTxsInParallel(c config.TestCase, hosts []string) {
 			handler = dex.RegisterOperator
 		case common.EditOperator:
 			handler = dex.EditOperator
-		case common.Order:
-			handler = order2.Orders
 		case common.DelegateVoteUnbond:
-			handler = staking2.DelegateVoteUnbond
+			handler = staking.DelegateVoteUnbond
 		case common.Proxy:
-			handler = staking2.Proxy
-		case common.AddLiquidity:
-			handler = ammswap2.AddLiquidity
-		case common.RemoveLiquidity:
-			handler = ammswap2.RemoveLiquidity
-		case common.CreateExchange:
-			handler = ammswap2.CreateExchange
-		case common.SwapExchange:
-			handler = ammswap2.SwapExchange
+			handler = staking.Proxy
 		default:
 			fmt.Printf("the types '%s' of tx is not supported now\n", tx.Type)
 		}
@@ -133,7 +120,7 @@ func excuteTxsInParallel(c config.TestCase, hosts []string) {
 	select {}
 }
 
-func executeTxInLoop(m *common.AccountManager, c *common.ClientManager, p config.BaseParam, handler func(*gosdk.Client, keys.Info)) {
+func executeTxInLoop(m *common.AccountManager, c *common.ClientManager, p common.BaseParam, handler func(*gosdk.Client, keys.Info)) {
 	totalRound := p.RoundNum
 	concurrentNum := p.ConcurrentNum
 	var wg sync.WaitGroup
@@ -154,6 +141,6 @@ func executeTxInLoop(m *common.AccountManager, c *common.ClientManager, p config
 	wg.Wait()
 }
 
-func excuteTxsInSerial(accountPath string, baseParam config.BaseParam, transactions []config.Transaction) {
+func excuteTxsInSerial(accountPath string, baseParam common.BaseParam, transactions []common.Transaction) {
 
 }

@@ -7,7 +7,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/adventure/common"
-	"github.com/okex/adventure/common/config"
 	gosdk "github.com/okex/okexchain-go-sdk"
 	tokenTypes "github.com/okex/okexchain-go-sdk/module/token/types"
 	"github.com/okex/okexchain-go-sdk/utils"
@@ -53,7 +52,7 @@ func transferTokenScript(cmd *cobra.Command, args []string) error {
 	sum := len(addrs)
 
 	//create rpc client
-	clients := common.NewClientManager(config.Cfg.Hosts, "0.08"+common.NativeToken, 7952591)
+	clients := common.NewClientManager(common.Cfg.Hosts, "0.08"+common.NativeToken, 7952591)
 
 	// query acc
 	cli := clients.GetClient()
@@ -135,7 +134,7 @@ func transferTokenScript1(cmd *cobra.Command, args []string) error {
 	sum := len(addrs)
 
 	//create rpc client
-	clients := common.NewClientManager(config.Cfg.Hosts, config.AUTO)
+	clients := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
 	group := sum / 1000
 	for i := 0; i < group; i++ {
 		log.Printf("prepare to multi send %s to account[%d,%d]\n", coinStr, i*1000, (i+1)*1000-1)

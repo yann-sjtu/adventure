@@ -9,7 +9,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	"github.com/okex/adventure/common"
-	"github.com/okex/adventure/common/config"
 	"github.com/okex/adventure/x/strategy/order/market/types"
 	"github.com/spf13/cobra"
 )
@@ -46,7 +45,7 @@ func runTaker(cmd *cobra.Command, args []string) {
 	activeAccounts := initActiveAccount(infos)
 
 	// init clients
-	clientManager := common.NewClientManager(config.Cfg.Hosts, config.AUTO)
+	clientManager := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
 
 	// init price
 	latestPrice := types.QueryOneTickerPrice(types.QueryProduct)
@@ -138,7 +137,7 @@ func getOldOrderIds(account activeAccount) string {
 }
 
 func createTakerOrders(price float64) []types.Order {
-	rand.Seed(time.Now().Unix())
+	rand.Seed(time.Now().UnixNano())
 	quanties := float64(rand.Intn(10000)+1) * 0.0001
 	takerOrderSlice := make([]types.Order, 2)
 	takerOrderSlice[0] = types.Order{OrderType: types.BUY, Price: price, Quantity: quanties}

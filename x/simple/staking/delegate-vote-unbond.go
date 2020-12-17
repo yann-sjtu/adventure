@@ -6,7 +6,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	"github.com/okex/adventure/common"
-	"github.com/okex/adventure/common/config"
 	gosdk "github.com/okex/okexchain-go-sdk"
 	"github.com/okex/okexchain-go-sdk/module/auth/types"
 	stakingTypes "github.com/okex/okexchain-go-sdk/module/staking/types"
@@ -16,10 +15,15 @@ const (
 	delegate = "delegate"
 	vote     = "vote"
 	unbond   = "unbond"
+
+	sleepTime = 3
+	delegateNum = "0.01"+common.NativeToken
+	unbondNum = "0.005"+common.NativeToken
+
+	passWd = common.PassWord
 )
 
 func DelegateVoteUnbond(cli *gosdk.Client, info keys.Info) {
-	sleepTime := config.Cfg.Staking.DelegateVoteUnbondConfig.SleepTime
 	//send delegate tx
 	sendTx(cli, info, delegate)
 	time.Sleep(time.Duration(sleepTime) * time.Second)
@@ -43,16 +47,13 @@ func sendTx(cli *gosdk.Client, info keys.Info, phase string) {
 		return
 	}
 
-	passWd := common.PassWord
 	switch phase {
 	case delegate:
-		delegateNum := config.Cfg.Staking.DelegateVoteUnbondConfig.DelegateNum
 		_, err = cli.Staking().Deposit(info, passWd, delegateNum, "", accInfo.GetAccountNumber(), accInfo.GetSequence())
 	case vote:
 		valAddrs := getValditorAddrs(cli)
 		_, err = cli.Staking().AddShares(info, passWd, valAddrs, "", accInfo.GetAccountNumber(), accInfo.GetSequence())
 	case unbond:
-		unbondNum := config.Cfg.Staking.DelegateVoteUnbondConfig.UnbondNum
 		_, err = cli.Staking().Withdraw(info, passWd, unbondNum, "", accInfo.GetAccountNumber(), accInfo.GetSequence())
 	case regProxy:
 		_, err = cli.Staking().RegisterProxy(info, passWd, "", accInfo.GetAccountNumber(), accInfo.GetSequence())

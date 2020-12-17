@@ -9,7 +9,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	"github.com/okex/adventure/common"
-	"github.com/okex/adventure/common/config"
 	"github.com/okex/adventure/x/strategy/order/market/types"
 	"github.com/okex/okexchain-go-sdk/utils"
 	"github.com/spf13/cobra"
@@ -44,7 +43,7 @@ func runMaker(cmd *cobra.Command, args []string) {
 	}
 
 	// init clients
-	clientManager := common.NewClientManager(config.Cfg.Hosts, config.AUTO)
+	clientManager := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
 
 	// start
 	t := time.NewTicker(time.Second * 10)
