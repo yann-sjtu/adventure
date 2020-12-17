@@ -7,13 +7,6 @@ adventure为OKChain的一款强大的交易批量发送工具。使用者可以�
 adventure依赖于OKChain Go SDK，在编译前请使用go module下载相关依赖。
 
 ### 2. 编译与配置
-
-切换分支：
-
-```shell
-$ git checkout dev
-```
-
 编译：
 
 ```shell
@@ -22,20 +15,10 @@ $ make adventure
 
 配置` config.toml`，一般不做修改。
 
-config.toml 是基础配置文件，存放各个模块的基础测试参数：
+config.toml 是基础配置文件，存放测试节点：
 
 ```yaml
-hosts = ["http://192.168.13.115:20057", "http://192.168.13.115:20157", ……]
-log_level = -1
-
-[order]
-		…… …… ……
-[staking]
-	  …… …… ……
-[distribution]
-	  …… …… ……
-[token]
-	  …… …… ……
+hosts = ["http://127.0.0.1:26657",, ……]
 ```
 
 配置`tx.json` (样例)
@@ -95,10 +78,6 @@ Edit                   = "edit"
 List                 = "list"
 Deposit              = "deposit"
 Withdraw             = "withdraw"
-DexTransferOwnership = "dex-transfer-ownership"
-
-//order
-Order = "order"
 
 //staking
 DelegateVoteUnbond = "delegate_vote_unbond"
@@ -115,8 +94,8 @@ Proxy              = "proxy"
 
 ```shell
 # 往 tx.json 中需要的账户转钱
-adventure account send --init_amount 1000okt --path template/mnemonic/normal_5
-adventure account send --init_amount 1000okt --path template/mnemonic/normal_100
+adventure account send --init_amount 1000tokt -m template/mnemonic/normal_100
+adventure account send --init_amount 1000tokt -p template/address/normal_100
 ```
 
 启动：
@@ -150,8 +129,24 @@ func NewTx(cli *gosdk.Client, info keys.Info) {
 ```
 
 3.  将该函数添加到根目录的`start.go`的`excuteTxsInParallel`的函数中。
+```shell script
+adventure account send -p template/address/captain -a 1000000tokt -r "giggle sibling fun arrow elevator spoon blood grocery laugh tortoise culture tool"
+adventure account send -p template/address/normal_5 -a 1000000tokt -r "giggle sibling fun arrow elevator spoon blood grocery laugh tortoise culture tool"
+adventure account send -p template/address/normal_1000_1 -a 1000000tokt -r "giggle sibling fun arrow elevator spoon blood grocery laugh tortoise culture tool"
+adventure account send -p template/address/normal_1000_2 -a 1000000tokt -r "giggle sibling fun arrow elevator spoon blood grocery laugh tortoise culture tool"
+adventure account send -p template/address/normal_100 -a 1000000tokt -r "giggle sibling fun arrow elevator spoon blood grocery laugh tortoise culture tool"
+```
 
 ### 启动全部交易类型测试
+#### 测试账户转账
+```shell script
+adventure account send -p template/address/captain -a 1000000tokt -r "actual assume crew creek furnace water electric fitness stumble usage embark ancient"
+adventure account send -p template/address/normal_5 -a 1000000tokt -r "actual assume crew creek furnace water electric fitness stumble usage embark ancient"
+adventure account send -p template/address/normal_1000_1 -a 1000000tokt -r "actual assume crew creek furnace water electric fitness stumble usage embark ancient"
+adventure account send -p template/address/normal_1000_2 -a 1000000tokt -r "actual assume crew creek furnace water electric fitness stumble usage embark ancient"
+adventure account send -p template/address/normal_100 -a 1000000tokt -r "actual assume crew creek furnace water electric fitness stumble usage embark ancient"
+```
+#### 启动
 ```shell script
 nohup adventure start -p template/tx_config/proxy1.json   >> ~/proxy-staking.log 2>&1 &
 nohup adventure start -p template/tx_config/staking.json   >> ~/staking.log 2>&1 &

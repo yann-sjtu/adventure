@@ -28,8 +28,8 @@ func transferTokenCmd() *cobra.Command {
 	}
 	sendCmd.Flags().StringP(flagMnemoFilePath, "m", "", "the file path of mnemo to test")
 	sendCmd.Flags().StringP(flagAccountsFilePath, "p", "", "the file path of account to test")
-	sendCmd.Flags().StringP(flagAmount, "a", "0.1"+common.NativeToken, "send the initilize fund to test account")
-	sendCmd.Flags().StringP(flagRich, "r", "", "send the initilize fund to test account")
+	sendCmd.Flags().StringP(flagAmount, "a", "1000"+common.NativeToken, "send the initilize fund to test account")
+	sendCmd.Flags().StringP(flagRich, "r", common.RichMnemonic, "send the initilize fund to test account")
 	return sendCmd
 }
 
@@ -131,14 +131,23 @@ func transferTokenScript1(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	err = SendCoins(common.Cfg.Hosts, addrs, coinStr, richMnemonic)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func SendCoins(hosts []string, addrs []string, coinStr string, richMnemonic string) error {
 	sum := len(addrs)
 
 	//create rpc client
-	clients := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
+	clients := common.NewClientManager(hosts, common.AUTO)
+	cli := clients.GetRandomClient()
 	group := sum / 1000
 	for i := 0; i < group; i++ {
 		log.Printf("prepare to multi send %s to account[%d,%d]\n", coinStr, i*1000, (i+1)*1000-1)
-		err = topUp(addrs[i*1000:(i+1)*1000], coinStr, clients.GetRandomClient(), richMnemonic)
+		err := topUp(addrs[i*1000:(i+1)*1000], coinStr, cli, richMnemonic)
 		if err != nil {
 			return err
 		}
@@ -149,13 +158,12 @@ func transferTokenScript1(cmd *cobra.Command, args []string) error {
 	if left != 0 {
 		startIndex := sum / 1000 * 1000
 		log.Printf("prepare to multi send %s to account[%d,%d]\n", coinStr, startIndex, startIndex+left-1)
-		err = topUp(addrs[startIndex:startIndex+left], coinStr, clients.GetRandomClient(), richMnemonic)
+		err := topUp(addrs[startIndex:startIndex+left], coinStr, cli, richMnemonic)
 		if err != nil {
 			return err
 		}
 		log.Printf("multi send %s to account[%d,%d] successfully\n", coinStr, startIndex, startIndex+left-1)
 	}
-
 	return nil
 }
 

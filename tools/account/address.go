@@ -19,12 +19,6 @@ const (
 	captainName       = "captain"
 	captainMnemonic   = "puzzle glide follow cruel say burst deliver wild tragic galaxy lumber offer"
 	DefaultPassphrase = "12345678"
-
-	admin16Name     = "admin16"
-	admin16Mnemonic = "palace cube bitter light woman side pave cereal donor bronze twice work"
-
-	richName     = "richer"
-	richMnemonic = "make beyond laptop direct canvas script viable dragon blush flame divert flight"
 )
 
 func getAddressCmd() *cobra.Command {
@@ -154,13 +148,4 @@ func CreateCaptain(kb keys.Keybase) (info keys.Info, err error) {
 
 func CreateKeyInfoByNameAndMnemonic(kb keys.Keybase, name, mnemonic, passphrase string) (info keys.Info, err error) {
 	return kb.CreateAccount(name, mnemonic, "", passphrase, "", keys.Secp256k1)
-}
-
-// use for testnet
-
-// bash:
-// okchaincli tx send okchain1gy6hxg3z9qn02wlx5xdf2zwycwr05j6zqlujmq 100000000okb --from node0 --node localhost:10057 --home cache/node0/okchaincli/ --chain-id okchain -y -b block
-
-func CreateRich(kb keys.Keybase) (info keys.Info, err error) {
-	return kb.CreateAccount(richName, richMnemonic, "", DefaultPassphrase, "", keys.Secp256k1)
 }

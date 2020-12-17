@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"strconv"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	"github.com/okex/adventure/common"
@@ -55,16 +56,15 @@ func issueTokenLoop(cmd *cobra.Command, args []string) {
 			accNum, seqNum := accInfo.GetAccountNumber(), accInfo.GetSequence()
 			fmt.Println("accNum", accNum, "seqNum", seqNum)
 			for i := uint64(0); i < num; i++ {
-				name := getRandomString(3) + strconv.Itoa(rand.Intn(10))
-				_, err := cli.Token().Issue(info, common.PassWord,
+				name := getRandomString(3)
+				res, err := cli.Token().Issue(info, common.PassWord,
 					name, name, totalSupply, "Used for test "+name+" "+strconv.Itoa(int(seqNum+i)),
 					"", true, accNum, seqNum+i)
-				//time.Sleep(10*time.Millisecond)
 				if err != nil {
 					fmt.Println(err, common.Issue, info)
 					return
 				}
-				fmt.Println(i, common.Issue, name, " done")
+				fmt.Println(i, common.Issue, name, " done:", res.Logs.String())
 			}
 		}(info)
 	}
@@ -76,6 +76,7 @@ func getRandomString(length int) string {
 	if length == 0 {
 		return ""
 	}
+	rand.Seed(time.Now().UnixNano())
 	clen := len(stdChars)
 	if clen < 2 || clen > 256 {
 		panic("Wrong charset length for getRandomString()")
