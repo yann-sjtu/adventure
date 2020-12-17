@@ -2,6 +2,7 @@ package dex
 
 import (
 	"math/rand"
+	"sync"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
@@ -11,9 +12,14 @@ import (
 
 const list = common.List
 
-func List(cli *gosdk.Client, info keys.Info) {
-	time.Sleep(time.Duration(20) * time.Second)
+var once sync.Once
 
+func List(cli *gosdk.Client, info keys.Info) {
+	once.Do(func() {
+		RegisterOperator(cli, info)
+	})
+
+	time.Sleep(time.Duration(20) * time.Second)
 	tokens, err := cli.Token().QueryTokenInfo(info.GetAddress().String(), "")
 	if err != nil || len(tokens) == 0 {
 		common.PrintQueryTokensError(err, list, info)

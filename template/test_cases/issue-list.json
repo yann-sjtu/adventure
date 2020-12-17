@@ -3,10 +3,17 @@
     "mnemonic_path":"template/mnemonic/normal_5",
     "transactions":[
       {
-        "type":"register-operator",
+        "type":"issue",
         "args":{
-          "concurrent_num":5,
-          "sleep_time":3600
+          "concurrent_num": 5,
+          "sleep_time": 3500
+        }
+      },
+      {
+        "type":"list",
+        "args":{
+          "concurrent_num": 1,
+          "sleep_time":60
         }
       },
       {
@@ -14,20 +21,6 @@
         "args":{
           "concurrent_num":5,
           "sleep_time":1000
-        }
-      },
-      {
-        "type":"list",
-        "args":{
-          "concurrent_num":2,
-          "sleep_time":10800
-        }
-      },
-      {
-        "type":"issue",
-        "args":{
-          "concurrent_num":2,
-          "sleep_time": 43200
         }
       }
     ]
