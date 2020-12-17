@@ -6,7 +6,6 @@ import (
 	"os/exec"
 
 	"github.com/BurntSushi/toml"
-	"go.uber.org/zap/zapcore"
 )
 
 var (
@@ -20,7 +19,6 @@ type Config struct {
 	TxConfigPath string
 	Hosts        []string `toml:"hosts"`
 	LogLevel     int8     `toml:"log_level"`
-	LogListenUrl string
 	Order        Order        `toml:"order"`
 	Distribution Distribution `toml:"distribution"`
 	Staking      Staking      `toml:"staking"`
@@ -32,7 +30,6 @@ func init() {
 		log.Fatal(err)
 	}
 	Cfg.TxConfigPath = TxConfigPath
-	Cfg.LogListenUrl = fmt.Sprintf("localhost:%d", pickPort())
 }
 
 func GetConfig() *Config {
@@ -64,27 +61,5 @@ func (c *Config) String() string {
 	return fmt.Sprintf(`⚙️⚙️⚙️⚙️⚙️ Golbal Config ⚙️⚙️⚙️⚙️⚙️
 TxConfigPath: %s
 Hosts: %v
-LogLevel:     %s          (set the logger dynamically: curl -XPUT --data '{"level":"error"}' http://%s/handle/level )
-LogListenUrl: %s
-`, c.TxConfigPath, hosts, getLevel(c.LogLevel), c.LogListenUrl, c.LogListenUrl)
-}
-
-func getLevel(i int8) string {
-	switch i {
-	case int8(zapcore.DebugLevel):
-		return "debug"
-	case int8(zapcore.InfoLevel):
-		return "info"
-	case int8(zapcore.WarnLevel):
-		return "warn"
-	case int8(zapcore.ErrorLevel):
-		return "error"
-	case int8(zapcore.DPanicLevel):
-		return "dpanic"
-	case int8(zapcore.PanicLevel):
-		return "panic"
-	case int8(zapcore.FatalLevel):
-		return "fatal"
-	}
-	return ""
+`, c.TxConfigPath, hosts)
 }
