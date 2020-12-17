@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	GlobalConfigPath = "/Users/oker/go/src/github.com/okex/adventure/config.toml" //TODO
+	GlobalConfigPath = "" //TODO
 	TestCasesPath    = ""
 )
 

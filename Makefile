@@ -13,8 +13,8 @@ endif
 ldflags = -X github.com/okex/adventure/tools/version.Version=$(Version) \
 	-X github.com/okex/adventure/tools/version.Name=$(Name) \
   	-X github.com/okex/adventure/tools/version.Commit=$(COMMIT) \
-  	-X github.com/okex/adventure/common/config.GlobalConfigPath=$(GLOBAL_CONFIG_PATH) \
-  	-X github.com/okex/adventure/common/config.TxConfigPath=$(TX_CONFIG_PATH) \
+  	-X github.com/okex/adventure/common.GlobalConfigPath=$(GLOBAL_CONFIG_PATH) \
+  	-X github.com/okex/adventure/common.TxConfigPath=$(TX_CONFIG_PATH) \
 
 ldflags := $(strip $(ldflags))
 BUILD_FLAGS := -ldflags '$(ldflags)'
