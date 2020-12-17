@@ -1,0 +1,14 @@
+[
+  {
+    "mnemonic_path":"template/mnemonic/normal_1000_4",
+    "transactions":[
+      {
+        "type":"proxy",
+        "args":{
+          "concurrent_num":20,
+          "sleep_time":2
+        }
+      }
+    ]
+  }
+]

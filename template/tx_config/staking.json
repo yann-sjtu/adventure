@@ -1,0 +1,14 @@
+[
+  {
+    "mnemonic_path":"template/mnemonic/normal_1000_1",
+    "transactions":[
+      {
+        "type":"delegate_vote_unbond",
+        "args":{
+          "concurrent_num":40,
+          "sleep_time":3
+        }
+      }
+    ]
+  }
+]
