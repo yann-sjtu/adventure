@@ -1,0 +1,28 @@
+[
+  {
+    "mnemonic_path":"template/mnemonic/normal_5",
+    "transactions":[
+      {
+        "type":"issue",
+        "args":{
+          "concurrent_num": 5,
+          "sleep_time": 3500
+        }
+      },
+      {
+        "type":"list",
+        "args":{
+          "concurrent_num": 1,
+          "sleep_time":60
+        }
+      },
+      {
+        "type":"edit-operator",
+        "args":{
+          "concurrent_num":5,
+          "sleep_time":1000
+        }
+      }
+    ]
+  }
+]

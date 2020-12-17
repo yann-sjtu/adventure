@@ -6,7 +6,7 @@ const (
 	PassWord          = "12345678"
 	NativeToken       = common.NativeToken
 	DefaultStableCoin = "usdk"
-	CaptainAddr       = "okexchain10q0rk5qnyag7wfvvt7rtphlw589m7frsku8qc9"
+	RichMnemonic      = "actual assume crew creek furnace water electric fitness stumble usage embark ancient"
 )
 
 const (

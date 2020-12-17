@@ -1,0 +1,139 @@
+package evm
+
+import (
+	"log"
+	"math/big"
+	"sync"
+
+	ethcommon "github.com/ethereum/go-ethereum/common"
+	"github.com/okex/adventure/common"
+	"github.com/okex/adventure/x/strategy/evm/template/ERC721"
+	"github.com/okex/adventure/x/strategy/evm/template/USDT"
+	"github.com/okex/adventure/x/strategy/evm/template/UniswapV2"
+	gosdk "github.com/okex/okexchain-go-sdk"
+	"github.com/okex/okexchain-go-sdk/types"
+	"github.com/okex/okexchain-go-sdk/utils"
+	"github.com/spf13/cobra"
+)
+
+func deployErc20Cmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "deploy-erc20-tokens",
+		Short: "arbitrage token from swap and orderdepthbook",
+		Args:  cobra.NoArgs,
+		Run:   deployErc20Tokens,
+	}
+
+	flags := cmd.Flags()
+	flags.IntVarP(&Num, "num", "n", 1000, "set Num of issusing token")
+	flags.IntVarP(&GoroutineNum, "goroutine-num", "g", 1, "set Num of issusing token")
+	flags.StringVarP(&MnemonicPath, "mnemonic-path", "m", "", "set the MnemonicPath path")
+
+	return cmd
+}
+
+var (
+	Num = 1000
+	GoroutineNum = 1
+
+	MnemonicPath = ""
+)
+
+func deployErc20Tokens(cmd *cobra.Command, args []string) {
+	infos := common.GetAccountManagerFromFile(MnemonicPath)
+
+	counter := NewCounter(Num)
+
+	InitTemplate()
+
+	var wg sync.WaitGroup
+	for i := 0; i < GoroutineNum; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for {
+				if counter.IsOver() {
+					break
+				}
+
+				// 1. get one of the eth private key
+				info := infos.GetInfo()
+				// 2. get cli
+				cli := getTmpClient()
+				// 3. get acc number
+				acc, err := cli.Auth().QueryAccount(info.GetAddress().String())
+				if err != nil {
+					log.Println(err)
+					continue
+				}
+				accNum, seqNum := acc.GetAccountNumber(), acc.GetSequence()
+
+				// 4.1 deploy factory
+				ethAddress := utils.EthAddress(utils.GetEthAddressStrFromCosmosAddr(info.GetAddress()))
+				facPayload := UniswapV2.BuildFactoryContractPayload(ethAddress)
+				_, facAddress, err := cli.Evm().CreateContract(info, common.PassWord, "", ethcommon.Bytes2Hex(facPayload),"", accNum, seqNum)
+				if err != nil {
+					log.Println(err)
+					continue
+				}
+				log.Println("uniswapv2.factory contract addr",facAddress)
+				counter.Add()
+
+				// 4.2 deploy weth
+				wethPayload := UniswapV2.BuildWethContractPayload()
+				_, wethAddress, err := cli.Evm().CreateContract(info, common.PassWord, "", ethcommon.Bytes2Hex(wethPayload),"", accNum, seqNum+1)
+				if err != nil {
+					log.Println(err)
+					continue
+				}
+				log.Println("uniswapv2.weth contract addr", wethAddress)
+				counter.Add()
+
+				// 4.3 deploy router
+				routerPayload := UniswapV2.BuildRouterContractPayload(utils.EthAddress(facAddress), utils.EthAddress(wethAddress))
+				_, routerAddress, err := cli.Evm().CreateContract(info, common.PassWord, "", ethcommon.Bytes2Hex(routerPayload),"", accNum, seqNum+2)
+				if err != nil {
+					log.Println(err)
+					continue
+				}
+				log.Println("uniswapv2.router contract addr", routerAddress)
+				counter.Add()
+
+				// 4.4 deploy erc721
+				ERC721Payload := ERC721.BuildERC721ContractPayload("okexchain coin","OKB")
+				_, ERC721Address, err := cli.Evm().CreateContract(info, common.PassWord, "", ethcommon.Bytes2Hex(ERC721Payload),"", accNum, seqNum+3)
+				if err != nil {
+					log.Println(err)
+					continue
+				}
+				log.Println("erc721 contract addr", ERC721Address)
+				counter.Add()
+
+				// 4.5 deploy erc20 usdt
+				USDTPayload := USDT.BuildUSDTContractPayload(big.NewInt(12642013521397079), big.NewInt(6),"OKEX USD", "TUSDT")
+				_, USDTAddress, err := cli.Evm().CreateContract(info, common.PassWord, "", ethcommon.Bytes2Hex(USDTPayload),"", accNum, seqNum+4)
+				if err != nil {
+					log.Println(err)
+					continue
+				}
+				log.Println("erc20 usdt contract addr", USDTAddress)
+				counter.Add()
+			}
+		}()
+	}
+	wg.Wait()
+
+	log.Println("total number of contracts being deployed:", counter.GetCurrentNum())
+}
+
+func getTmpClient() gosdk.Client {
+	cfg, _ := types.NewClientConfig("http://localhost:26657", "okexchainevm-8", types.BroadcastBlock, "", 20000000, 1.5, "0.00000001"+common.NativeToken)
+	cli := gosdk.NewClient(cfg)
+	return cli
+}
+
+func InitTemplate() {
+	UniswapV2.Init()
+	ERC721.Init()
+	USDT.Init()
+}
