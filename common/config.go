@@ -16,7 +16,7 @@ var Cfg *Config
 
 type Config struct {
 	TestCaesPath string
-	Hosts        []string            `toml:"hosts"`
+	Hosts        []string `toml:"hosts"`
 }
 
 func init() {

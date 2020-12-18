@@ -54,4 +54,3 @@ func BuildRouterContractPayload(factoryAddress, wethAddress common.Address) []by
 	}
 	return payload
 }
-

@@ -16,9 +16,9 @@ const (
 	vote     = "vote"
 	unbond   = "unbond"
 
-	sleepTime = 3
-	delegateNum = "0.01"+common.NativeToken
-	unbondNum = "0.005"+common.NativeToken
+	sleepTime   = 3
+	delegateNum = "0.01" + common.NativeToken
+	unbondNum   = "0.005" + common.NativeToken
 
 	passWd = common.PassWord
 )

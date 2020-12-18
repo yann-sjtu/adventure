@@ -3,15 +3,15 @@ package evm
 import "sync"
 
 type Counter struct {
-	cur int
-	sum int
+	cur  int
+	sum  int
 	lock *sync.RWMutex
 }
 
 func NewCounter(num int) *Counter {
 	return &Counter{
-		cur: 0,
-		sum: num,
+		cur:  0,
+		sum:  num,
 		lock: new(sync.RWMutex),
 	}
 }

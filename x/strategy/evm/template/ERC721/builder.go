@@ -25,4 +25,3 @@ func BuildERC721ContractPayload(name, symbol string) []byte {
 	}
 	return payload
 }
-

@@ -33,7 +33,7 @@ func deployErc20Cmd() *cobra.Command {
 }
 
 var (
-	Num = 1000
+	Num          = 1000
 	GoroutineNum = 1
 
 	MnemonicPath = ""
@@ -71,7 +71,7 @@ func deployErc20Tokens(cmd *cobra.Command, args []string) {
 				// 4.1 deploy factory
 				ethAddress := utils.EthAddress(utils.GetEthAddressStrFromCosmosAddr(info.GetAddress()))
 				facPayload := UniswapV2.BuildFactoryContractPayload(ethAddress)
-				_, facAddress, err := cli.Evm().CreateContract(info, common.PassWord, "", ethcommon.Bytes2Hex(facPayload),"", accNum, seqNum)
+				_, facAddress, err := cli.Evm().CreateContract(info, common.PassWord, "", ethcommon.Bytes2Hex(facPayload), "", accNum, seqNum)
 				if err != nil {
 					log.Println(err)
 					continue
@@ -80,7 +80,7 @@ func deployErc20Tokens(cmd *cobra.Command, args []string) {
 
 				// 4.2 deploy weth
 				wethPayload := UniswapV2.BuildWethContractPayload()
-				_, wethAddress, err := cli.Evm().CreateContract(info, common.PassWord, "", ethcommon.Bytes2Hex(wethPayload),"", accNum, seqNum+1)
+				_, wethAddress, err := cli.Evm().CreateContract(info, common.PassWord, "", ethcommon.Bytes2Hex(wethPayload), "", accNum, seqNum+1)
 				if err != nil {
 					log.Println(err)
 					continue
@@ -89,7 +89,7 @@ func deployErc20Tokens(cmd *cobra.Command, args []string) {
 
 				// 4.3 deploy router
 				routerPayload := UniswapV2.BuildRouterContractPayload(utils.EthAddress(facAddress), utils.EthAddress(wethAddress))
-				_, routerAddress, err := cli.Evm().CreateContract(info, common.PassWord, "", ethcommon.Bytes2Hex(routerPayload),"", accNum, seqNum+2)
+				_, routerAddress, err := cli.Evm().CreateContract(info, common.PassWord, "", ethcommon.Bytes2Hex(routerPayload), "", accNum, seqNum+2)
 				if err != nil {
 					log.Println(err)
 					continue
@@ -97,8 +97,8 @@ func deployErc20Tokens(cmd *cobra.Command, args []string) {
 				log.Printf("[%d]uniswapv2.router contract addr: %s\n", counter.Add(), routerAddress)
 
 				// 4.4 deploy erc721
-				ERC721Payload := ERC721.BuildERC721ContractPayload("okexchain coin","OKB")
-				_, ERC721Address, err := cli.Evm().CreateContract(info, common.PassWord, "", ethcommon.Bytes2Hex(ERC721Payload),"", accNum, seqNum+3)
+				ERC721Payload := ERC721.BuildERC721ContractPayload("okexchain coin", "OKB")
+				_, ERC721Address, err := cli.Evm().CreateContract(info, common.PassWord, "", ethcommon.Bytes2Hex(ERC721Payload), "", accNum, seqNum+3)
 				if err != nil {
 					log.Println(err)
 					continue
@@ -106,8 +106,8 @@ func deployErc20Tokens(cmd *cobra.Command, args []string) {
 				log.Printf("[%d]erc721 contract addr: %s\n", counter.Add(), ERC721Address)
 
 				// 4.5 deploy erc20 usdt
-				USDTPayload := USDT.BuildUSDTContractPayload(big.NewInt(12642013521397079), big.NewInt(6),"OKEX USD", "TUSDT")
-				_, USDTAddress, err := cli.Evm().CreateContract(info, common.PassWord, "", ethcommon.Bytes2Hex(USDTPayload),"", accNum, seqNum+4)
+				USDTPayload := USDT.BuildUSDTContractPayload(big.NewInt(12642013521397079), big.NewInt(6), "OKEX USD", "TUSDT")
+				_, USDTAddress, err := cli.Evm().CreateContract(info, common.PassWord, "", ethcommon.Bytes2Hex(USDTPayload), "", accNum, seqNum+4)
 				if err != nil {
 					log.Println(err)
 					continue
