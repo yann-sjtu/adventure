@@ -41,11 +41,11 @@ var (
 
 func deployErc20Tokens(cmd *cobra.Command, args []string) {
 	infos := common.GetAccountManagerFromFile(MnemonicPath)
-
-	counter := NewCounter(Num)
+	clients := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
 
 	InitTemplate()
 
+	counter := NewCounter(Num)
 	var wg sync.WaitGroup
 	for i := 0; i < GoroutineNum; i++ {
 		wg.Add(1)
@@ -59,7 +59,7 @@ func deployErc20Tokens(cmd *cobra.Command, args []string) {
 				// 1. get one of the eth private key
 				info := infos.GetInfo()
 				// 2. get cli
-				cli := getTmpClient()
+				cli := clients.GetClient()
 				// 3. get acc number
 				acc, err := cli.Auth().QueryAccount(info.GetAddress().String())
 				if err != nil {
@@ -76,8 +76,7 @@ func deployErc20Tokens(cmd *cobra.Command, args []string) {
 					log.Println(err)
 					continue
 				}
-				log.Println("uniswapv2.factory contract addr",facAddress)
-				counter.Add()
+				log.Printf("[%d]uniswapv2.factory contract addr: %s\n", counter.Add(), facAddress)
 
 				// 4.2 deploy weth
 				wethPayload := UniswapV2.BuildWethContractPayload()
@@ -86,8 +85,7 @@ func deployErc20Tokens(cmd *cobra.Command, args []string) {
 					log.Println(err)
 					continue
 				}
-				log.Println("uniswapv2.weth contract addr", wethAddress)
-				counter.Add()
+				log.Printf("[%d]uniswapv2.weth contract addr: %s\n", counter.Add(), wethAddress)
 
 				// 4.3 deploy router
 				routerPayload := UniswapV2.BuildRouterContractPayload(utils.EthAddress(facAddress), utils.EthAddress(wethAddress))
@@ -96,8 +94,7 @@ func deployErc20Tokens(cmd *cobra.Command, args []string) {
 					log.Println(err)
 					continue
 				}
-				log.Println("uniswapv2.router contract addr", routerAddress)
-				counter.Add()
+				log.Printf("[%d]uniswapv2.router contract addr: %s\n", counter.Add(), routerAddress)
 
 				// 4.4 deploy erc721
 				ERC721Payload := ERC721.BuildERC721ContractPayload("okexchain coin","OKB")
@@ -106,8 +103,7 @@ func deployErc20Tokens(cmd *cobra.Command, args []string) {
 					log.Println(err)
 					continue
 				}
-				log.Println("erc721 contract addr", ERC721Address)
-				counter.Add()
+				log.Printf("[%d]erc721 contract addr: %s\n", counter.Add(), ERC721Address)
 
 				// 4.5 deploy erc20 usdt
 				USDTPayload := USDT.BuildUSDTContractPayload(big.NewInt(12642013521397079), big.NewInt(6),"OKEX USD", "TUSDT")
@@ -116,8 +112,7 @@ func deployErc20Tokens(cmd *cobra.Command, args []string) {
 					log.Println(err)
 					continue
 				}
-				log.Println("erc20 usdt contract addr", USDTAddress)
-				counter.Add()
+				log.Printf("[%d]erc20 usdt contract addr: %s\n", counter.Add(), USDTAddress)
 			}
 		}()
 	}
@@ -127,7 +122,7 @@ func deployErc20Tokens(cmd *cobra.Command, args []string) {
 }
 
 func getTmpClient() gosdk.Client {
-	cfg, _ := types.NewClientConfig("http://localhost:26657", "okexchainevm-8", types.BroadcastBlock, "", 20000000, 1.5, "0.00000001"+common.NativeToken)
+	cfg, _ := types.NewClientConfig("http://localhost:26657", "okexchaintestnet-1", types.BroadcastBlock, "", 20000000, 1.5, "0.00000001"+common.NativeToken)
 	cli := gosdk.NewClient(cfg)
 	return cli
 }
