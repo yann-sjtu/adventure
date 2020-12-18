@@ -1,6 +1,9 @@
-package evm
+package tools
 
-import "sync"
+import (
+	"math"
+	"sync"
+)
 
 type Counter struct {
 	cur  int
@@ -9,10 +12,18 @@ type Counter struct {
 }
 
 func NewCounter(num int) *Counter {
-	return &Counter{
-		cur:  0,
-		sum:  num,
-		lock: new(sync.RWMutex),
+	if num >= 0 {
+		return &Counter{
+			cur:  0,
+			sum:  num,
+			lock: new(sync.RWMutex),
+		}
+	} else {
+		return &Counter{
+			cur:  0,
+			sum:  math.MaxInt64,
+			lock: new(sync.RWMutex),
+		}
 	}
 }
 

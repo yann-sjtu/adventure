@@ -2,14 +2,15 @@ package evm
 
 import (
 	"log"
-	"math/big"
 	"sync"
+	"time"
 
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/okex/adventure/common"
 	"github.com/okex/adventure/x/strategy/evm/template/ERC721"
 	"github.com/okex/adventure/x/strategy/evm/template/USDT"
 	"github.com/okex/adventure/x/strategy/evm/template/UniswapV2"
+	"github.com/okex/adventure/x/strategy/evm/tools"
 	gosdk "github.com/okex/okexchain-go-sdk"
 	"github.com/okex/okexchain-go-sdk/types"
 	"github.com/okex/okexchain-go-sdk/utils"
@@ -17,6 +18,8 @@ import (
 )
 
 func deployErc20Cmd() *cobra.Command {
+	InitTemplate()
+
 	cmd := &cobra.Command{
 		Use:   "deploy-erc20-tokens",
 		Short: "arbitrage token from swap and orderdepthbook",
@@ -43,9 +46,8 @@ func deployErc20Tokens(cmd *cobra.Command, args []string) {
 	infos := common.GetAccountManagerFromFile(MnemonicPath)
 	clients := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
 
-	InitTemplate()
-
-	counter := NewCounter(Num)
+	contractManager := tools.NewContractManager()
+	counter := tools.NewCounter(Num)
 	var wg sync.WaitGroup
 	for i := 0; i < GoroutineNum; i++ {
 		wg.Add(1)
@@ -106,19 +108,23 @@ func deployErc20Tokens(cmd *cobra.Command, args []string) {
 				log.Printf("[%d]erc721 contract addr: %s\n", counter.Add(), ERC721Address)
 
 				// 4.5 deploy erc20 usdt
-				USDTPayload := USDT.BuildUSDTContractPayload(big.NewInt(12642013521397079), big.NewInt(6), "OKEX USD", "TUSDT")
+				USDTPayload := USDT.BuildUSDTContractPayload(utils.Uint256(12642013521397079), utils.Uint256(6), "OKEX USD", "TUSDT")
 				_, USDTAddress, err := cli.Evm().CreateContract(info, common.PassWord, "", ethcommon.Bytes2Hex(USDTPayload), "", accNum, seqNum+4)
 				if err != nil {
 					log.Println(err)
 					continue
 				}
+				contractManager.AppendUSDTAddr(USDTAddress, info)
 				log.Printf("[%d]erc20 usdt contract addr: %s\n", counter.Add(), USDTAddress)
 			}
 		}()
 	}
 	wg.Wait()
-
 	log.Println("total number of contracts being deployed:", counter.GetCurrentNum())
+
+	log.Println("wait half a minute, start testing transfer")
+	time.Sleep(time.Second * 30)
+	transfer(clients, contractManager)
 }
 
 func getTmpClient() gosdk.Client {

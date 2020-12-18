@@ -27,3 +27,11 @@ func BuildUSDTContractPayload(initalSupply, decimals *big.Int, name, symbol stri
 	}
 	return payload
 }
+
+func BuildUSDTTransferPayload(toAddr string, num int) []byte {
+	payload, err := USDTBuilder.Build("transfer", utils.EthAddress(toAddr), utils.Uint256(num))
+	if err != nil {
+		panic(err)
+	}
+	return payload
+}

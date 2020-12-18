@@ -8,6 +8,6 @@ func EvmCmd() *cobra.Command {
 		Short: "evm cli of test strategy",
 	}
 
-	evmCmd.AddCommand(deployErc20Cmd(), deployUniswapv2Cmd())
+	evmCmd.AddCommand(deployErc20Cmd())
 	return evmCmd
 }
