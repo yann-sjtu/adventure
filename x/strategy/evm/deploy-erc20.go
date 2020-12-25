@@ -29,15 +29,17 @@ func deployErc20Cmd() *cobra.Command {
 
 	flags := cmd.Flags()
 	flags.IntVarP(&Num, "num", "n", 1000, "set Num of issusing token")
-	flags.IntVarP(&GoroutineNum, "goroutine-num", "g", 1, "set Num of issusing token")
+	flags.IntVarP(&GoroutineNum, "goroutine-num", "g", 1, "set Goroutine Num of deploying contracts")
+	flags.IntVarP(&TransferGoNum, "transfer-go-num", "t", 1, "set Goroutine Num of transfering erc20 token")
 	flags.StringVarP(&MnemonicPath, "mnemonic-path", "m", "", "set the MnemonicPath path")
 
 	return cmd
 }
 
 var (
-	Num          = 1000
-	GoroutineNum = 1
+	Num           = 1000
+	GoroutineNum  = 1
+	TransferGoNum = 1
 
 	MnemonicPath = ""
 )

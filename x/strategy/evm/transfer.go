@@ -20,7 +20,7 @@ func transfer(clients *common.ClientManager, contractManager *tools.ContractMana
 	s,f := tools.NewCounter(0), tools.NewCounter(0)
 	ethAddrs := convertCosmosAddrsToEthAddrs(backupAddrs)
 	var wg sync.WaitGroup
-	for i := 0; i < 40; i++ {
+	for i := 0; i < TransferGoNum; i++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -51,7 +51,7 @@ func transfer(clients *common.ClientManager, contractManager *tools.ContractMana
 					continue
 				}
 				log.Printf("[successful tx: %d] %s send 1usdt to %s from contract %s \n", s.Add(), fromEthAddr, toEthAddr, contract.ContractAddr)
-				time.Sleep(time.Second * 2)
+				time.Sleep(time.Second * 1)
 			}
 		}()
 	}
