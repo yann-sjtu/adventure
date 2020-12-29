@@ -108,9 +108,10 @@ nohup adventure start -p template/tx.json > ~/tx.log 2>&1 &
 ```shell script
 adventure account send -p template/address/captain -a 1000000tokt -r "actual assume crew creek furnace water electric fitness stumble usage embark ancient"
 adventure account send -p template/address/normal_5 -a 1000000tokt -r "actual assume crew creek furnace water electric fitness stumble usage embark ancient"
-adventure account send -p template/address/normal_1000_1 -a 1000000tokt -r "actual assume crew creek furnace water electric fitness stumble usage embark ancient"
-adventure account send -p template/address/normal_1000_2 -a 1000000tokt -r "actual assume crew creek furnace water electric fitness stumble usage embark ancient"
-adventure account send -p template/address/normal_100 -a 1000000tokt -r "actual assume crew creek furnace water electric fitness stumble usage embark ancient"
+adventure account send -p template/address/normal_1000_1 -a 100000tokt -r "actual assume crew creek furnace water electric fitness stumble usage embark ancient"
+adventure account send -p template/address/normal_1000_2 -a 10000tokt -r "actual assume crew creek furnace water electric fitness stumble usage embark ancient"
+adventure account send -p template/address/proxy_10 -a 10000tokt -r "actual assume crew creek furnace water electric fitness stumble usage embark ancient"
+adventure account send -p template/address/normal_100 -a 10000tokt -r "actual assume crew creek furnace water electric fitness stumble usage embark ancient"
 ```
 #### 启动
 ```shell script
