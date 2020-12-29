@@ -93,8 +93,8 @@ Proxy              = "proxy"
 
 ```shell
 # 往 tx.json 中需要的账户转钱
-adventure account send --init_amount 1000tokt -m template/mnemonic/normal_100
-adventure account send --init_amount 1000tokt -p template/address/normal_100
+adventure account send --init_amount 1000"okt -m template/mnemonic/normal_100
+adventure account send --init_amount 1000"okt -p template/address/normal_100
 ```
 
 启动：
@@ -106,12 +106,12 @@ nohup adventure start -p template/tx.json > ~/tx.log 2>&1 &
 ### 启动全部交易类型测试
 #### 测试账户转账
 ```shell script
-adventure account send -p template/address/captain -a 1000000tokt -r "actual assume crew creek furnace water electric fitness stumble usage embark ancient"
-adventure account send -p template/address/normal_5 -a 1000000tokt -r "actual assume crew creek furnace water electric fitness stumble usage embark ancient"
-adventure account send -p template/address/normal_1000_1 -a 100000tokt -r "actual assume crew creek furnace water electric fitness stumble usage embark ancient"
-adventure account send -p template/address/normal_1000_2 -a 10000tokt -r "actual assume crew creek furnace water electric fitness stumble usage embark ancient"
-adventure account send -p template/address/proxy_10 -a 10000tokt -r "actual assume crew creek furnace water electric fitness stumble usage embark ancient"
-adventure account send -p template/address/normal_100 -a 10000tokt -r "actual assume crew creek furnace water electric fitness stumble usage embark ancient"
+adventure account send -p template/address/captain -a 1000000okt -r "actual assume crew creek furnace water electric fitness stumble usage embark ancient"
+adventure account send -p template/address/normal_5 -a 1000000okt -r "actual assume crew creek furnace water electric fitness stumble usage embark ancient"
+adventure account send -p template/address/normal_1000_1 -a 100000okt -r "actual assume crew creek furnace water electric fitness stumble usage embark ancient"
+adventure account send -p template/address/normal_1000_2 -a 10000okt -r "actual assume crew creek furnace water electric fitness stumble usage embark ancient"
+adventure account send -p template/address/proxy_10 -a 10000okt -r "actual assume crew creek furnace water electric fitness stumble usage embark ancient"
+adventure account send -p template/address/normal_100 -a 10000okt -r "actual assume crew creek furnace water electric fitness stumble usage embark ancient"
 ```
 #### 启动
 ```shell script
@@ -124,7 +124,7 @@ nohup adventure swap loop -p template/mnemonic/normal_100 -g 25 >> ~/swap.log 2>
 ```
 
 ```shell script
-adventure account send -r "puzzle glide follow cruel say burst deliver wild tragic galaxy lumber offer" -p "./template/address/farm_test/pooler_total" -a 7000tokt
+adventure account send -r "puzzle glide follow cruel say burst deliver wild tragic galaxy lumber offer" -p "./template/address/farm_test/pooler_total" -a 7000"okt
 
 adventure farm pooler issue-token -p "./template/mnemonic/farm_test/pooler"
 adventure farm allocate-tokens 10000usdk -p "./template/address/farm_test/pooler_total"
@@ -132,7 +132,7 @@ adventure farm pooler create-pair -p "./template/mnemonic/farm_test/pooler"
 adventure farm pooler add-liquidity -p "./template/mnemonic/farm_test/pooler"
 adventure farm locker allocate-tokens-to-lockers-from-all-poolers -p "./template/mnemonic/farm_test/pooler" -l "./template/address/farm_test/locker_total"
 
-adventure account send -r "puzzle glide follow cruel say burst deliver wild tragic galaxy lumber offer" -p "./template/address/farm_test/locker_total" -a 1000tokt
+adventure account send -r "puzzle glide follow cruel say burst deliver wild tragic galaxy lumber offer" -p "./template/address/farm_test/locker_total" -a 1000"okt
 
 nohup adventure farm pooler strategy-pooler -p "./template/mnemonic/farm_test/pooler" > ../adventure_log/pooler.log 2>&1 &
 nohup adventure farm locker strategy-lock-unlock -p "./template/mnemonic/farm_test/locker" > ../adventure_log/locker.log 2>&1 &

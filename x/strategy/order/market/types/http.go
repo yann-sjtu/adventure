@@ -81,7 +81,7 @@ type ParamPage struct {
 	Total   int `json:"total"`
 }
 
-//https://www.okex.com/okexchain/v1/order/list/open?product=tokt_tusdk&page=1&per_page=300&address=okchain1mdzw4um5qpk2sc3vay2jrq0xx52crr0ydsks5m
+//https://www.okex.com/okexchain/v1/order/list/open?product="okt_tusdk&page=1&per_page=300&address=okchain1mdzw4um5qpk2sc3vay2jrq0xx52crr0ydsks5m
 func QueryOrders(product string, address string) *OrderMsg {
 	req, err := http.NewRequest("GET", okexUrl+"/okexchain/v1/order/list/open", nil)
 	if err != nil {
