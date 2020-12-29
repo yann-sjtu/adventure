@@ -71,7 +71,6 @@ Issue                  = "issue"
 Burn                   = "burn"
 Mint                   = "mint"
 MultiSend              = "multi-send"
-TokenTransferOwnership = "token-transfer-ownership"
 Edit                   = "edit"
 
 //dex
@@ -103,39 +102,6 @@ adventure account send --init_amount 1000tokt -p template/address/normal_100
 ```shell
 nohup adventure start -p template/tx.json > ~/tx.log 2>&1 &
 ```
-#### 附：adventure 测试工具加入新tx
-
-1. 在`x/${module}`目录下新建一个文件；
-2. 编写形如 :
-
-```go
-func NewTx(cli *gosdk.Client, info keys.Info) {
-  //  ……
-  accInfo, err := cli.Auth().QueryAccount(info.GetAddress().String())
-	if err != nil {
-		logger.PrintQueryAccountError(err, "", info)
-		return
-	}
-  //  …… 
-  //  ……
-  //  ……
-  _, err = cli.XXX().YYY(info, common.PassWord, ……, accInfo.GetAccountNumber(), accInfo.GetSequence())
-	if err != nil {
-		logger.PrintExecuteTxError(err, "", info)
-		return
-	}
-	logger.PrintExecuteTxSuccess("", info)
-}
-```
-
-3.  将该函数添加到根目录的`start.go`的`excuteTxsInParallel`的函数中。
-```shell script
-adventure account send -p template/address/captain -a 1000000tokt -r "giggle sibling fun arrow elevator spoon blood grocery laugh tortoise culture tool"
-adventure account send -p template/address/normal_5 -a 1000000tokt -r "giggle sibling fun arrow elevator spoon blood grocery laugh tortoise culture tool"
-adventure account send -p template/address/normal_1000_1 -a 1000000tokt -r "giggle sibling fun arrow elevator spoon blood grocery laugh tortoise culture tool"
-adventure account send -p template/address/normal_1000_2 -a 1000000tokt -r "giggle sibling fun arrow elevator spoon blood grocery laugh tortoise culture tool"
-adventure account send -p template/address/normal_100 -a 1000000tokt -r "giggle sibling fun arrow elevator spoon blood grocery laugh tortoise culture tool"
-```
 
 ### 启动全部交易类型测试
 #### 测试账户转账
@@ -148,11 +114,11 @@ adventure account send -p template/address/normal_100 -a 1000000tokt -r "actual 
 ```
 #### 启动
 ```shell script
-nohup adventure start -p template/tx_config/proxy1.json   >> ~/proxy-staking.log 2>&1 &
-nohup adventure start -p template/tx_config/staking.json   >> ~/staking.log 2>&1 &
-nohup adventure start -p template/tx_config/token-dex-distr.json   >> ~/token-dex-distr.log 2>&1 &
-nohup adventure start -p template/tx_config/multi-send.json   >> ~/multi-send.log 2>&1 &
-nohup adventure start -p template/tx_config/issue-list.json   >> ~/issue-list.log 2>&1 &
+nohup adventure start -p template/test_cases/proxy1.json   >> ~/proxy-staking.log 2>&1 &
+nohup adventure start -p template/test_cases/staking.json   >> ~/staking.log 2>&1 &
+nohup adventure start -p template/test_cases/token-dex-distr.json   >> ~/token-dex-distr.log 2>&1 &
+nohup adventure start -p template/test_cases/multi-send.json   >> ~/multi-send.log 2>&1 &
+nohup adventure start -p template/test_cases/issue-list.json   >> ~/issue-list.log 2>&1 &
 nohup adventure swap loop -p template/mnemonic/normal_100 -g 25 >> ~/swap.log 2>&1 &
 ```
 
