@@ -115,7 +115,7 @@ adventure account send -p template/address/normal_100 -a 10000okt -r "actual ass
 ```
 #### 启动
 ```shell script
-nohup adventure start -p template/test_cases/proxy1.json   >> ~/proxy-staking.log 2>&1 &
+nohup adventure start -p template/test_cases/proxy.json   >> ~/proxy-staking.log 2>&1 &
 nohup adventure start -p template/test_cases/staking.json   >> ~/staking.log 2>&1 &
 nohup adventure start -p template/test_cases/token-dex-distr.json   >> ~/token-dex-distr.log 2>&1 &
 nohup adventure start -p template/test_cases/multi-send.json   >> ~/multi-send.log 2>&1 &
@@ -123,7 +123,7 @@ nohup adventure start -p template/test_cases/issue-list.json   >> ~/issue-list.l
 nohup adventure swap loop -p template/mnemonic/normal_100 -g 25 >> ~/swap.log 2>&1 &
 ```
 
-```shell script
+```shell scriptg
 adventure account send -r "puzzle glide follow cruel say burst deliver wild tragic galaxy lumber offer" -p "./template/address/farm_test/pooler_total" -a 7000"okt
 
 adventure farm pooler issue-token -p "./template/mnemonic/farm_test/pooler"
