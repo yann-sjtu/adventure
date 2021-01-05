@@ -11,5 +11,5 @@ var (
 )
 
 func init() {
-	CliManager = common.NewClientManager(common.Cfg.Hosts, "0.03"+common.NativeToken, 3000000)
+	CliManager = common.NewClientManager(common.Cfg.Hosts, common.AUTO)
 }
