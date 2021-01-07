@@ -46,11 +46,11 @@ func runMaker(cmd *cobra.Command, args []string) {
 	clientManager := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
 
 	// start
-	t := time.NewTicker(time.Second * 10)
+	t := time.NewTicker(time.Second * 15)
 	for {
 		<-t.C
 		fmt.Println()
-		log.Println("please wait 10 seconds")
+		log.Println("please wait 15 seconds")
 
 		orders, ids := createMakerOrders(info, priceList)
 		cli := clientManager.GetClient()
