@@ -146,9 +146,9 @@ func updateOrderList(info keys.Info, l *List) ([]types.Order, string) {
 	var makerOrderSlice []types.Order
 	for i := l.buyFront; i >= l.buyRear; i-- {
 		if !checkOrderExist(orders, l.list[i]) {
-			requiredQuantity := float64(rand.Intn(9000)+1000) * 0.01
+			requiredQuantity := float64(rand.Intn(9000000)+1000000) * 0.0001
 			if tinyMaker {
-				requiredQuantity = requiredQuantity / 1000.0
+				requiredQuantity = requiredQuantity / 100.0
 			}
 			bidOrder := types.Order{OrderType: types.BUY, Price: l.list[i].price, Quantity: requiredQuantity, Level: i}
 			makerOrderSlice = append(makerOrderSlice, bidOrder)
@@ -156,9 +156,9 @@ func updateOrderList(info keys.Info, l *List) ([]types.Order, string) {
 	}
 	for i := l.sellFront; i <= l.sellRear; i++ {
 		if !checkOrderExist(orders, l.list[i]) {
-			requiredQuantity := float64(rand.Intn(9000)+1000) * 0.01
+			requiredQuantity := float64(rand.Intn(9000000)+1000000) * 0.0001
 			if tinyMaker {
-				requiredQuantity = float64(rand.Intn(50000)+50000) / 10000.0
+				requiredQuantity = requiredQuantity / 10000.0
 			}
 			askOrder := types.Order{OrderType: types.SELL, Price: l.list[i].price, Quantity: requiredQuantity, Level: i}
 			makerOrderSlice = append(makerOrderSlice, askOrder)
