@@ -138,7 +138,7 @@ func getOldOrderIds(account activeAccount) string {
 
 func createTakerOrders(price float64) []types.Order {
 	rand.Seed(time.Now().UnixNano())
-	quanties := float64(rand.Intn(10000)+1) * 0.0001
+	quanties := float64(rand.Intn(1000)+1) * 0.0001
 	takerOrderSlice := make([]types.Order, 2)
 	takerOrderSlice[0] = types.Order{OrderType: types.BUY, Price: price, Quantity: quanties}
 	takerOrderSlice[1] = types.Order{OrderType: types.SELL, Price: price, Quantity: quanties}
