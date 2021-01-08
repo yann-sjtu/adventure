@@ -72,9 +72,10 @@ func addSwapRemoveScripts(cmd *cobra.Command, args []string) error {
 					continue
 				}
 
+				name1, name2 := pickTwoTokensRandomly(tokens)
 				// pick one random token
-				if name2 == "" {
-					fmt.Printf("[%d] round(%d) %s: there is no specific token %s adapted in token-list %v \n", id, round, addr, name1, tokens)
+				if name1 == "" || name2 == "" {
+					fmt.Printf("[%d] round(%d) %s failed: one of token[%s:%s] doesn't get matached\n", id, round, addr, name1, name2)
 					continue
 				}
 
@@ -164,25 +165,37 @@ func pickTwoTokensRandomly(tokens []string) (string, string) {
 
 	var name1, name2 string
 	name1 = tokens[rand.Intn(len(tokens))]
-	if name1List, ok := tokenPairsMap1[name1]; ok {
+	if name2List, ok := tokenPairsMap1[name1]; ok {
 		for _, token := range tokens {
-
+			if index := stringsContains(name2List, token); index != -1 {
+				name2 = name2List[index]
+				break
+			}
 		}
 	}
 	if name2 == "" {
-		if tmp, ok := tokenPairsMap2[name1]; ok {
-			for _, name := range tmp {
-				for _, token := range tokens {
-					if token == name {
-						name2 = name1
-						name1 = name
-					}
+		if name1List, ok := tokenPairsMap2[name1]; ok {
+			for _, token := range tokens {
+				if index := stringsContains(name1List, token); index != -1 {
+					name2 = name1List[index]
+					break
 				}
 			}
 		}
 	}
 
 	return compareTokenNames(name1, name2)
+}
+
+func stringsContains(array []string, val string) (index int) {
+	index = -1
+	for i := 0; i < len(array); i++ {
+		if array[i] == val {
+			index = i
+			return
+		}
+	}
+	return
 }
 
 func compareTokenNames(name1, name2 string) (string, string) {
