@@ -12,7 +12,7 @@ import (
 	"github.com/okex/adventure/x/strategy/farm"
 	"github.com/okex/adventure/x/strategy/order/market"
 	"github.com/okex/adventure/x/strategy/staking/validators"
-	tokenCmd "github.com/okex/adventure/x/strategy/token/cmd"
+	"github.com/okex/adventure/x/strategy/token"
 	"github.com/spf13/cobra"
 )
 
@@ -54,7 +54,7 @@ adventure is a very powerful cli tool for OKChain. It supports JSON-file and Sub
 	mainCmd.AddCommand(validators.StakingCmd())
 	mainCmd.AddCommand(market.OrderMarketCmd())
 	mainCmd.AddCommand(strategy.SwapCmd())
-	mainCmd.AddCommand(tokenCmd.TokenCmd())
+	mainCmd.AddCommand(token.TokenCmd())
 	mainCmd.AddCommand(farm.FarmCmd())
 	mainCmd.AddCommand(evm.EvmCmd())
 	mainCmd.AddCommand(version.Cmd)

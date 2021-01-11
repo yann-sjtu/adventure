@@ -3,20 +3,28 @@ package strategy
 import (
 	"fmt"
 	"math/rand"
+	"strconv"
 	"strings"
 	"time"
 
+	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	"github.com/okex/adventure/common"
+	"github.com/okex/adventure/tools/account"
+	"github.com/okex/adventure/x/strategy/token"
 	gosdk "github.com/okex/okexchain-go-sdk"
+	"github.com/okex/okexchain-go-sdk/utils"
 	"github.com/spf13/cobra"
 )
 
 const passWd = common.PassWord
 
 var (
-	mnemonicPath = ""
+	IssueMnemonic = ""
+	IssueNum      = uint64(10)
 
-	goroutineNum = 10
+	MnemonicPath = ""
+
+	GoroutineNum = 10
 )
 
 func addSwapRemove() *cobra.Command {
@@ -28,8 +36,10 @@ func addSwapRemove() *cobra.Command {
 	}
 
 	flags := cmd.Flags()
-	flags.StringVarP(&mnemonicPath, "mnemonic_path", "p", "", "set account mnemonic")
-	flags.IntVarP(&goroutineNum, "goroutine_num", "g", 10, "set goroutine number")
+	flags.StringVarP(&IssueMnemonic, "issue_mnemonic", "i", "", "the mnemonic used for issuing tokens")
+	flags.Uint64VarP(&IssueNum, "issue_num", "n", 10, "set num of how many tokens to be issued")
+	flags.StringVarP(&MnemonicPath, "mnemonic_path", "p", "", "the mnemonic file path for testing swap tx")
+	flags.IntVarP(&GoroutineNum, "goroutine_num", "g", 10, "set goroutine number")
 	//flags.Uint64VarP(&num, "num", "n", 1000, "set num of issusing token")
 
 	return cmd
@@ -47,60 +57,91 @@ var (
 
 func addSwapRemoveScripts(cmd *cobra.Command, args []string) error {
 	clis := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
+	infos := common.GetAccountManagerFromFile(MnemonicPath)
 
-	// init the pair names in swap pool. (map[name1] -> name2)
-	err := initSwapPairsMap(clis.GetRandomClient())
+	// 0. Issue tokens & create token pairs in ammswap, when IssueMnemonic is not empty
+	if IssueMnemonic !=  "" {
+		if IssueNum% 2 == 1 {
+			return fmt.Errorf("[phase 0] IssueNum %d is invaild, it must be divisible by 2", IssueNum)
+		}
+
+		// 0.1 create account info
+		info, _, err := utils.CreateAccountWithMnemo(strings.TrimSpace(IssueMnemonic), "issueAcc", common.PassWord)
+		if err != nil {
+			return fmt.Errorf("[phase 0] issue mnemonic invaild: %s", err)
+		}
+		cli := clis.GetRandomClient()
+		// 0.2 issue tokens
+		err = IssueTokens(cli, info)
+		if err != nil {
+			return fmt.Errorf("[phase 0] isuue tokens failed: %s", err)
+		}
+		// 0.3 create swap pairs
+		time.Sleep(time.Second * 5)
+		err = CreateTokenPairs(cli, info)
+		if err != nil {
+			return fmt.Errorf("[phase 0] create swap pairs in ammswap failed: %s", err)
+		}
+		// 0.4 send swap coins to addrs
+		err = SendCoins(cli, IssueMnemonic, infos.GetInfos())
+		if err != nil {
+			return fmt.Errorf("[phase 0] send swap tokens to addrs failed: %s", err)
+		}
+	}
+
+	// 2. init the pair names in swap pool. (map[name1] -> name2)
+	err := InitSwapPairsMap(clis.GetRandomClient())
 	if err != nil {
 		return err
 	}
 
-	// create a number of goroutine
-	infos := common.GetAccountManagerFromFile(mnemonicPath)
-	for i := 0; i < goroutineNum; i++ {
+	// 3. create a number of goroutine
+	for i := 0; i < GoroutineNum; i++ {
 		go func(id int) {
 			round := 0
 			for {
 				round++
 
+				// 3.0 get account info
 				info, cli := infos.GetInfo(), clis.GetClient()
 				addr := info.GetAddress().String()
 
-				// get tokens in map
-				tokens, err := getTokensInAddrMap(cli, addr)
+				// 3.1 get tokens in map
+				tokens, err := GetTokensInAddrMap(cli, addr)
 				if err != nil {
-					fmt.Printf("[%d] round(%d) %s failed: %s", id, round, addr, err)
+					fmt.Printf("[%d] round(%d) %s : failed. %s", id, round, addr, err)
 					continue
 				}
 
-				name1, name2 := pickTwoTokensRandomly(tokens)
-				// pick one random token
+				name1, name2 := PickTwoTokensRandomly(tokens)
+				// 3.2 pick one random token
 				if name1 == "" || name2 == "" {
-					fmt.Printf("[%d] round(%d) %s failed: one of token[%s:%s] doesn't get matached\n", id, round, addr, name1, name2)
+					fmt.Printf("[%d] round(%d) %s : failed. one of token[%s:%s] doesn't get matached\n", id, round, addr, name1, name2)
 					continue
 				}
 
-				// add liquidility tx
+				// 3.3.1 add liquidility tx
 				accNum, seqNum := getAccountInfo(cli, addr)
 				_, err = cli.AmmSwap().AddLiquidity(info, passWd, "0.1", "1"+name1, "0.05"+name2, "1m", "", accNum, seqNum)
 				if err != nil {
-					fmt.Println(addr, tokens, err)
+					fmt.Printf("[%d] round(%d) %s: failed. %s \n", id, round, addr, err)
 					continue
 				}
-				// swap token tx
+				// 3.3.2 swap token tx
 				_, err = cli.AmmSwap().TokenSwap(info, passWd, "0.01"+name1, "0.0000001"+name2, addr, "5m", "", accNum, seqNum+uint64(1))
 				if err != nil {
-					fmt.Println(addr, tokens, err)
+					fmt.Printf("[%d] round(%d) %s: failed. %s \n", id, round, addr, err)
 					continue
 				}
 				_, err = cli.AmmSwap().TokenSwap(info, passWd, "0.003"+name2, "0.0000001"+name1, addr, "5m", "", accNum, seqNum+uint64(2))
 				if err != nil {
-					fmt.Println(addr, tokens, err)
+					fmt.Printf("[%d] round(%d) %s: failed. %s \n", id, round, addr, err)
 					continue
 				}
-				// remove liquidility tx
+				// 3.3.3 remove liquidility tx
 				_, err = cli.AmmSwap().RemoveLiquidity(info, passWd, "0.02", "0"+name1, "0"+name2, "2m", "", accNum, seqNum+uint64(3))
 				if err != nil {
-					fmt.Println(addr, tokens, err)
+					fmt.Printf("[%d] round(%d) %s: failed. %s \n", id, round, addr, err)
 					continue
 				}
 				fmt.Printf("[%d] round(%d) %s: finish a round of test about %s\n", id, round, addr, name1+"_"+name2)
@@ -110,6 +151,21 @@ func addSwapRemoveScripts(cmd *cobra.Command, args []string) error {
 	}
 
 	select {}
+}
+
+func IssueTokens(cli *gosdk.Client, info keys.Info) error {
+	accNum, seqNum := getAccountInfo(cli, info.GetAddress().String())
+	for i := uint64(0); i < IssueNum; i++ {
+		name := token.GetRandomString(3)
+		res, err := cli.Token().Issue(info, common.PassWord,
+			name, name, "9990000000.00000000", "Used for test "+name+" "+strconv.Itoa(int(seqNum+i)),
+			"test token for ammswap", true, accNum, seqNum+i)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("[phase 0] issue token successfully: %s \n", res.Logs.String())
+	}
+	return nil
 }
 
 func getAccountInfo(cli *gosdk.Client, addr string) (uint64, uint64) {
@@ -122,7 +178,87 @@ func getAccountInfo(cli *gosdk.Client, addr string) (uint64, uint64) {
 	return accInfo.GetAccountNumber(), accInfo.GetSequence()
 }
 
-func initSwapPairsMap(cli *gosdk.Client) error {
+func CreateTokenPairs(cli *gosdk.Client, info keys.Info) error {
+	acc, err := cli.Auth().QueryAccount(info.GetAddress().String())
+	if err != nil {
+		return err
+	}
+	coins := acc.GetCoins()
+	if coins.Empty() {
+		return fmt.Errorf("there are no coins in %s", info.GetAddress().String())
+	}
+
+	accNum, seqNum := getAccountInfo(cli, info.GetAddress().String())
+	for i := 0; i < len(coins); i++ { //
+		if !isTokenWithSuffix(coins[i].Denom) {
+			i++
+			continue
+		}
+		for j := i+1; j < len(coins); j++ {
+			if !isTokenWithSuffix(coins[j].Denom) {
+				j++
+				continue
+			}
+
+			res, err := cli.AmmSwap().CreateExchange(info, common.PassWord,
+				coins[i].Denom, coins[j].Denom,
+				"", accNum, seqNum+uint64(i))
+			if err != nil {
+				return err
+			}
+			fmt.Printf("[phase 0] create swap pairs in ammswap successfully: %s \n", res.Logs.String())
+
+			i = j
+			break
+		}
+	}
+
+	return nil
+}
+
+func isTokenWithSuffix(name string) bool {
+	if name == common.NativeToken {
+		return false // okt false
+	}
+	if strings.Contains(name, "-") && !strings.Contains(name, "_") {
+		return true // xxb-abc true
+	}
+	return false // ammswap-xxb1_xxb2 false
+}
+
+func SendCoins(cli *gosdk.Client, mnemonic string, toAddrInfos []keys.Info) error {
+	// query coins
+	info, _, err := utils.CreateAccountWithMnemo(strings.TrimSpace(mnemonic), "issueAcc", common.PassWord)
+	if err != nil {
+		return err
+	}
+
+	var coinStr string
+	if acc, err := cli.Auth().QueryAccount(info.GetAddress().String()); err != nil {
+		return err
+	} else {
+		for _, coin := range acc.GetCoins() {
+			if isTokenWithSuffix(coin.Denom) {
+				coinStr += "100000" + coin.Denom + ","
+			}
+		}
+	}
+
+	addrs := make([]string, len(toAddrInfos), len(toAddrInfos))
+	for i := 0; i < len(toAddrInfos); i++ {
+		addrs[i] = toAddrInfos[i].GetAddress().String()
+	}
+
+	err = account.SendCoins(cli, addrs, coinStr, mnemonic)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("[phase 0] send coins %s to %d address successfully \n", coinStr, len(addrs))
+	return nil
+}
+
+func InitSwapPairsMap(cli *gosdk.Client) error {
 	// init the pair names in swap pool. (map[name1] -> name2)
 	swapPairs, err := cli.AmmSwap().QuerySwapTokenPairs()
 	if err != nil {
@@ -136,7 +272,7 @@ func initSwapPairsMap(cli *gosdk.Client) error {
 	return nil
 }
 
-func getTokensInAddrMap(cli *gosdk.Client, addr string) ([]string, error) {
+func GetTokensInAddrMap(cli *gosdk.Client, addr string) ([]string, error) {
 	if _, ok := addrTokenMap[addr]; !ok {
 		acc, err := cli.Auth().QueryAccount(addr)
 		if err != nil {
@@ -146,7 +282,7 @@ func getTokensInAddrMap(cli *gosdk.Client, addr string) ([]string, error) {
 		var tokens []string
 		for _, token := range acc.GetCoins() {
 			name := token.Denom
-			if strings.Contains(name, "-") && !strings.Contains(name, "_") {
+			if isTokenWithSuffix(name) {
 				tokens = append(tokens, name)
 			}
 		}
@@ -160,7 +296,7 @@ func getTokensInAddrMap(cli *gosdk.Client, addr string) ([]string, error) {
 	return tokens, nil
 }
 
-func pickTwoTokensRandomly(tokens []string) (string, string) {
+func PickTwoTokensRandomly(tokens []string) (string, string) {
 	rand.Seed(time.Now().UnixNano() + rand.Int63n(10000))
 
 	var name1, name2 string
