@@ -71,5 +71,4 @@ func createLoop(cmd *cobra.Command, args []string) {
 		fmt.Println(i, common.CreateExchange, token.Denom+"_"+token2.Denom, " done")
 	}
 
-	select {}
 }

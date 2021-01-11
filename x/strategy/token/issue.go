@@ -1,4 +1,4 @@
-package cmd
+package token
 
 import (
 	"fmt"
@@ -56,7 +56,7 @@ func issueTokenLoop(cmd *cobra.Command, args []string) {
 			accNum, seqNum := accInfo.GetAccountNumber(), accInfo.GetSequence()
 			fmt.Println("accNum", accNum, "seqNum", seqNum)
 			for i := uint64(0); i < num; i++ {
-				name := getRandomString(3)
+				name := GetRandomString(3)
 				res, err := cli.Token().Issue(info, common.PassWord,
 					name, name, totalSupply, "Used for test "+name+" "+strconv.Itoa(int(seqNum+i)),
 					"", true, accNum, seqNum+i)
@@ -72,14 +72,14 @@ func issueTokenLoop(cmd *cobra.Command, args []string) {
 	select {}
 }
 
-func getRandomString(length int) string {
+func GetRandomString(length int) string {
 	if length == 0 {
 		return ""
 	}
 	rand.Seed(time.Now().UnixNano())
 	clen := len(stdChars)
 	if clen < 2 || clen > 256 {
-		panic("Wrong charset length for getRandomString()")
+		panic("Wrong charset length for GetRandomString()")
 	}
 	maxrb := 255 - (256 % clen)
 	b := make([]byte, length)

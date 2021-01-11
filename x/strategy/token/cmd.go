@@ -1,6 +1,8 @@
-package cmd
+package token
 
-import "github.com/spf13/cobra"
+import (
+	"github.com/spf13/cobra"
+)
 
 func TokenCmd() *cobra.Command {
 	var swapCmd = &cobra.Command{

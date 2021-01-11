@@ -131,19 +131,19 @@ func transferTokenScript1(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	err = SendCoins(common.Cfg.Hosts, addrs, coinStr, richMnemonic)
+	clients := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
+	cli := clients.GetRandomClient()
+	err = SendCoins(cli, addrs, coinStr, richMnemonic)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func SendCoins(hosts []string, addrs []string, coinStr string, richMnemonic string) error {
+func SendCoins(cli *gosdk.Client, addrs []string, coinStr string, richMnemonic string) error {
 	sum := len(addrs)
 
 	//create rpc client
-	clients := common.NewClientManager(hosts, common.AUTO)
-	cli := clients.GetRandomClient()
 	group := sum / 1000
 	for i := 0; i < group; i++ {
 		log.Printf("prepare to multi send %s to account[%d,%d]\n", coinStr, i*1000, (i+1)*1000-1)

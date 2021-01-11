@@ -120,6 +120,10 @@ nohup adventure start -p template/test_cases/staking.json   >> ~/staking.log 2>&
 nohup adventure start -p template/test_cases/token-dex-distr.json   >> ~/token-dex-distr.log 2>&1 &
 nohup adventure start -p template/test_cases/multi-send.json   >> ~/multi-send.log 2>&1 &
 nohup adventure start -p template/test_cases/issue-list.json   >> ~/issue-list.log 2>&1 &
+
+// 初始化
+nohup adventure swap loop -p template/mnemonic/normal_100 -g 25 -i "actual assume crew creek furnace water electric fitness stumble usage embark ancient" -n 10  >> ~/swap.log 2>&1 &
+// 非初始化
 nohup adventure swap loop -p template/mnemonic/normal_100 -g 25 >> ~/swap.log 2>&1 &
 ```
 
