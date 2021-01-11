@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
@@ -55,15 +56,34 @@ var (
 	addrTokenMap = make(map[string][]string)
 )
 
+type RoundCounter struct {
+	round         int
+	lock          *sync.RWMutex
+}
+
+func NewRoundConter() *RoundCounter {
+	return &RoundCounter{
+		round: 0,
+		lock: new(sync.RWMutex),
+	}
+}
+
+func (rc *RoundCounter) AddRound() int {
+	rc.lock.Lock()
+	defer rc.lock.Unlock()
+	rc.round++
+	return rc.round
+}
+
 func addSwapRemoveScripts(cmd *cobra.Command, args []string) error {
 	clis := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
 	infos := common.GetAccountManagerFromFile(MnemonicPath)
 
 	// 0. Issue tokens & create token pairs in ammswap, when IssueMnemonic is not empty
 	if IssueMnemonic !=  "" {
-		if IssueNum% 2 == 1 {
-			return fmt.Errorf("[phase 0] IssueNum %d is invaild, it must be divisible by 2", IssueNum)
-		}
+		//if IssueNum% 2 == 1 {
+		//	return fmt.Errorf("[phase 0] IssueNum %d is invaild, it must be divisible by 2", IssueNum)
+		//}
 
 		// 0.1 create account info
 		info, _, err := utils.CreateAccountWithMnemo(strings.TrimSpace(IssueMnemonic), "issueAcc", common.PassWord)
@@ -96,11 +116,10 @@ func addSwapRemoveScripts(cmd *cobra.Command, args []string) error {
 	}
 
 	// 3. create a number of goroutine
+	successfulRound, failedRound := NewRoundConter(), NewRoundConter()
 	for i := 0; i < GoroutineNum; i++ {
-		go func(id int) {
-			round := 0
+		go func() {
 			for {
-				round++
 
 				// 3.0 get account info
 				info, cli := infos.GetInfo(), clis.GetClient()
@@ -109,14 +128,14 @@ func addSwapRemoveScripts(cmd *cobra.Command, args []string) error {
 				// 3.1 get tokens in map
 				tokens, err := GetTokensInAddrMap(cli, addr)
 				if err != nil {
-					fmt.Printf("[%d] round(%d) %s : failed. %s", id, round, addr, err)
+					fmt.Printf("[%d] %s failed to get tokens: %s", failedRound.AddRound(), addr, err)
 					continue
 				}
 
 				name1, name2 := PickTwoTokensRandomly(tokens)
 				// 3.2 pick one random token
 				if name1 == "" || name2 == "" {
-					fmt.Printf("[%d] round(%d) %s : failed. one of token[%s:%s] doesn't get matached\n", id, round, addr, name1, name2)
+					fmt.Printf("[%d] %s : failed to get matached with one empty token [%s <-> %s]\n", failedRound.AddRound(), addr, name1, name2)
 					continue
 				}
 
@@ -124,30 +143,29 @@ func addSwapRemoveScripts(cmd *cobra.Command, args []string) error {
 				accNum, seqNum := getAccountInfo(cli, addr)
 				_, err = cli.AmmSwap().AddLiquidity(info, passWd, "0.1", "1"+name1, "0.05"+name2, "1m", "", accNum, seqNum)
 				if err != nil {
-					fmt.Printf("[%d] round(%d) %s: failed. %s \n", id, round, addr, err)
+					fmt.Printf("[%d] %s failed to AddLiquidity: %s \n", failedRound.AddRound(), addr, err)
 					continue
 				}
 				// 3.3.2 swap token tx
 				_, err = cli.AmmSwap().TokenSwap(info, passWd, "0.01"+name1, "0.0000001"+name2, addr, "5m", "", accNum, seqNum+uint64(1))
 				if err != nil {
-					fmt.Printf("[%d] round(%d) %s: failed. %s \n", id, round, addr, err)
+					fmt.Printf("[%d] %s failed to TokenSwap: %s \n", failedRound.AddRound(), addr, err)
 					continue
 				}
 				_, err = cli.AmmSwap().TokenSwap(info, passWd, "0.003"+name2, "0.0000001"+name1, addr, "5m", "", accNum, seqNum+uint64(2))
 				if err != nil {
-					fmt.Printf("[%d] round(%d) %s: failed. %s \n", id, round, addr, err)
+					fmt.Printf("[%d] %s failed to TokenSwap: %s \n", failedRound.AddRound(), addr, err)
 					continue
 				}
 				// 3.3.3 remove liquidility tx
 				_, err = cli.AmmSwap().RemoveLiquidity(info, passWd, "0.02", "0"+name1, "0"+name2, "2m", "", accNum, seqNum+uint64(3))
 				if err != nil {
-					fmt.Printf("[%d] round(%d) %s: failed. %s \n", id, round, addr, err)
+					fmt.Printf("[%d] %s failed to RemoveLiquidity: %s \n", failedRound.AddRound(), addr, err)
 					continue
 				}
-				fmt.Printf("[%d] round(%d) %s: finish a round of test about %s\n", id, round, addr, name1+"_"+name2)
-				time.Sleep(time.Second * 1)
+				fmt.Printf("[%d] %s: finish a round of test about %s\n", successfulRound.AddRound(), addr, name1+"_"+name2)
 			}
-		}(i)
+		}()
 	}
 
 	select {}
@@ -157,13 +175,13 @@ func IssueTokens(cli *gosdk.Client, info keys.Info) error {
 	accNum, seqNum := getAccountInfo(cli, info.GetAddress().String())
 	for i := uint64(0); i < IssueNum; i++ {
 		name := token.GetRandomString(3)
-		res, err := cli.Token().Issue(info, common.PassWord,
+		_, err := cli.Token().Issue(info, common.PassWord,
 			name, name, "9990000000.00000000", "Used for test "+name+" "+strconv.Itoa(int(seqNum+i)),
 			"test token for ammswap", true, accNum, seqNum+i)
 		if err != nil {
 			return err
 		}
-		fmt.Printf("[phase 0] issue token successfully: %s \n", res.Logs.String())
+		fmt.Printf("[phase 0] issue token successfully: %s \n", name)
 	}
 	return nil
 }
@@ -189,25 +207,25 @@ func CreateTokenPairs(cli *gosdk.Client, info keys.Info) error {
 	}
 
 	accNum, seqNum := getAccountInfo(cli, info.GetAddress().String())
+	seqNumOffset := 0
 	for i := 0; i < len(coins); i++ { //
 		if !isTokenWithSuffix(coins[i].Denom) {
-			i++
 			continue
 		}
 		for j := i+1; j < len(coins); j++ {
 			if !isTokenWithSuffix(coins[j].Denom) {
-				j++
 				continue
 			}
 
-			res, err := cli.AmmSwap().CreateExchange(info, common.PassWord,
+			_, err := cli.AmmSwap().CreateExchange(info, common.PassWord,
 				coins[i].Denom, coins[j].Denom,
-				"", accNum, seqNum+uint64(i))
+				"", accNum, seqNum+uint64(seqNumOffset))
 			if err != nil {
 				return err
 			}
-			fmt.Printf("[phase 0] create swap pairs in ammswap successfully: %s \n", res.Logs.String())
+			fmt.Printf("[phase 0] create swap pairs in ammswap successfully: %s <-> %s \n", coins[i].Denom, coins[j].Denom)
 
+			seqNumOffset ++
 			i = j
 			break
 		}
@@ -249,7 +267,7 @@ func SendCoins(cli *gosdk.Client, mnemonic string, toAddrInfos []keys.Info) erro
 		addrs[i] = toAddrInfos[i].GetAddress().String()
 	}
 
-	err = account.SendCoins(cli, addrs, coinStr, mnemonic)
+	err = account.SendCoins(cli, addrs, strings.TrimRight(coinStr,","), mnemonic)
 	if err != nil {
 		return err
 	}
