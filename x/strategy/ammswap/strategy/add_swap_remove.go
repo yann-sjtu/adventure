@@ -57,14 +57,14 @@ var (
 )
 
 type RoundCounter struct {
-	round         int
-	lock          *sync.RWMutex
+	round int
+	lock  *sync.RWMutex
 }
 
 func NewRoundConter() *RoundCounter {
 	return &RoundCounter{
 		round: 0,
-		lock: new(sync.RWMutex),
+		lock:  new(sync.RWMutex),
 	}
 }
 
@@ -80,7 +80,7 @@ func addSwapRemoveScripts(cmd *cobra.Command, args []string) error {
 	infos := common.GetAccountManagerFromFile(MnemonicPath)
 
 	// 0. Issue tokens & create token pairs in ammswap, when IssueMnemonic is not empty
-	if IssueMnemonic !=  "" {
+	if IssueMnemonic != "" {
 		//if IssueNum% 2 == 1 {
 		//	return fmt.Errorf("[phase 0] IssueNum %d is invaild, it must be divisible by 2", IssueNum)
 		//}
@@ -212,7 +212,7 @@ func CreateTokenPairs(cli *gosdk.Client, info keys.Info) error {
 		if !isTokenWithSuffix(coins[i].Denom) {
 			continue
 		}
-		for j := i+1; j < len(coins); j++ {
+		for j := i + 1; j < len(coins); j++ {
 			if !isTokenWithSuffix(coins[j].Denom) {
 				continue
 			}
@@ -225,7 +225,7 @@ func CreateTokenPairs(cli *gosdk.Client, info keys.Info) error {
 			}
 			fmt.Printf("[phase 0] create swap pairs in ammswap successfully: %s <-> %s \n", coins[i].Denom, coins[j].Denom)
 
-			seqNumOffset ++
+			seqNumOffset++
 			i = j
 			break
 		}
@@ -267,7 +267,7 @@ func SendCoins(cli *gosdk.Client, mnemonic string, toAddrInfos []keys.Info) erro
 		addrs[i] = toAddrInfos[i].GetAddress().String()
 	}
 
-	err = account.SendCoins(cli, addrs, strings.TrimRight(coinStr,","), mnemonic)
+	err = account.SendCoins(cli, addrs, strings.TrimRight(coinStr, ","), mnemonic)
 	if err != nil {
 		return err
 	}
@@ -309,7 +309,7 @@ func GetTokensInAddrMap(cli *gosdk.Client, addr string) ([]string, error) {
 
 	tokens := addrTokenMap[addr]
 	if len(tokens) <= 1 {
-		return nil, fmt.Errorf( "don't have more than two types of token %v\n", tokens)
+		return nil, fmt.Errorf("don't have more than two types of token %v\n", tokens)
 	}
 	return tokens, nil
 }

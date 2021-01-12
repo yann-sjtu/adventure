@@ -17,7 +17,7 @@ import (
 func transfer(clients *common.ClientManager, contractManager *tools.ContractManager) {
 	contractManager.List()
 
-	s,f := tools.NewCounter(0), tools.NewCounter(0)
+	s, f := tools.NewCounter(0), tools.NewCounter(0)
 	ethAddrs := convertCosmosAddrsToEthAddrs(backupAddrs)
 	var wg sync.WaitGroup
 	for i := 0; i < TransferGoNum; i++ {
@@ -34,7 +34,6 @@ func transfer(clients *common.ClientManager, contractManager *tools.ContractMana
 					panic(err)
 				}
 				fromEthAddr := utils.GetEthAddressStrFromCosmosAddr(addr)
-
 
 				cli := clients.GetClient()
 
