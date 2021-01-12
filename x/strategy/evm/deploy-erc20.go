@@ -130,7 +130,7 @@ func deployErc20Tokens(cmd *cobra.Command, args []string) {
 }
 
 func getTmpClient() gosdk.Client {
-	cfg, _ := types.NewClientConfig("http://localhost:26657", "okexchaintestnet-1", types.BroadcastBlock, "", 20000000, 1.5, "0.00000001"+common.NativeToken)
+	cfg, _ := types.NewClientConfig("http://localhost:26657", common.Cfg.ChainId, types.BroadcastBlock, "", 20000000, 1.5, "0.00000001"+common.NativeToken)
 	cli := gosdk.NewClient(cfg)
 	return cli
 }

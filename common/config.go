@@ -9,7 +9,6 @@ import (
 
 var (
 	GlobalConfigPath = "" //TODO
-	TestCasesPath    = ""
 )
 
 var Cfg *Config
@@ -17,13 +16,13 @@ var Cfg *Config
 type Config struct {
 	TestCaesPath string
 	Hosts        []string `toml:"hosts"`
+	ChainId      string   `toml:"chain-id"`
 }
 
 func init() {
 	if _, err := toml.DecodeFile(GlobalConfigPath, &Cfg); err != nil {
 		log.Fatal(err)
 	}
-	Cfg.TestCaesPath = TestCasesPath
 }
 
 func GetConfig() *Config {
@@ -40,6 +39,7 @@ func (c *Config) String() string {
 	}
 	return fmt.Sprintf(`⚙️⚙️⚙️⚙️⚙️ Golbal Config ⚙️⚙️⚙️⚙️⚙️
 TestCasesPath: %s
+Chain-id: %s
 Hosts: %v
-`, c.TestCaesPath, hosts)
+`, c.TestCaesPath, c.ChainId, hosts)
 }

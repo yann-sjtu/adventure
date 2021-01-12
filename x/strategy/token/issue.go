@@ -41,7 +41,7 @@ var (
 
 func issueTokenLoop(cmd *cobra.Command, args []string) {
 	clis := common.NewClientManager(common.Cfg.Hosts, "auto")
-	//cfg, _ := types.NewClientConfig(host, "okexchain", types.BroadcastSync, "", 400000, 1.1, "0.00000001"+common.NativeToken)
+	//cfg, _ := types.NewClientConfig(host, common.Cfg.ChainId, types.BroadcastSync, "", 400000, 1.1, "0.00000001"+common.NativeToken)
 
 	accs := common.GetAccountManagerFromFile(mnemonicPath)
 

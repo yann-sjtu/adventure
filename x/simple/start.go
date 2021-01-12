@@ -36,13 +36,11 @@ func TxCmd() *cobra.Command {
 func RunStart(cmd *cobra.Command, args []string) error {
 	//init config
 	cfg := common.GetConfig()
-	if txConfigPath != "" {
-		cfg.TestCaesPath = txConfigPath
-	}
+	cfg.TestCaesPath = txConfigPath
 	fmt.Println(cfg)
 
 	//init test cases
-	cases, err := common.ReadTestCases(cfg.TestCaesPath)
+	cases, err := common.ReadTestCases(txConfigPath)
 	if err != nil {
 		return err
 	}

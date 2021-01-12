@@ -43,7 +43,7 @@ func (v *Validator) Edit(wg *sync.WaitGroup) {
 	luckyNum := rand.Intn(len(hosts))
 	config, _ := gosdk.NewClientConfig(
 		hosts[luckyNum],
-		"okexchain",
+		common.Cfg.ChainId,
 		gosdk.BroadcastBlock,
 		"0.1"+common.NativeToken,
 		2000000,
@@ -75,7 +75,7 @@ func (v *Validator) Create(wg *sync.WaitGroup) {
 	luckyNum := rand.Intn(len(hosts))
 	config, _ := gosdk.NewClientConfig(
 		hosts[luckyNum],
-		"okchain",
+		common.Cfg.ChainId,
 		gosdk.BroadcastBlock,
 		"0.1"+common.NativeToken,
 		2000000,
@@ -110,7 +110,7 @@ func (v *Validator) Destroy(wg *sync.WaitGroup) {
 	luckyNum := rand.Intn(len(hosts))
 	config, _ := gosdk.NewClientConfig(
 		hosts[luckyNum],
-		"okchain",
+		common.Cfg.ChainId,
 		gosdk.BroadcastBlock,
 		"0.01"+common.NativeToken,
 		200000,
