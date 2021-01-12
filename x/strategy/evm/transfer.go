@@ -50,7 +50,6 @@ func transfer(clients *common.ClientManager, contractManager *tools.ContractMana
 					continue
 				}
 				log.Printf("[successful tx: %d] %s send 1usdt to %s from contract %s \n", s.Add(), fromEthAddr, toEthAddr, contract.ContractAddr)
-				time.Sleep(time.Second * 1)
 			}
 		}()
 	}
