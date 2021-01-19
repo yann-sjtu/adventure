@@ -11,8 +11,4 @@ hosts = [
     "http://10.0.240.32:20057", "http://10.0.240.32:20157", "http://10.0.240.32:20257",
 ]
 
-#hosts = [
-#    "http://localhost:26657",
-#]
-
-chain-id = "okexchainevm-8"
+chain-id = "okexchain-66"
