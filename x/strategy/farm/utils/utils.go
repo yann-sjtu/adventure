@@ -319,6 +319,10 @@ func QueryAllAdventurePools() (adventurePools []gosdk.FarmPool, err error) {
 	return
 }
 
+func QueryTargetPool(poolName string) (pool gosdk.FarmPool, err error) {
+	return client.CliManager.GetClient().Farm().QueryPool(poolName)
+}
+
 func isPoolExpired(pool *gosdk.FarmPool, currentHeight int64) bool {
 	return currentHeight-pool.YieldedTokenInfos[0].StartBlockHeightToYield >= validPoolBlockHeightInterval
 }

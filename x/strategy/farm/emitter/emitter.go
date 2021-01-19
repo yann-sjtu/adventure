@@ -268,6 +268,34 @@ func (emt *Emitter) LockToRandomPoolsByRandomLockers(pools []gosdk.FarmPool) {
 	}
 }
 
+func (emt *Emitter) LockToTargetPool(pool gosdk.FarmPool) {
+	loggerLockToTargetPool()
+
+	times := emt.pickedNumOneRound/emt.txNumOneTime + 1
+	for i := 0; i < times; i++ {
+		var index2 int
+		index1 := i * emt.txNumOneTime
+		if i != times-1 {
+			index2 = (i + 1) * emt.txNumOneTime
+		} else {
+			index2 = emt.pickedNumOneRound
+		}
+
+		emt.lockToRandomPoolsByRandomLockersByGroup(emt.selectedAddrsList[index1:index2], []gosdk.FarmPool{pool})
+		time.Sleep(emt.sleepTime)
+	}
+}
+
+func loggerLockToTargetPool() {
+	// print title
+	fmt.Printf(`
+============================================================
+|    picked lockers lock tokens on the target pool         |
+============================================================
+
+`)
+}
+
 func (emt *Emitter) lockToRandomPoolsByRandomLockersByGroup(selectedAddrsList []string, pools []gosdk.FarmPool) {
 	maxRange := len(pools)
 	var wg sync.WaitGroup
