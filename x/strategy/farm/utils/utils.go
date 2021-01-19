@@ -44,6 +44,11 @@ func GetRicherKeyInfo() gokeys.Info {
 	return richerInfo
 }
 
+func GetRicherKeyInfoByMnemo(richerMnemo string) (gokeys.Info, error) {
+	richerInfo, _, err := utils.CreateAccountWithMnemo(richerMnemo, richerName, common.PassWord)
+	return richerInfo, err
+}
+
 func GetTestAddrsFromFile(path string) (addrStrs []string, err error) {
 	f, err := os.Open(path)
 	if err != nil {
