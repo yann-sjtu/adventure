@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"log"
 	"sync"
 
@@ -74,4 +75,25 @@ func (l *Locker) LockOnOnePoolByOneLocker(wg *sync.WaitGroup, pool gosdk.FarmPoo
 	}
 
 	log.Printf("%s locks %s on pool %s successfully\n", l.accAddr, amountStr, pool.Name)
+}
+
+func (l *Locker) LockAmountToOnePoolByOneLocker(wg *sync.WaitGroup, poolName string, lockCoin sdk.DecCoin) {
+	defer wg.Done()
+
+	cli := client.CliManager.GetClient()
+	// get accInfo
+	accInfo, err := cli.Auth().QueryAccount(l.accAddr)
+	if err != nil {
+		return
+	}
+
+	// lock specific amount of token on the target pool
+	lockAmountStr := lockCoin.String()
+	if _, err := cli.Farm().Lock(l.key, common.PassWord, poolName, lockAmountStr, "", accInfo.GetAccountNumber(),
+		accInfo.GetSequence()); err != nil {
+		log.Printf("Tx error. %s locks %s on pool %s: %s\n", l.accAddr, lockAmountStr, poolName, err)
+		return
+	}
+
+	log.Printf("%s locks %s on pool %s successfully\n", l.accAddr, lockAmountStr, poolName)
 }

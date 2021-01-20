@@ -12,6 +12,7 @@ func LockerCmd() *cobra.Command {
 
 	lockerCmd.AddCommand(
 		allocateTokensToAllLockersFromAllPoolersCmd(),
+		lockToFarmPoolCmd(),
 		strategyLockAndUnlockCmd(),
 		strategySinglePoolCmd(),
 	)

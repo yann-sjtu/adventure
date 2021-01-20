@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"sync"
 
 	"github.com/okex/adventure/x/strategy/farm/utils"
@@ -50,6 +51,14 @@ func (lm LockerManager) UnlockPartFromOnePool(wg *sync.WaitGroup, senderAddrStr,
 	}
 
 	lm[senderAddrStr].UnlockFromOnePool(wg, poolName, false)
+}
+
+func (lm LockerManager) LockAmountToOnePoolByOneLocker(wg *sync.WaitGroup, senderAddrStr, poolName string, lockCoin sdk.DecCoin) {
+	if !lm.isLockerExisted(senderAddrStr) {
+		return
+	}
+
+	lm[senderAddrStr].LockAmountToOnePoolByOneLocker(wg, poolName, lockCoin)
 }
 
 func (lm LockerManager) LockOnOnePoolByOneLocker(wg *sync.WaitGroup, senderAddrStr string, pool gosdk.FarmPool) {
