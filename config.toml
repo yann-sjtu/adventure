@@ -12,3 +12,10 @@ hosts = [
 ]
 
 chain-id = "okexchain-66"
+
+# local test
+#hosts = [
+#    "http://localhost:26657",
+#]
+#
+#chain-id = "okexchainevm-8"

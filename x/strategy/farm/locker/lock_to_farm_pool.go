@@ -33,7 +33,7 @@ func runLockToFarmPoolCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	emt := emitter.NewEmitter(nil, types.GetLockerManager(lockerPath))
-	emt.LockToFarmPool(args[0],lockAmount)
+	emt.LockToFarmPool(args[0], lockAmount)
 
 	return nil
 }

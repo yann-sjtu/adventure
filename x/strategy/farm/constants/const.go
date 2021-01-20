@@ -24,13 +24,13 @@ const (
 	//StartYieldHeightInterval = 10
 	//RandomRange              = 5
 
-	// strategy destructive pooler
+	// strategy pooler
 	SleepSecondPerRoundStrategyPooler       = 10 * time.Second
 	SleepSecondAfterOperationOfExpiredPools = 10 * time.Second
 	TxNumOneTime                            = 50
 	SleepTimeBtwGroupBroadcast              = 500 * time.Millisecond
 
-	// strategy destructive locker
+	// strategy locker
 	SleepSecondPerRoundStrategyLockAndUnlock       = 5 * time.Second
 	PickedNumOneRound                              = 50
 	AmountToLock                                   = 0.001

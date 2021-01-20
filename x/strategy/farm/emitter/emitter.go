@@ -270,28 +270,31 @@ func (emt *Emitter) LockToRandomPoolsByRandomLockers(pools []gosdk.FarmPool) {
 }
 
 func (emt *Emitter) LockToFarmPool(poolName string, coin sdk.DecCoin) {
-	fmt.Printf("%d lockers start to lock %s to %s ...\n", len(emt.lockerAddrsList), coin, poolName)
+	totalLockerAddrsLen := len(emt.lockerAddrsList)
+	fmt.Printf("%d lockers start to lock %s to %s ...\n", totalLockerAddrsLen, coin, poolName)
 
-	times := emt.pickedNumOneRound/emt.txNumOneTime + 1
+	times := totalLockerAddrsLen/emt.txNumOneTime + 1
 	for i := 0; i < times; i++ {
 		var index2 int
 		index1 := i * emt.txNumOneTime
 		if i != times-1 {
 			index2 = (i + 1) * emt.txNumOneTime
 		} else {
-			index2 = emt.pickedNumOneRound
+			index2 = totalLockerAddrsLen
 		}
 
-		emt.lockToFarmPoolByGroup(emt.selectedAddrsList[index1:index2], poolName, coin)
+		emt.lockToFarmPoolByGroup(emt.lockerAddrsList[index1:index2], poolName, coin)
 		time.Sleep(emt.sleepTime)
 	}
 }
+
 func (emt *Emitter) lockToFarmPoolByGroup(selectedAddrsList []string, poolName string, lockCoin sdk.DecCoin) {
 	var wg sync.WaitGroup
 	for _, lockerAddrStr := range selectedAddrsList {
 		wg.Add(1)
 		go emt.LockAmountToOnePoolByOneLocker(&wg, lockerAddrStr, poolName, lockCoin)
 	}
+
 	wg.Wait()
 }
 
