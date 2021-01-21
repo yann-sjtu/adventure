@@ -1,6 +1,8 @@
 package main
 
 import (
+	"github.com/okex/adventure/x/monitor"
+	"github.com/okex/adventure/x/strategy/farm/client"
 	"log"
 	"os"
 
@@ -49,15 +51,20 @@ adventure is a very powerful cli tool for OKChain. It supports JSON-file and Sub
 		},
 	}
 
-	mainCmd.AddCommand(account.Cmd())
-	mainCmd.AddCommand(simple.TxCmd())
-	mainCmd.AddCommand(validators.StakingCmd())
-	mainCmd.AddCommand(market.OrderMarketCmd())
-	mainCmd.AddCommand(strategy.SwapCmd())
-	mainCmd.AddCommand(token.TokenCmd())
-	mainCmd.AddCommand(farm.FarmCmd())
-	mainCmd.AddCommand(evm.EvmCmd())
-	mainCmd.AddCommand(version.Cmd)
+	mainCmd.AddCommand(
+		monitor.MonitorCmd(),
+		client.LineBreak,
+		account.Cmd(),
+		simple.TxCmd(),
+		validators.StakingCmd(),
+		market.OrderMarketCmd(),
+		strategy.SwapCmd(),
+		token.TokenCmd(),
+		farm.FarmCmd(),
+		evm.EvmCmd(),
+		version.Cmd,
+	)
+
 	if err := mainCmd.Execute(); err != nil {
 		log.Println(err)
 		os.Exit(1)
