@@ -1,8 +1,8 @@
 package shares_control
 
 import (
-	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/okex/adventure/common"
 	"github.com/spf13/cobra"
 	"time"
 )
@@ -48,9 +48,15 @@ func runSharesControlCmd(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	cliManager := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
+
 	for {
-		fmt.Println(nValInTop21)
-		fmt.Println(percentToPlunder)
+		cli := cliManager.GetClient()
+		// get all vals info
+		vals, err := cli.Staking().QueryValidators()
+		if err != nil {
+			continue
+		}
 
 		time.Sleep(roundInterval)
 	}
