@@ -8,7 +8,28 @@ import (
 	"github.com/okex/okexchain-go-sdk/utils"
 	ammswaptypes "github.com/okex/okexchain/x/ammswap/types"
 	farmtypes "github.com/okex/okexchain/x/farm/types"
+	stakingtypes "github.com/okex/okexchain/x/staking/types"
 )
+
+func newMsgDeposit(accNum, seqNum uint64, amount sdk.SysCoin, addr string) authtypes.StdSignMsg {
+	cosmosAddr, err := utils.ToCosmosAddress(addr)
+	if err != nil {
+		panic(err)
+	}
+
+	msg := stakingtypes.NewMsgDeposit(cosmosAddr, amount)
+	msgs := []types.Msg{msg}
+	signMsg := authtypes.StdSignMsg{
+		ChainID:       "okexchain-66",
+		AccountNumber: accNum,
+		Sequence:      seqNum,
+		Memo:          "",
+		Msgs:          msgs,
+		Fee:           authtypes.NewStdFee(200000, sdk.NewDecCoinsFromDec(common.NativeToken, sdk.NewDecWithPrec(2, 3))),
+	}
+
+	return signMsg
+}
 
 func newMsgLock(accNum, seqNum uint64, amount sdk.SysCoin, addr string) authtypes.StdSignMsg {
 	cosmosAddr, err := utils.ToCosmosAddress(addr)
@@ -16,7 +37,7 @@ func newMsgLock(accNum, seqNum uint64, amount sdk.SysCoin, addr string) authtype
 		panic(err)
 	}
 
-	msg := farmtypes.NewMsgLock(poolName, cosmosAddr ,amount)
+	msg := farmtypes.NewMsgLock(poolName, cosmosAddr, amount)
 	msgs := []types.Msg{msg}
 	signMsg := authtypes.StdSignMsg{
 		ChainID:       "okexchain-66",
@@ -36,7 +57,7 @@ func newMsgUnLock(accNum, seqNum uint64, amount sdk.SysCoin, addr string) authty
 		panic(err)
 	}
 
-	msg := farmtypes.NewMsgUnlock(poolName, cosmosAddr ,amount)
+	msg := farmtypes.NewMsgUnlock(poolName, cosmosAddr, amount)
 	msgs := []types.Msg{msg}
 	signMsg := authtypes.StdSignMsg{
 		ChainID:       "okexchain-66",
@@ -56,7 +77,7 @@ func newMsgAddLiquidity(accNum, seqNum uint64, minLiquidity sdk.Dec, maxBaseAmou
 		panic(err)
 	}
 
-	msg := ammswaptypes.NewMsgAddLiquidity(minLiquidity , maxBaseAmount, quoteAmount, deadline, cosmosAddr)
+	msg := ammswaptypes.NewMsgAddLiquidity(minLiquidity, maxBaseAmount, quoteAmount, deadline, cosmosAddr)
 	msgs := []types.Msg{msg}
 	signMsg := authtypes.StdSignMsg{
 		ChainID:       "okexchain-66",
@@ -75,7 +96,7 @@ func newMsgRemoveLiquidity(accNum, seqNum uint64, liquidity sdk.Dec, minBaseAmou
 		panic(err)
 	}
 
-	msg := ammswaptypes.NewMsgRemoveLiquidity(liquidity , minBaseAmount, minQuoteAmount, deadline, cosmosAddr)
+	msg := ammswaptypes.NewMsgRemoveLiquidity(liquidity, minBaseAmount, minQuoteAmount, deadline, cosmosAddr)
 	msgs := []types.Msg{msg}
 	signMsg := authtypes.StdSignMsg{
 		ChainID:       "okexchain-66",

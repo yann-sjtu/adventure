@@ -1,6 +1,7 @@
 package shares_control
 
 import (
+	"fmt"
 	"github.com/okex/adventure/x/monitor/shares-control/keeper"
 	"github.com/spf13/cobra"
 	"log"
@@ -38,8 +39,10 @@ func runSharesControlCmd(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	var round int
 	for {
-
+		round++
+		fmt.Printf("============================== Round %d ==============================\n", round)
 		// analyse shares
 		result, err := kp.AnalyseShares()
 		if err != nil {

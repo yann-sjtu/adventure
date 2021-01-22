@@ -22,7 +22,6 @@ target_validator_addresses = [
 ]
 
 worker_infos = [
-    "okexchain1dtycve9dq2pgxx9nq5qlwp0wzk4atw82h95zy8,824",
     "okexchain1r0tpeugvrv8pp8yxsmfcratkpspuldvkunhfms,825",
     "okexchain1jquffu6lmx2phyzppnrj2kq2hdnhjaqd69xewd,826",
     "okexchain1c7spf0wmsxpyc43htr4xjx0reny8uz9r732s32,827",
@@ -122,4 +121,5 @@ worker_infos = [
     "okexchain1czwtauev2j03ltgwal3gpts95r84k26ktj282t,921",
     "okexchain1qzl0wl5kr7qk25wn5evr0zzfqrsjcrj023wc6n,922",
     "okexchain1grkf3mtfzlvx6kdsdt48jtyt4v0pa5yvc7dxt5,923",
+    "okexchain1r99n9mrda79jdktr0xxmza87k97v5eh0aq93fm,924",
 ]
