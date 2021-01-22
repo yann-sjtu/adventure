@@ -88,9 +88,10 @@ func (k *Keeper) AnalyseShares() (isDangerous bool, err error) {
 		return
 	}
 
-	targetTotal, globalTotal := k.sumShares(vals)
-	log.Printf("target total: [%s]    global total: [%s]    percentage: [%s]\n",
-		targetTotal.String(), globalTotal.String(), targetTotal.Quo(globalTotal).String())
+	targetTotal, globalTotal, bonedTotal := k.sumShares(vals)
+	log.Printf("target total: [%s]    boned total: [%s]    global total: [%s]\n",
+		targetTotal.String(), globalTotal.String(), bonedTotal.String())
 
+	// gov vote control
 	return
 }
