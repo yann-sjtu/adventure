@@ -1,12 +1,12 @@
 package keeper
 
 import (
-	"fmt"
 	"github.com/BurntSushi/toml"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/adventure/common"
 	"github.com/okex/adventure/x/monitor/shares-control/types"
-	"path/filepath"
+	"strconv"
+	"strings"
 )
 
 type Keeper struct {
@@ -20,23 +20,57 @@ func NewKeeper() Keeper {
 	return Keeper{}
 }
 
-func (k *Keeper) Init(configFilePath string) error {
+func (k *Keeper) Init(configFilePath string) (err error) {
 	// cli
 	k.cliManager = common.NewClientManager(common.Cfg.Hosts, common.AUTO)
 
 	// params from toml
 	var config types.Config
-	path, err := filepath.Abs(filepath.Dir("config.toml"))
-	if err!=nil{
-		return err
+	if _, err = toml.DecodeFile(configFilePath, &config); err != nil {
+		return
 	}
 
-	fmt.Println(path)
-	if _, err := toml.DecodeFile(configFilePath, &config); err != nil {
-		return err
+	if err = k.parseConfig(&config); err != nil {
+		return
 	}
 
-	fmt.Println(config)
+	return nil
+}
+
+func (k *Keeper) parseConfig(config *types.Config) error {
+	// decimal
+	valNumberInTop21 := sdk.NewDec(int64(len(config.TargetValAddrs)))
+	percentToPlunder, err := sdk.NewDecFromStr(config.PercentToPlunder)
+	if err != nil {
+		return err
+	}
+	k.params = types.NewParams(valNumberInTop21, percentToPlunder)
+
+	// val addr
+	for _, addrStr := range config.TargetValAddrs {
+		accAddr, err := sdk.AccAddressFromBech32(addrStr)
+		if err != nil {
+			return err
+		}
+
+		k.targetValAddrs = append(k.targetValAddrs, sdk.ValAddress(accAddr))
+	}
+
+	// worker info
+	for _, workerInfoStr := range config.WorkersAccInfo {
+		strs := strings.Split(workerInfoStr, ",")
+		accAddr, err := sdk.AccAddressFromBech32(strs[0])
+		if err != nil {
+			return err
+		}
+
+		index, err := strconv.Atoi(strs[1])
+		if err != nil {
+			return err
+		}
+
+		k.workers = append(k.workers, types.NewWorker(accAddr, index))
+	}
 
 	return nil
 }
