@@ -1,6 +1,7 @@
 package common
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -24,12 +25,11 @@ const (
 )
 
 var (
-	secret = ""
+	key    = "273186b97e6741a5a8fe68383d4949c8"
+	secret = "091b30bfb6604917945752de9cb87609"
 
 	serverUrl = "https://www.okex.com"
-	ctx       = "/vault/api/v2/okpool/vote"
-
-	key       = ""
+	ctx       = "/vault/api/v2/okpool/voteOKT"
 )
 
 func SendMsg(txType int, addresIndex int, msg types.StdSignMsg) error {
@@ -38,12 +38,12 @@ func SendMsg(txType int, addresIndex int, msg types.StdSignMsg) error {
 
 	// 0.2
 	msgWithIndex := NewMsgWithIndex(msg, addresIndex)
-	msgStr, err := json.Marshal(msgWithIndex)
+	msgWithIndexStr, err := json.Marshal(msgWithIndex)
 	if err != nil {
 		return err
 	}
 
-	object := NewObject(string(msgStr), timeStr, txType)
+	object := NewObject(string(msgWithIndexStr), timeStr, txType)
 	err = DoPost(timeStr, object)
 	if err != nil {
 		return err
@@ -57,11 +57,11 @@ func DoPost(timeStr string, object Object) error {
 		return err
 	}
 	nonce := timeStr
-	// 0.3 sign with hmac-sha256
+	// 0 sign with hmac-sha256
 	signature := hmacSha256(secret, nonce+ctx+string(reqStr))
 
 	// 1.1 init new request
-	req, err := http.NewRequest(http.MethodPost, serverUrl, nil)
+	req, err := http.NewRequest(http.MethodPost, serverUrl, bytes.NewBuffer(reqStr))
 	if err != nil {
 		panic(err)
 	}
