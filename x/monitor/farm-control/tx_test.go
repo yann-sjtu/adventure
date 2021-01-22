@@ -3,7 +3,6 @@ package farm_control
 import (
 	"fmt"
 	"testing"
-	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/adventure/x/monitor/common"
@@ -78,26 +77,26 @@ func TestSendTx(t *testing.T) {
 	//	fmt.Println("failed:", err)
 	//}
 
-	duration, err := time.ParseDuration("1m")
-	if err != nil {
-		return
-	}
-	deadline := time.Now().Add(duration).Unix()
-	// TEST 添加流动性
-	msg3 := newMsgAddLiquidity(accInfo.GetAccountNumber(), accInfo.GetSequence(),
-		sdk.NewDecWithPrec(1, 4), sdk.NewDecCoin(baseCoin, sdk.NewIntWithDecimal(1, 1)), sdk.NewDecCoin(quoteCoin, sdk.NewIntWithDecimal(1, 2)), deadline,
-		addr)
-	err = common.SendMsg(common.Farm, msg3, startIndex)
-	if err != nil {
-		fmt.Println("failed:", err)
-	}
-
-	// TEST 添加流动性
-	msg4 := newMsgRemoveLiquidity(accInfo.GetAccountNumber(), accInfo.GetSequence(),
-		sdk.NewDecWithPrec(1, 4), sdk.NewDecCoin(baseCoin, sdk.NewIntWithDecimal(1, 1)), sdk.NewDecCoin(quoteCoin, sdk.NewIntWithDecimal(1, 2)), deadline,
-		addr)
-	err = common.SendMsg(common.Undelefarm, msg4, startIndex)
-	if err != nil {
-		fmt.Println("failed:", err)
-	}
+	//duration, err := time.ParseDuration("1m")
+	//if err != nil {
+	//	return
+	//}
+	//deadline := time.Now().Add(duration).Unix()
+	//// TEST 添加流动性
+	//msg3 := newMsgAddLiquidity(accInfo.GetAccountNumber(), accInfo.GetSequence(),
+	//	sdk.NewDecWithPrec(1,4), sdk.NewDecCoin(baseCoin, sdk.NewIntWithDecimal(1, 1)), sdk.NewDecCoin(quoteCoin, sdk.NewIntWithDecimal(1, 2)), deadline,
+	//	addr)
+	//err = common.SendMsg(common.Farm, msg3, startIndex)
+	//if err != nil {
+	//	fmt.Println("failed:", err)
+	//}
+	//
+	//// TEST 添加流动性
+	//msg4 := newMsgRemoveLiquidity(accInfo.GetAccountNumber(), accInfo.GetSequence(),
+	//	sdk.NewDecWithPrec(1,4), sdk.NewDecCoin(baseCoin, sdk.NewIntWithDecimal(1, 1)), sdk.NewDecCoin(quoteCoin, sdk.NewIntWithDecimal(1, 2)), deadline,
+	//	addr)
+	//err = common.SendMsg(common.Undelefarm, msg4, startIndex)
+	//if err != nil {
+	//	fmt.Println("failed:", err)
+	//}
 }
