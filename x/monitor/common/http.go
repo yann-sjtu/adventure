@@ -53,12 +53,14 @@ func DoPost(timeStr string, object Object) error {
 	if err != nil {
 		return err
 	}
+	//sss := string(reqStr)
+	//fmt.Println(sss)
 	nonce := timeStr
 	// 0 sign with hmac-sha256
 	signature := hmacSha256(secret, nonce+ctx+string(reqStr))
 
 	// 1.1 init new request
-	req, err := http.NewRequest(http.MethodPost, serverUrl, bytes.NewBuffer(reqStr))
+	req, err := http.NewRequest(http.MethodPost, serverUrl+ctx, bytes.NewBuffer(reqStr))
 	if err != nil {
 		panic(err)
 	}
