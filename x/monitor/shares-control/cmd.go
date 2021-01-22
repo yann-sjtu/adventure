@@ -3,6 +3,7 @@ package shares_control
 import (
 	"github.com/okex/adventure/x/monitor/shares-control/keeper"
 	"github.com/spf13/cobra"
+	"log"
 	"time"
 )
 
@@ -38,6 +39,17 @@ func runSharesControlCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	for {
+
+		// analyse shares
+		isDangerous, err := kp.AnalyseShares()
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		if isDangerous{
+
+		}
 
 		time.Sleep(roundInterval)
 	}

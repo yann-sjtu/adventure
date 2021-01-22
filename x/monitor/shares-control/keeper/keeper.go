@@ -5,15 +5,17 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/adventure/common"
 	"github.com/okex/adventure/x/monitor/shares-control/types"
+	"log"
 	"strconv"
 	"strings"
 )
 
 type Keeper struct {
-	cliManager     *common.ClientManager
-	params         types.Params
-	targetValAddrs []sdk.ValAddress
-	workers        []types.Worker
+	cliManager       *common.ClientManager
+	params           types.Params
+	targetValAddrs   []sdk.ValAddress
+	targetValsFilter map[string]struct{}
+	workers          []types.Worker
 }
 
 func NewKeeper() Keeper {
@@ -48,13 +50,17 @@ func (k *Keeper) parseConfig(config *types.Config) error {
 	k.params = types.NewParams(valNumberInTop21, percentToPlunder)
 
 	// val addr
+	k.targetValsFilter = make(map[string]struct{})
 	for _, addrStr := range config.TargetValAddrs {
 		accAddr, err := sdk.AccAddressFromBech32(addrStr)
 		if err != nil {
 			return err
 		}
 
-		k.targetValAddrs = append(k.targetValAddrs, sdk.ValAddress(accAddr))
+		valAddr := sdk.ValAddress(accAddr)
+		k.targetValAddrs = append(k.targetValAddrs, valAddr)
+		// add filter
+		k.targetValsFilter[valAddr.String()] = struct{}{}
 	}
 
 	// worker info
@@ -74,4 +80,17 @@ func (k *Keeper) parseConfig(config *types.Config) error {
 	}
 
 	return nil
+}
+
+func (k *Keeper) AnalyseShares() (isDangerous bool, err error) {
+	vals, err := k.cliManager.GetClient().Staking().QueryValidators()
+	if err != nil {
+		return
+	}
+
+	targetTotal, globalTotal := k.sumShares(vals)
+	log.Printf("target total: [%s]    global total: [%s]    percentage: [%s]\n",
+		targetTotal.String(), globalTotal.String(), targetTotal.Quo(globalTotal).String())
+
+	return
 }
