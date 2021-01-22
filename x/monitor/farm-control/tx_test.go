@@ -44,7 +44,7 @@ func TestSendTx(t *testing.T) {
 
 	// TEST 删除LP
 	//msg2 := newMsgUnLock(accInfo.GetAccountNumber(), accInfo.GetSequence(), sdk.NewDecCoin(lockSymbol, sdk.NewIntWithDecimal(1,8)), addr)
-	//err = common.SendMsg(common.Farmlp, msg2, startIndex)
+	//err = common.SendMsg(common.Unfarmlp, msg2, startIndex)
 	//if err != nil {
 	//	fmt.Println("failed:", err)
 	//}
@@ -59,7 +59,7 @@ func TestSendTx(t *testing.T) {
 	msg3 := newMsgAddLiquidity(accInfo.GetAccountNumber(), accInfo.GetSequence(),
 		sdk.NewDecWithPrec(1,4), sdk.NewDecCoin(baseCoin, sdk.NewIntWithDecimal(1, 1)), sdk.NewDecCoin(quoteCoin, sdk.NewIntWithDecimal(1, 2)), deadline,
 		addr)
-	err = common.SendMsg(common.Farmlp, msg3, startIndex)
+	err = common.SendMsg(common.Farm, msg3, startIndex)
 	if err != nil {
 		fmt.Println("failed:", err)
 	}
@@ -68,7 +68,7 @@ func TestSendTx(t *testing.T) {
 	msg4 := newMsgRemoveLiquidity(accInfo.GetAccountNumber(), accInfo.GetSequence(),
 		sdk.NewDecWithPrec(1,4), sdk.NewDecCoin(baseCoin, sdk.NewIntWithDecimal(1, 1)), sdk.NewDecCoin(quoteCoin, sdk.NewIntWithDecimal(1, 2)), deadline,
 		addr)
-	err = common.SendMsg(common.Farmlp, msg4, startIndex)
+	err = common.SendMsg(common.Undelefarm, msg4, startIndex)
 	if err != nil {
 		fmt.Println("failed:", err)
 	}
