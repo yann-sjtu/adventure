@@ -1,15 +1,13 @@
 package shares_control
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/okex/adventure/common"
+	"github.com/okex/adventure/x/monitor/shares-control/keeper"
 	"github.com/spf13/cobra"
 	"time"
 )
 
 const (
-	flagValNumberInTop21 = "val_in_top_21"
-	flagRewardsPercent   = "rewards_percentage"
+	flagTomlFilePath = "toml-path"
 )
 
 func SharesControlCmd() *cobra.Command {
@@ -21,42 +19,25 @@ func SharesControlCmd() *cobra.Command {
 	}
 
 	flags := sharesControlCmd.Flags()
-	flags.StringP(flagValNumberInTop21, "n", "21", "the number of validators in top 21")
-	flags.StringP(flagRewardsPercent, "p", "0.8", "the percentage of rewards to plunder")
+	flags.StringP(flagTomlFilePath, "p", "./", "the file path of config.toml")
 
 	return sharesControlCmd
 }
 
 func runSharesControlCmd(cmd *cobra.Command, args []string) error {
-	nValInTop21Str, err := cmd.Flags().GetString(flagValNumberInTop21)
+
+	path, err := cmd.Flags().GetString(flagTomlFilePath)
 	if err != nil {
 		return err
 	}
 
-	nValInTop21, err := sdk.NewDecFromStr(nValInTop21Str)
+	kp := keeper.NewKeeper()
+	err = kp.Init(path)
 	if err != nil {
 		return err
 	}
-
-	percentToPlunderStr, err := cmd.Flags().GetString(flagRewardsPercent)
-	if err != nil {
-		return err
-	}
-
-	percentToPlunder, err := sdk.NewDecFromStr(percentToPlunderStr)
-	if err != nil {
-		return err
-	}
-
-	cliManager := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
 
 	for {
-		cli := cliManager.GetClient()
-		// get all vals info
-		vals, err := cli.Staking().QueryValidators()
-		if err != nil {
-			continue
-		}
 
 		time.Sleep(roundInterval)
 	}
