@@ -13,3 +13,11 @@ func NewParams(valNumberInTop21, percentToPlunder sdk.Dec) Params {
 		percentToPlunder,
 	}
 }
+
+func (p *Params) GetValNumberInTop21() sdk.Dec {
+	return p.valNumberInTop21
+}
+
+func (p *Params) GetPercentToPlunder() sdk.Dec {
+	return p.percentToPlunder
+}

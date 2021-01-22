@@ -34,6 +34,7 @@ func (k *Keeper) Init(configFilePath string) (err error) {
 		return
 	}
 
+	k.logInit()
 	return nil
 }
 
