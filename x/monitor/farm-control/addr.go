@@ -7,7 +7,7 @@ import (
 	gosdk "github.com/okex/okexchain-go-sdk"
 )
 
-const startIndex = 924
+const startIndex = 925
 
 var (
 	accounts = newFarmAddrBook()
@@ -24,7 +24,7 @@ type FarmAccount struct {
 func newFarmAddrBook() FarmAccounts {
 	farmAccounts := make([]*FarmAccount, len(addrs), len(addrs))
 	for i := 0; i < len(addrs); i++ {
-		farmAccounts[i] = &FarmAccount{Address: addrs[i], Index: 924+i, IsLocked: false}
+		farmAccounts[i] = &FarmAccount{Address: addrs[i], Index: startIndex+i, IsLocked: false}
 	}
 	return farmAccounts
 }
@@ -49,7 +49,6 @@ func pickOneAccount() *FarmAccount {
 }
 
 var addrs = []string{
-	"okexchain1r99n9mrda79jdktr0xxmza87k97v5eh0aq93fm",
 	"okexchain1ln38mfpx5vuugk85grljw8c4utcechdm3v55xp",
 	"okexchain15v8k8gfp2paxrpaw98mnf9pfycgr4xard3u8yr",
 	"okexchain1sey3syrw0xsqsvkdlk86j72w0hfnq8j4yqk9e3",
@@ -150,5 +149,4 @@ var addrs = []string{
 	"okexchain1nvx6x4qwzqaf948h4jv66tn3luy77czt2lja4s",
 	"okexchain1v2yyh4q8zqpn8p36pe7y0xmjf0u8cy3y6k2f09",
 	"okexchain1ehk5ru664agwz65wmpjtajmjsmkh9q2fzdu97x",
-	"okexchain16aleppmrn38t3hszv70y68svwz5ktl5nke722r",
 }

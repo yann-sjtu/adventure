@@ -47,21 +47,29 @@ func runFarmControlCmd(cmd *cobra.Command, args []string) error {
 }
 
 func replenishLockedToken(cli *gosdk.Client, requiredToken types.SysCoin) {
-	// 2.2 pick one addr, then query its own account
-	account:= pickOneAccount()
-	accInfo, err := cli.Auth().QueryAccount(account.Address)
-	if err != nil {
-		return
-	}
+	remainToken := requiredToken
 
-	// 2.3 there is not enough lpt in this addr, then add-liquidity in swap
-	if accInfo.GetCoins().AmountOf(lockSymbol).LT(requiredToken.Amount) {
+	for i := 0; i < 200 || remainToken.Amount.LTE(types.ZeroDec()); i++ {
+		// pick one addr, then query its own account
+		account := pickOneAccount()
+		accInfo, err := cli.Auth().QueryAccount(account.Address)
+		if err != nil {
+			return
+		}
+
+		// 2.3 there is not enough lpt in this addr, then add-liquidity in swap
+		accCoin := types.NewCoin(lockSymbol, accInfo.GetCoins().AmountOf(lockSymbol))
+		if accCoin.Amount.LT(requiredToken.Amount) {
+			// todo
+		}
+
+		// 2.4 lock lpt in the farm pool
 		// todo
+
+
+		// 2.5 update accounts
+		account.IsLocked = true
+
+		remainToken = requiredToken.Sub(accCoin)
 	}
-
-	// 2.4 lock lpt in the farm pool
-	// todo
-
-	// 2.5 update accounts
-	account.IsLocked = true
 }

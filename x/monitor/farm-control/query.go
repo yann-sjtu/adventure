@@ -12,6 +12,9 @@ import (
 const (
 	poolName   = "1st_pool_okt_usdt"
 	lockSymbol = "ammswap_okt_usdt-a2b"
+
+	baseCoin = "okt"
+	quoteCoin = "usdt-a2b"
 )
 
 var (

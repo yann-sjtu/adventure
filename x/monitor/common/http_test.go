@@ -25,10 +25,10 @@ func TestStr(t *testing.T) {
 }
 
 func testObjectMarshal() {
-	msgWithIndex := makeMsg()
+	msg := makeMsg()
 
 	timeStr := strconv.FormatInt(time.Now().UnixNano(), 10)
-	obj, err := NewObject(msgWithIndex, 1, timeStr, Staking)
+	obj, err := NewObject(msg, 1, timeStr, Staking)
 	if err != nil {
 		panic(err)
 	}
