@@ -31,6 +31,26 @@ func newMsgDeposit(accNum, seqNum uint64, amount sdk.SysCoin, addr string) autht
 	return signMsg
 }
 
+func newMsgWithdraw(accNum, seqNum uint64, amount sdk.SysCoin, addr string) authtypes.StdSignMsg {
+	cosmosAddr, err := utils.ToCosmosAddress(addr)
+	if err != nil {
+		panic(err)
+	}
+
+	msg := stakingtypes.NewMsgWithdraw(cosmosAddr, amount)
+	msgs := []types.Msg{msg}
+	signMsg := authtypes.StdSignMsg{
+		ChainID:       "okexchain-66",
+		AccountNumber: accNum,
+		Sequence:      seqNum,
+		Memo:          "",
+		Msgs:          msgs,
+		Fee:           authtypes.NewStdFee(200000, sdk.NewDecCoinsFromDec(common.NativeToken, sdk.NewDecWithPrec(2, 3))),
+	}
+
+	return signMsg
+}
+
 func newMsgLock(accNum, seqNum uint64, amount sdk.SysCoin, addr string) authtypes.StdSignMsg {
 	cosmosAddr, err := utils.ToCosmosAddress(addr)
 	if err != nil {

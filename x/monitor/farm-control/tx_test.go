@@ -21,10 +21,6 @@ import (
 
 func TestDeposit(t *testing.T) {
 	addr := "okexchain1v9asy9x82lk7hfw27kq3pzeg2rgeeg6t5u27uv"
-	accAdd, err := sdk.AccAddressFromBech32(addr)
-	if err != nil {
-		panic(err)
-	}
 
 	cfg, err := gosdk.NewClientConfig("http://10.0.240.37:26657", "okexchain-66", gosdk.BroadcastBlock, "0.002okt", 200000, 0, "")
 	if err != nil {
@@ -44,6 +40,32 @@ func TestDeposit(t *testing.T) {
 
 	msg := newMsgDeposit(accInfo.GetAccountNumber(), accInfo.GetSequence(), coins, addr)
 	err = common.SendMsg(common.Staking, msg, 801)
+	if err != nil {
+		fmt.Println("failed:", err)
+	}
+}
+
+func TestWithdraw(t *testing.T) {
+	addr := "okexchain1v9asy9x82lk7hfw27kq3pzeg2rgeeg6t5u27uv"
+
+	cfg, err := gosdk.NewClientConfig("http://10.0.240.37:26657", "okexchain-66", gosdk.BroadcastBlock, "0.002okt", 200000, 0, "")
+	if err != nil {
+		panic(err)
+	}
+
+	cli := gosdk.NewClient(cfg)
+	accInfo, err := cli.Auth().QueryAccount(addr)
+	if err != nil {
+		panic(err)
+	}
+
+	coins, err := sdk.ParseDecCoin("1.1111okt")
+	if err != nil {
+		panic(err)
+	}
+
+	msg := newMsgWithdraw(accInfo.GetAccountNumber(), accInfo.GetSequence(), coins, addr)
+	err = common.SendMsg(common.Undelegate, msg, 801)
 	if err != nil {
 		fmt.Println("failed:", err)
 	}
