@@ -51,9 +51,16 @@ func runSharesControlCmd(cmd *cobra.Command, args []string) error {
 		}
 
 		switch result.GetCode() {
-		case 0:
+		// TODO
 		case 1:
-		case 2:
+			// TODO
+		case 2, 3:
+			if err = kp.RaisePercentageToPlunder(); err != nil {
+				log.Println(err)
+				continue
+			}
+
+			fmt.Println("info to raise percentage to plunder successfully")
 		}
 
 		time.Sleep(roundInterval)

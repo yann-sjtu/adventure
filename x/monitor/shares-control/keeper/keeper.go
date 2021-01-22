@@ -1,9 +1,12 @@
 package keeper
 
 import (
+	"errors"
+	"fmt"
 	"github.com/BurntSushi/toml"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/adventure/common"
+	mntcmn "github.com/okex/adventure/x/monitor/common"
 	"github.com/okex/adventure/x/monitor/shares-control/types"
 	"log"
 	"strconv"
@@ -113,4 +116,33 @@ func (k *Keeper) AnalyseShares() (res types.AnalyseResult, err error) {
 	}
 
 	return
+}
+
+func (k *Keeper) getPureWorker() (types.Worker, error) {
+	cli := k.cliManager.GetClient()
+	for _, worker := range k.workers {
+		delegator, err := cli.Staking().QueryDelegator(worker.GetAccAddr().String())
+		if err != nil {
+			return types.Worker{}, err
+		}
+
+		// pure worker
+		if len(delegator.ValidatorAddresses) == 0 {
+			fmt.Printf("\t worker [%s] is picked\n", worker.GetAccAddr().String())
+			return worker, nil
+		}
+	}
+
+	log.Println("Warning! There's no pure worker now")
+	return types.Worker{}, errors.New("warning! there's no pure worker now")
+}
+
+func (k *Keeper) addSharesToAllVals(worker types.Worker) error {
+	accInfo, err := k.cliManager.GetClient().Auth().QueryAccount(worker.GetAccAddr().String())
+	if err != nil {
+		return err
+	}
+
+	msg := types.NewMsgAddShares(accInfo.GetAccountNumber(), accInfo.GetSequence(), k.targetValAddrs, worker.GetAccAddr())
+	return mntcmn.SendMsg(mntcmn.Vote, msg, worker.GetIndex())
 }
