@@ -1,6 +1,8 @@
 package common
 
 import (
+	"encoding/json"
+
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 )
 
@@ -26,11 +28,17 @@ type Object struct {
 	TxType    int    `json:"txType"`
 }
 
-func NewObject(msgStr string, time string, txType int) Object {
+func NewObject(msg types.StdSignMsg, addresIndex int, time string, txType int) (Object, error) {
+	msgWithIndex := NewMsgWithIndex(msg, addresIndex)
+	msgWithIndexStr, err := json.Marshal(msgWithIndex)
+	if err != nil {
+		return Object{}, err
+	}
+
 	return Object{
 		CoinType:  coinType,
-		Hex:       msgStr,
+		Hex:       string(msgWithIndexStr),
 		RelatedId: time,
 		TxType:    txType,
-	}
+	}, nil
 }

@@ -2,6 +2,7 @@ package farm_control
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/cosmos/cosmos-sdk/types"
 	gosdk "github.com/okex/okexchain-go-sdk"
@@ -31,7 +32,7 @@ func checkLockedRatio(cli *gosdk.Client) (types.SysCoin, error)  {
 
 	// todo
 	ratio := totalOurValueLocked.Amount.Quo(totalValueLocked.Amount)
-	fmt.Printf("total our value locked: %s, total value locked: %s, ratio: %s \n", totalOurValueLocked.String(), totalValueLocked.String(), ratio.String())
+	log.Printf("total our value locked: %s, total value locked: %s, ratio: %s \n", totalOurValueLocked.String(), totalValueLocked.String(), ratio.String())
 	if ratio.LTE(limitRatio) {
 		totalRequiredAmount := totalValueLocked.Amount.Mul(lockedRatio)
 		requiredAmount := totalRequiredAmount.Sub(totalOurValueLocked.Amount)

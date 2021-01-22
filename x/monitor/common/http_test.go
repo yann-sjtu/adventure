@@ -25,15 +25,13 @@ func TestStr(t *testing.T) {
 }
 
 func testObjectMarshal() {
-	msgWithIndex := makeMsgWithIndex(1)
-	msgStr, err := json.Marshal(msgWithIndex)
+	msgWithIndex := makeMsg()
+
+	timeStr := strconv.FormatInt(time.Now().UnixNano(), 10)
+	obj, err := NewObject(msgWithIndex, 1, timeStr, Staking)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(string(msgStr))
-
-	timeStr := strconv.FormatInt(time.Now().UnixNano(), 10)
-	obj := NewObject(string(msgStr), timeStr, Staking)
 	str, err := json.Marshal(obj)
 	if err != nil {
 		panic(err)

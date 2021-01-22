@@ -32,18 +32,15 @@ var (
 	ctx       = "/vault/api/v2/okpool/voteOKT"
 )
 
-func SendMsg(txType int, addresIndex int, msg types.StdSignMsg) error {
+func SendMsg(txType int, msg types.StdSignMsg, addresIndex int) error {
 	// 0.1 time now
 	timeStr := strconv.FormatInt(time.Now().UnixNano(), 10)
 
 	// 0.2
-	msgWithIndex := NewMsgWithIndex(msg, addresIndex)
-	msgWithIndexStr, err := json.Marshal(msgWithIndex)
+	object, err := NewObject(msg, addresIndex, timeStr, txType)
 	if err != nil {
 		return err
 	}
-
-	object := NewObject(string(msgWithIndexStr), timeStr, txType)
 	err = DoPost(timeStr, object)
 	if err != nil {
 		return err

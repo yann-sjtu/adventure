@@ -1,9 +1,12 @@
 package farm_control
 
 import (
+	"log"
 	"time"
 
+	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/adventure/common"
+	gosdk "github.com/okex/okexchain-go-sdk"
 	"github.com/spf13/cobra"
 )
 
@@ -32,28 +35,33 @@ func runFarmControlCmd(cmd *cobra.Command, args []string) error {
 		// 1. check the ratio of (our_total_locked_lpt / total_locked_lpt)
 		requiredToken, err := checkLockedRatio(cli)
 		if err != nil {
+			log.Printf("[checkLockedRatio] failed: %s\n", err.Error())
 			continue
 		}
 		if !requiredToken.IsZero() { // 2.1 our_total_locked_lpt / total_locked_lpt < 81%, then promote the ratio over 85%
-			// 2.2 pick one addr, then query its own account
-			account:= pickOneAccount()
-			accInfo, err := cli.Auth().QueryAccount(account.Address)
-			if err != nil {
-				continue
-			}
-
-			// 2.3 there is not enough lpt in this addr, then add-liquidity in swap
-			if accInfo.GetCoins().AmountOf(lockSymbol).LT(requiredToken.Amount) {
-				// todo
-			}
-
-			// 2.4 lock lpt in the farm pool
-			// todo
-
-			// 2.5 update accounts
-			account.IsLocked = true
+			replenishLockedToken(cli, requiredToken)
 		} else { // 2.1 our_total_locked_lpt / total_locked_lpt > 81%, then do nothing
 
 		}
 	}
+}
+
+func replenishLockedToken(cli *gosdk.Client, requiredToken types.SysCoin) {
+	// 2.2 pick one addr, then query its own account
+	account:= pickOneAccount()
+	accInfo, err := cli.Auth().QueryAccount(account.Address)
+	if err != nil {
+		return
+	}
+
+	// 2.3 there is not enough lpt in this addr, then add-liquidity in swap
+	if accInfo.GetCoins().AmountOf(lockSymbol).LT(requiredToken.Amount) {
+		// todo
+	}
+
+	// 2.4 lock lpt in the farm pool
+	// todo
+
+	// 2.5 update accounts
+	account.IsLocked = true
 }
