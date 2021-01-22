@@ -20,3 +20,11 @@ func NewWorker(accAddr sdk.AccAddress, index int) Worker {
 func (w Worker) String() string {
 	return fmt.Sprintf("%s with index %d", w.accAddr.String(), w.index)
 }
+
+func (w *Worker) GetAccAddr() sdk.AccAddress {
+	return w.accAddr
+}
+
+func (w *Worker) GetIndex() int {
+	return w.index
+}
