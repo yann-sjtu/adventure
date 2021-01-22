@@ -1,3 +1,3 @@
 #!/bin/zsh
 
-adventure monitor shares-control -n 15 -p 80
+adventure monitor shares-control -p ./x/monitor/shares-control/config.toml

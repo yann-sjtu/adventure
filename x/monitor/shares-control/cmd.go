@@ -3,6 +3,7 @@ package shares_control
 import (
 	"github.com/okex/adventure/x/monitor/shares-control/keeper"
 	"github.com/spf13/cobra"
+	"log"
 	"time"
 )
 
@@ -19,7 +20,7 @@ func SharesControlCmd() *cobra.Command {
 	}
 
 	flags := sharesControlCmd.Flags()
-	flags.StringP(flagTomlFilePath, "p", "./", "the file path of config.toml")
+	flags.StringP(flagTomlFilePath, "p", "./config.toml", "the file path of config.toml")
 
 	return sharesControlCmd
 }
@@ -38,6 +39,17 @@ func runSharesControlCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	for {
+
+		// analyse shares
+		isDangerous, err := kp.AnalyseShares()
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		if isDangerous{
+
+		}
 
 		time.Sleep(roundInterval)
 	}

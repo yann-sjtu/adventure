@@ -1,6 +1,9 @@
 package types
 
-import sdk "github.com/cosmos/cosmos-sdk/types"
+import (
+	"fmt"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
 
 type Worker struct {
 	accAddr sdk.AccAddress
@@ -12,4 +15,8 @@ func NewWorker(accAddr sdk.AccAddress, index int) Worker {
 		accAddr,
 		index,
 	}
+}
+
+func (w Worker) String() string {
+	return fmt.Sprintf("%s with index %d", w.accAddr.String(), w.index)
 }
