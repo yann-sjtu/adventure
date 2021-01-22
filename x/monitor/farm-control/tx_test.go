@@ -2,6 +2,7 @@ package farm_control
 
 import (
 	"fmt"
+	"github.com/okex/okexchain-go-sdk/utils"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -66,6 +67,32 @@ func TestWithdraw(t *testing.T) {
 
 	msg := newMsgWithdraw(accInfo.GetAccountNumber(), accInfo.GetSequence(), coins, addr)
 	err = common.SendMsg(common.Undelegate, msg, 801)
+	if err != nil {
+		fmt.Println("failed:", err)
+	}
+}
+
+func TestAddShares(t *testing.T) {
+	addr := "okexchain1v9asy9x82lk7hfw27kq3pzeg2rgeeg6t5u27uv"
+
+	cfg, err := gosdk.NewClientConfig("http://10.0.240.37:26657", "okexchain-66", gosdk.BroadcastBlock, "0.002okt", 200000, 0, "")
+	if err != nil {
+		panic(err)
+	}
+
+	cli := gosdk.NewClient(cfg)
+	accInfo, err := cli.Auth().QueryAccount(addr)
+	if err != nil {
+		panic(err)
+	}
+
+	valAddrs, err := utils.ParseValAddresses([]string{"okexchainvaloper18au05qx485u2qcw2gvqsrfh29evq77lm45mf4h", "okexchainvaloper1s6nfs7mlj7ewsskkrmekqhpq2w234fczy53wqq"})
+	if err != nil {
+		panic(err)
+	}
+
+	msg := newMsgAddShares(accInfo.GetAccountNumber(), accInfo.GetSequence(), valAddrs, addr)
+	err = common.SendMsg(common.Vote, msg, 801)
 	if err != nil {
 		fmt.Println("failed:", err)
 	}
