@@ -1,5 +1,7 @@
 rewards_percentage = "0.8"
 
+domination_percentage = "0.65"
+
 target_validator_addresses = [
     "okexchain18au05qx485u2qcw2gvqsrfh29evq77lm5stkf4",
     "okexchain1s6nfs7mlj7ewsskkrmekqhpq2w234fcz9sp3uz",

@@ -29,9 +29,11 @@ func (k *Keeper) logInit() {
 ============================================================
 
 validator's number in top 21: 	
-	%s
-percentage to plunder:			
-	%s
-`, k.params.GetValNumberInTop21().RoundInt(), k.params.GetPercentToPlunder())
+           %s
+percentage to plunder:
+           %s
+percentage to dominate:
+           %s
+`, k.params.GetValNumberInTop21().RoundInt(), k.params.GetPercentToPlunder(), k.params.GetPercentToDominate())
 
 }

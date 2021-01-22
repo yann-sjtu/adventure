@@ -47,7 +47,12 @@ func (k *Keeper) parseConfig(config *types.Config) error {
 	if err != nil {
 		return err
 	}
-	k.params = types.NewParams(valNumberInTop21, percentToPlunder)
+	percentToDominate, err := sdk.NewDecFromStr(config.PercentToDominate)
+	if err != nil {
+		return err
+	}
+
+	k.params = types.NewParams(valNumberInTop21, percentToPlunder, percentToDominate)
 
 	// val addr
 	k.targetValsFilter = make(map[string]struct{})
