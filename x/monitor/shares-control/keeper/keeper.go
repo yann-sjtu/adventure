@@ -6,6 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/adventure/common"
 	"github.com/okex/adventure/x/monitor/shares-control/types"
+	"path/filepath"
 )
 
 type Keeper struct {
@@ -25,6 +26,12 @@ func (k *Keeper) Init(configFilePath string) error {
 
 	// params from toml
 	var config types.Config
+	path, err := filepath.Abs(filepath.Dir("config.toml"))
+	if err!=nil{
+		return err
+	}
+
+	fmt.Println(path)
 	if _, err := toml.DecodeFile(configFilePath, &config); err != nil {
 		return err
 	}
