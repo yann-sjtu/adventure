@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"fmt"
 	"github.com/BurntSushi/toml"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/adventure/common"
@@ -27,6 +28,8 @@ func (k *Keeper) Init(configFilePath string) error {
 	if _, err := toml.DecodeFile(configFilePath, &config); err != nil {
 		return err
 	}
+
+	fmt.Println(config)
 
 	return nil
 }

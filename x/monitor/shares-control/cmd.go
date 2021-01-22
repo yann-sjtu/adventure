@@ -19,7 +19,7 @@ func SharesControlCmd() *cobra.Command {
 	}
 
 	flags := sharesControlCmd.Flags()
-	flags.StringP(flagTomlFilePath, "p", "./", "the file path of config.toml")
+	flags.StringP(flagTomlFilePath, "p", "./config.toml", "the file path of config.toml")
 
 	return sharesControlCmd
 }
