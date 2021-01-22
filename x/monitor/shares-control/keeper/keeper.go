@@ -12,7 +12,7 @@ import (
 
 type Keeper struct {
 	cliManager       *common.ClientManager
-	params           types.Params
+	expectedParams   types.Params
 	targetValAddrs   []sdk.ValAddress
 	targetValsFilter map[string]struct{}
 	workers          []types.Worker
@@ -52,7 +52,7 @@ func (k *Keeper) parseConfig(config *types.Config) error {
 		return err
 	}
 
-	k.params = types.NewParams(valNumberInTop21, percentToPlunder, percentToDominate)
+	k.expectedParams = types.NewParams(valNumberInTop21, percentToPlunder, percentToDominate)
 
 	// val addr
 	k.targetValsFilter = make(map[string]struct{})
@@ -87,7 +87,7 @@ func (k *Keeper) parseConfig(config *types.Config) error {
 	return nil
 }
 
-func (k *Keeper) AnalyseShares() (isDangerous bool, err error) {
+func (k *Keeper) AnalyseShares() (res types.AnalyseResult, err error) {
 	vals, err := k.cliManager.GetClient().Staking().QueryValidators()
 	if err != nil {
 		return
@@ -97,6 +97,20 @@ func (k *Keeper) AnalyseShares() (isDangerous bool, err error) {
 	log.Printf("target total: [%s]    boned total: [%s]    global total: [%s]\n",
 		targetTotal.String(), globalTotal.String(), bonedTotal.String())
 
-	// gov vote control
+	// check validator number in top 21
+	if warning, valToPromote := k.checkValNumInTop21(vals); warning {
+		return types.NewAnalyseResult(1, valToPromote), nil
+	}
+
+	// check percent to dominate(gov vote)
+	if k.checkPercentToDominate(targetTotal, bonedTotal) {
+		return types.NewAnalyseResult(2, nil), nil
+	}
+
+	// check percent to plunder(distr reward)
+	if k.checkPercentToPlunder(vals, targetTotal, globalTotal) {
+		return types.NewAnalyseResult(3, nil), nil
+	}
+
 	return
 }

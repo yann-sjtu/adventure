@@ -41,14 +41,16 @@ func runSharesControlCmd(cmd *cobra.Command, args []string) error {
 	for {
 
 		// analyse shares
-		isDangerous, err := kp.AnalyseShares()
+		result, err := kp.AnalyseShares()
 		if err != nil {
 			log.Println(err)
 			continue
 		}
 
-		if isDangerous{
-
+		switch result.GetCode() {
+		case 0:
+		case 1:
+		case 2:
 		}
 
 		time.Sleep(roundInterval)

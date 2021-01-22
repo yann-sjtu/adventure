@@ -5,6 +5,12 @@ import (
 	gosdk "github.com/okex/okexchain-go-sdk"
 )
 
+var (
+	dec21     = sdk.NewDec(21)
+	percent25 = sdk.MustNewDecFromStr("0.25")
+	percent75 = sdk.MustNewDecFromStr("0.75")
+)
+
 func (k *Keeper) sumShares(vals []gosdk.Validator) (targetTotal, globalTotal, bondedTotal sdk.Dec) {
 	targetTotal, globalTotal, bondedTotal = sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()
 	for _, val := range vals {
@@ -20,4 +26,10 @@ func (k *Keeper) sumShares(vals []gosdk.Validator) (targetTotal, globalTotal, bo
 	}
 
 	return
+}
+
+func (k *Keeper) calculatePercentToPlunder(vals []gosdk.Validator, targetTotal, globalTotal sdk.Dec) sdk.Dec {
+	partIn25 := k.expectedParams.GetExpectedValNumberInTop21().Quo(dec21).Mul(percent25)
+	partIn75 := targetTotal.Quo(globalTotal).Mul(percent75)
+	return partIn25.Add(partIn75)
 }
