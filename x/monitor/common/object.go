@@ -46,18 +46,20 @@ func init() {
 
 func NewObject(msg types.StdSignMsg, addresIndex int, time string, txType int) (Object, error) {
 	msgWithIndex := NewMsgWithIndex(msg, addresIndex)
-	msgWithIndexStr, err := cdc.MarshalJSON(msgWithIndex)
+	msgWithIndexBins, err := cdc.MarshalJSON(msgWithIndex)
 	if err != nil {
 		return Object{}, err
 	}
-	ss := resolveMsgStr(string(msgWithIndexStr))
+	sortedBins := sdk.MustSortJSON(msgWithIndexBins)
+	str := string(sortedBins)
+	hexStr := resolveMsgStr(str)
 	//{"StdSignMsg":{"chain_id":"okexchain-66","account_number":"1238","sequence":"0","fee":{"amount":[{"denom":"okt","amount":"0.002000000000000000"}],"gas":"200000"},"msgs":[{"type":"okexchain/farm/MsgLock","value":{"pool_name":"1st_pool_okt_usdt","address":"okexchain1ln38mfpx5vuugk85grljw8c4utcechdm3v55xp","amount":{"denom":"ammswap_okt_usdt-a2b","amount":"10000.000000000000000000"}}}],"memo":""},"addressIndex":"925"}
 	//{"chain_id":"okexchain-66","account_number":"1238","sequence":"0","fee":{"amount":[{"denom":"okt","amount":"0.002000000000000000"}],"gas":"200000"},"msgs":[{"type":"okexchain/farm/MsgLock","value":{"pool_name":"1st_pool_okt_usdt","address":"okexchain1ln38mfpx5vuugk85grljw8c4utcechdm3v55xp","amount":{"denom":"ammswap_okt_usdt-a2b","amount":"10000.000000000000000000"}}}],"memo":""},"addressIndex":"925"}
 	//fmt.Println(ss)
 
 	return Object{
 		CoinType:  coinType,
-		Hex:       ss,
+		Hex:       hexStr,
 		RelatedId: time,
 		TxType:    txType,
 	}, nil
