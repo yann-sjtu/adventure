@@ -2,6 +2,7 @@ package shares_control
 
 import (
 	"fmt"
+	"github.com/okex/adventure/x/monitor/shares-control/constant"
 	"github.com/okex/adventure/x/monitor/shares-control/keeper"
 	"github.com/spf13/cobra"
 	"log"
@@ -62,10 +63,10 @@ func runSharesControlCmd(cmd *cobra.Command, args []string) error {
 
 			fmt.Println("info to raise percentage to plunder successfully")
 			fmt.Println("wait 1 minute ...")
-			time.Sleep(intervalAfterTxBroadcast)
+			time.Sleep(constant.IntervalAfterTxBroadcast)
 
 		}
 
-		time.Sleep(roundInterval)
+		time.Sleep(constant.RoundInterval)
 	}
 }

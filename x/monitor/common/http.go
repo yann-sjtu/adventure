@@ -3,10 +3,12 @@ package common
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -80,6 +82,10 @@ func DoPost(timeStr string, object Object) error {
 		return fmt.Errorf("read failed: %s", err.Error())
 	}
 
-	fmt.Println(string(body))
+	bodyStr := string(body)
+	if strings.Contains(bodyStr, "failed") {
+		return errors.New(bodyStr)
+	}
+
 	return nil
 }

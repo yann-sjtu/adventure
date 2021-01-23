@@ -7,10 +7,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/adventure/common"
 	mntcmn "github.com/okex/adventure/x/monitor/common"
+	"github.com/okex/adventure/x/monitor/shares-control/constant"
 	"github.com/okex/adventure/x/monitor/shares-control/types"
 	"log"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type Keeper struct {
@@ -102,7 +104,7 @@ func (k *Keeper) AnalyseShares() (res types.AnalyseResult, err error) {
 
 	// check validator number in top 21
 	if warning, valsToPromote := k.checkValNumInTop21(vals); warning {
-		strategy := k.genStrategyToPromoteValidators(valsToPromote,vals)
+		strategy := k.genStrategyToPromoteValidators(valsToPromote, vals)
 		return types.NewAnalyseResult(1, strategy), nil
 	}
 
@@ -139,6 +141,11 @@ func (k *Keeper) getPureWorker() (types.Worker, error) {
 }
 
 func (k *Keeper) addSharesToAllVals(worker types.Worker) error {
+	// whether worker deposit
+	if err := k.ensureWorkerDeposited(worker); err != nil {
+		return err
+	}
+
 	accInfo, err := k.cliManager.GetClient().Auth().QueryAccount(worker.GetAccAddr().String())
 	if err != nil {
 		return err
@@ -146,4 +153,45 @@ func (k *Keeper) addSharesToAllVals(worker types.Worker) error {
 
 	msg := types.NewMsgAddShares(accInfo.GetAccountNumber(), accInfo.GetSequence(), k.targetValAddrs, worker.GetAccAddr())
 	return mntcmn.SendMsg(mntcmn.Vote, msg, worker.GetIndex())
+}
+
+func (k *Keeper) ensureWorkerDeposited(worker types.Worker) error {
+	workerAddrStr := worker.GetAccAddr().String()
+	cli := k.cliManager.GetClient()
+	delegator, err := cli.Staking().QueryDelegator(workerAddrStr)
+	if err != nil {
+		return err
+	}
+
+	if !delegator.Tokens.Equal(sdk.ZeroDec()) {
+		// worker has deposited
+		fmt.Printf("worker [%s] has already deposited [%sokt]", workerAddrStr, delegator.Tokens)
+		return nil
+	}
+
+	// if worker not deposit
+	accInfo, err := cli.Auth().QueryAccount(workerAddrStr)
+	if err != nil {
+		return err
+	}
+
+	// depositAmount = balance - 1okt
+	depositAmount := accInfo.GetCoins().AmountOf(common.NativeToken).Sub(sdk.OneDec())
+	return k.deposit(worker, sdk.NewDecCoinFromDec(common.NativeToken, depositAmount))
+}
+
+func (k *Keeper) deposit(worker types.Worker, amount sdk.SysCoin) error {
+	accInfo, err := k.cliManager.GetClient().Auth().QueryAccount(worker.GetAccAddr().String())
+	if err != nil {
+		return err
+	}
+
+	msg := types.NewMsgDeposit(accInfo.GetAccountNumber(), accInfo.GetSequence(), amount, worker.GetAccAddr())
+	if err := mntcmn.SendMsg(mntcmn.Staking, msg, worker.GetIndex()); err != nil {
+		return err
+	}
+
+	fmt.Printf("wait for [%s] to deposit [%s] ...\n", worker.GetAccAddr(), amount.String())
+	time.Sleep(constant.IntervalAfterTxBroadcast)
+	return nil
 }
