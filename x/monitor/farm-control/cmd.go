@@ -41,7 +41,7 @@ func runFarmControlCmd(cmd *cobra.Command, args []string) error {
 		if !requiredToken.IsZero() { // 2.1 our_total_locked_lpt / total_locked_lpt < 81%, then promote the ratio over 85%
 			replenishLockedToken(cli, requiredToken)
 		} else { // 2.1 our_total_locked_lpt / total_locked_lpt > 81%, then do nothing
-
+			// just go into next round, keep monitoring
 		}
 	}
 }

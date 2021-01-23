@@ -64,6 +64,7 @@ func queryAccountInPool(cli *gosdk.Client) (types.SysCoin, error) {
 				return types.SysCoin{}, fmt.Errorf("%s from account %s locked in pool %s is not equal with %s",
 					lockInfo.Amount.String(), addr, poolName, lockSymbol)
 			}
+			fmt.Printf("%s[%d] locked lpt: %s", addr, account.Index, lockInfo.Amount.String())
 			totalAmount = totalAmount.Add(lockInfo.Amount)
 			break
 		}

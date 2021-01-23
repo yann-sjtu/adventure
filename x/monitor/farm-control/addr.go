@@ -1,6 +1,7 @@
 package farm_control
 
 import (
+	"fmt"
 	"math/rand"
 	"time"
 
@@ -40,7 +41,18 @@ func initFarmAccounts(cli *gosdk.Client) {
 			account.IsLocked = true
 		}
 	}
+
+	// output all accounts information
+	for _, account := range accounts {
+		if account.IsLocked {
+			fmt.Printf("%s[%d] has locked lpt on pool\n", account.Address, account.Index)
+		} else {
+			fmt.Printf("%s[%d] hasn't locked lpt on pool\n", account.Address, account.Index)
+		}
+	}
 }
+
+
 
 func pickOneAccount() *FarmAccount {
 	rand.Seed(time.Now().UnixNano())
