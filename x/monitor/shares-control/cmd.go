@@ -61,6 +61,9 @@ func runSharesControlCmd(cmd *cobra.Command, args []string) error {
 			}
 
 			fmt.Println("info to raise percentage to plunder successfully")
+			fmt.Println("wait 1 minute ...")
+			time.Sleep(intervalAfterTxBroadcast)
+
 		}
 
 		time.Sleep(roundInterval)

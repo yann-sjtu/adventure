@@ -1,21 +1,19 @@
 package types
 
+import "github.com/okex/adventure/x/monitor/shares-control/strategy"
+
 type AnalyseResult struct {
-	code              int
-	valAddrsToPromote []string
+	code     int
+	strategy strategy.Strategy
 }
 
-func NewAnalyseResult(code int, valAddrsToPromote []string) AnalyseResult {
+func NewAnalyseResult(code int, strategy strategy.Strategy) AnalyseResult {
 	return AnalyseResult{
 		code,
-		valAddrsToPromote,
+		strategy,
 	}
 }
 
 func (ar *AnalyseResult) GetCode() int {
 	return ar.code
-}
-
-func (ar *AnalyseResult) GetValAddrsToPromote() []string {
-	return ar.valAddrsToPromote
 }

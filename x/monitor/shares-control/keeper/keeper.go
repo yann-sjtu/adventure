@@ -101,8 +101,9 @@ func (k *Keeper) AnalyseShares() (res types.AnalyseResult, err error) {
 		targetTotal.String(), globalTotal.String(), bonedTotal.String())
 
 	// check validator number in top 21
-	if warning, valToPromote := k.checkValNumInTop21(vals); warning {
-		return types.NewAnalyseResult(1, valToPromote), nil
+	if warning, valsToPromote := k.checkValNumInTop21(vals); warning {
+		strategy := k.genStrategyToPromoteValidators(valsToPromote,vals)
+		return types.NewAnalyseResult(1, strategy), nil
 	}
 
 	// check percent to dominate(gov vote)

@@ -12,3 +12,5 @@ func NewFilter(targetValAddrs []sdk.ValAddress) map[string]struct{} {
 
 	return filter
 }
+
+//func GetTokenFromShares(shares sdk.Dec)
