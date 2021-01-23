@@ -2,23 +2,27 @@ rewards_percentage = "0.8"
 
 domination_percentage = "0.65"
 
+# 19 node in top 21
 target_validator_addresses = [
-    "okexchain18au05qx485u2qcw2gvqsrfh29evq77lm5stkf4",
-    "okexchain1s6nfs7mlj7ewsskkrmekqhpq2w234fcz9sp3uz",
-    "okexchain1zxthrcdcecfe5ss4tal0tq30hzel2lkstd3csd",
     "okexchain1q9nct2gska2yutx24starv6s63xz022fuzvv96",
-    "okexchain195ez67wmhprwrru34gvttyd8ttpl7edxqd8rmt",
-    "okexchain19wln93k3faq7vkqzlc9gljr3ey5fljt9q7gzhj",
     "okexchain1qva0ejf0t943x6rt824gwmvtjgec9cjrd84253",
-    "okexchain1ka92ujcwh6hyyeu4tymzy3dedgxplt4d6uz6pp",
     "okexchain1zza3jrylyecrtuh0p9ts2xauzsefuvwaynydhs",
-    "okexchain1ja9xngm4zh0t442mse73ll30p7dczd49ptxhds",
-    "okexchain1c34s7lc7ec8gs9xrtxeh0j2wjaam25c3ermzx8",
+    "okexchain1zxthrcdcecfe5ss4tal0tq30hzel2lkstd3csd",
     "okexchain1ygcvtcqxl82xvzrq25dymam434k3nnc88zd83d",
-    "okexchain1m569cfenudxemegcf4mmykhugnslhdv0hmdu4v",
-    "okexchain1fymxn4gazxzjdfvwvr0ccnrnjpwmj0r9azs0dj",
+    "okexchain19wln93k3faq7vkqzlc9gljr3ey5fljt9q7gzhj",
+    "okexchain195ez67wmhprwrru34gvttyd8ttpl7edxqd8rmt",
     "okexchain1xkl5agjzqnjnptyat2dng2asmx8g5kllej8eu6",
+    "okexchain18v23ln9ycrtg0mrwsm004sh4tdknudtdvdedlk",
+    "okexchain1g3a6vtau2k93n4tqgqnrggeu3qa4x20reu5zjx",
+    "okexchain1fymxn4gazxzjdfvwvr0ccnrnjpwmj0r9azs0dj",
     "okexchain1tkwxgcpvptua0q0h5tn0at58ufnjdue7hdyksr",
+    "okexchain1s6nfs7mlj7ewsskkrmekqhpq2w234fcz9sp3uz",
+    "okexchain1ja9xngm4zh0t442mse73ll30p7dczd49ptxhds",
+    "okexchain1508d7eq592kg2lh9d46xvv3r4sm7gm8w7lza4q",
+    "okexchain1ka92ujcwh6hyyeu4tymzy3dedgxplt4d6uz6pp",
+    "okexchain1c34s7lc7ec8gs9xrtxeh0j2wjaam25c3ermzx8",
+    "okexchain1m569cfenudxemegcf4mmykhugnslhdv0hmdu4v",
+    "okexchain1ucmx6vvtrwam9pg20fnwmy9z80uhchyx3lm6fk",
 ]
 
 worker_infos = [
