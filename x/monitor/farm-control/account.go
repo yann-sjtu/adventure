@@ -44,6 +44,7 @@ func refreshFarmAccounts(cli *gosdk.Client) error {
 	for i := 0; i < len(accounts); i++ {
 		fmt.Println(accounts[i].Index, accounts[i].Address, accounts[i].LockedCoin.String())
 	}
+	fmt.Printf("======================================\n")
 	return nil
 }
 

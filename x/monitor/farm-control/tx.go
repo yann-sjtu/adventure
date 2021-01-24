@@ -24,6 +24,7 @@ func replenishLockedToken(cli *gosdk.Client, requiredToken types.DecCoin) {
 	index := pickRandomIndex()
 	// loop[index:100]
 	for i := index; i < len(accounts); i++ {
+		// 1. query account
 		accInfo, err := cli.Auth().QueryAccount(accounts[i].Address)
 		if err != nil {
 			log.Printf("[%d] %s failed to query its own account: %s\n", accounts[i].Index, accounts[i].Address, err)
@@ -31,40 +32,42 @@ func replenishLockedToken(cli *gosdk.Client, requiredToken types.DecCoin) {
 		}
 
 		accNum, seq := accInfo.GetAccountNumber(), accInfo.GetSequence()
-		// if there is not enough lpt in this addr, then add-liquidity in swap
+		// 2. if there is not enough lpt in this addr, then add-liquidity in swap
 		lptToken := types.NewDecCoinFromDec(lockSymbol, accInfo.GetCoins().AmountOf(lockSymbol))
 		if lptToken.IsLT(minLpt) {
 			addLiquidityMsg := newMsgAddLiquidity(accNum, seq, minLptDec, defaultMaxBaseAmount, defaultQuoteAmount, getDeadline(), accounts[i].Address)
 			err = common.SendMsg(common.Farm, addLiquidityMsg, accounts[i].Index)
 			if err != nil {
-				log.Printf("[%d] %s failed to add liquidity: %s\n", accounts[i].Index, accounts[i].Address, err)
+				log.Printf("[%d] %s failed to add-liquidity: %s\n", accounts[i].Index, accounts[i].Address, err)
 				continue
 			}
 			log.Printf("[%d] %s send add-liquidity msg: %+v\n", accounts[i].Index, accounts[i].Address, addLiquidityMsg.Msgs[0])
 			lptToken = minLpt
 		}
 
-		// 2.4 lock lpt in the farm pool
-		lockMsg := newMsgLock(accNum, seq, lptToken, accounts[i].Address)
+		// 3. lock lpt in the farm pool
+		lockMsg := newMsgLock(accNum, seq+1, lptToken, accounts[i].Address)
 		err = common.SendMsg(common.Farmlp, lockMsg, accounts[i].Index)
 		if err != nil {
-			log.Printf("[%d] %s failed to add liquidity: %s\n", accounts[i].Index, accounts[i].Address, err)
+			log.Printf("[%d] %s failed to lock: %s\n", accounts[i].Index, accounts[i].Address, err)
 			continue
 		}
-		log.Printf("[%d] %s send lock-pool msg: %+v\n", accounts[i].Index, accounts[i].Address, lockMsg.Msgs[0])
+		log.Printf("[%d] %s send lock msg: %+v\n", accounts[i].Index, accounts[i].Address, lockMsg.Msgs[0])
 
-		// 2.5 update accounts
+		// 4. update statistics data
 		accounts[i].LockedCoin = accounts[i].LockedCoin.Add(lptToken)
-
+		totalNewLockedToken = totalNewLockedToken.Add(lptToken)
 		if remainToken.IsLT(lptToken) {
+			remainToken = zeroLpt
 			break
 		}
 		remainToken = remainToken.Sub(lptToken)
 	}
 
-	//todo: there need another loop[0:index]
+	// todo: there need another loop[0:index]
 
+	fmt.Printf(" %s is locked in this round", totalNewLockedToken)
 	if !remainToken.IsZero() {
-		fmt.Printf("%s is still remain, replenish it in next round\n", remainToken)
+		fmt.Printf("%s is still remainning\n", remainToken)
 	}
 }
