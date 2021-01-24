@@ -15,11 +15,12 @@ var (
 
 	defaultMaxBaseAmount = types.NewDecCoinFromDec(baseCoin, types.MustNewDecFromStr("0.25"))
 	defaultQuoteAmount = types.NewDecCoinFromDec(quoteCoin, types.MustNewDecFromStr("13"))
+	zeroQuoteAmount = types.NewDecCoinFromDec(quoteCoin, types.ZeroDec())
 )
 
 func replenishLockedToken(cli *gosdk.Client, requiredToken types.DecCoin) {
 	fmt.Printf("======> [Phase2 Replenish] start, require %s \n", requiredToken.String())
-	remainToken, totalNewLockedToken := requiredToken, zeroLpt
+	remainToken, totalNewLockedToken, totalNewQuoteToken := requiredToken, zeroLpt, zeroQuoteAmount
 
 	index := pickRandomIndex()
 	// loop[index:100]
@@ -42,6 +43,7 @@ func replenishLockedToken(cli *gosdk.Client, requiredToken types.DecCoin) {
 				continue
 			}
 			log.Printf("[%d] %s send add-liquidity msg: %+v\n", accounts[i].Index, accounts[i].Address, addLiquidityMsg.Msgs[0])
+			totalNewQuoteToken = totalNewQuoteToken.Add(defaultQuoteAmount)
 			lptToken = minLpt
 		}
 
@@ -66,7 +68,7 @@ func replenishLockedToken(cli *gosdk.Client, requiredToken types.DecCoin) {
 
 	// todo: there need another loop[0:index]
 
-	fmt.Printf(" %s is locked in this round", totalNewLockedToken)
+	fmt.Printf(" %s is locked in farm, %s is added in swap", totalNewLockedToken, totalNewQuoteToken)
 	if !remainToken.IsZero() {
 		fmt.Printf("%s is still remainning\n", remainToken)
 	}
