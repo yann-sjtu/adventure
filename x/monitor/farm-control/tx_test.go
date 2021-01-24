@@ -169,3 +169,16 @@ func TestQueryAmount(t *testing.T) {
 	}
 	fmt.Println(res)
 }
+
+func TestQueryLockInfo(t *testing.T) {
+	cfg, err := gosdk.NewClientConfig("http://10.0.240.37:26657", "okexchain-66", gosdk.BroadcastBlock, "0.002okt", 200000, 0, "")
+	if err != nil {
+		panic(err)
+	}
+	cli := gosdk.NewClient(cfg)
+	res, err := cli.Farm().QueryLockInfo(poolName, addrs[1])
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(res)
+}
