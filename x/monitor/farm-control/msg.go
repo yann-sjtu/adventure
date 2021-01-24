@@ -92,7 +92,7 @@ func newMsgRemoveLiquidity(accNum, seqNum uint64, liquidity sdk.Dec, minBaseAmou
 }
 
 func getDeadline() int64 {
-	duration, err := time.ParseDuration("1h")
+	duration, err := time.ParseDuration("10m")
 	if err != nil {
 		panic(fmt.Errorf("this should never happen: %s", err))
 	}

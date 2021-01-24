@@ -67,6 +67,6 @@ func runFarmControlCmd(cmd *cobra.Command, args []string) error {
 			// 2.1 our_total_locked_lpt / total_locked_lpt < 80%, then promote the ratio over 81%
 			replenishLockedToken(cli, requiredToken)
 		}
-		time.Sleep(time.Second * 600)
+		time.Sleep(time.Second * 300)
 	}
 }

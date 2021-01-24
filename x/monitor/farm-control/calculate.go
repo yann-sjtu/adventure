@@ -27,7 +27,7 @@ func calculateReuiredAmount(cli *gosdk.Client) (types.DecCoin, error) {
 
 	// 3. calculate the ratio ourTotalLockedAmount to totaLockedAmount
 	ratio := ourTotalLockedAmount.Quo(totaLockedAmount)
-	fmt.Printf("current ratio: %s, limit ratio: %s", ratio.String(), limitRatio)
+	fmt.Printf("current ratio: %s, limit ratio: %s\n", ratio.String(), limitRatio)
 	if ratio.GT(limitRatio) {
 		return zeroLpt, nil
 	}
