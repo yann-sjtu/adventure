@@ -3,7 +3,6 @@ package farm_control
 import (
 	"fmt"
 	"testing"
-	"time"
 
 	"github.com/okex/okexchain-go-sdk/utils"
 
@@ -116,11 +115,11 @@ func TestSendTx(t *testing.T) {
 	}
 
 	// TEST 抵押LP
-	//msg := newMsgLock(accInfo.GetAccountNumber(), accInfo.GetSequence(), sdk.NewDecCoin(lockSymbol, sdk.NewIntWithDecimal(1, 4)), addr)
-	//err = common.SendMsg(common.Farmlp, msg, index)
-	//if err != nil {
-	//	fmt.Println("failed:", err)
-	//}
+	msg := newMsgLock(accInfo.GetAccountNumber(), accInfo.GetSequence(), sdk.NewDecCoinFromDec(lockSymbol, sdk.MustNewDecFromStr("0.128147322151976840")), addr)
+	err = common.SendMsg(common.Farmlp, msg, index)
+	if err != nil {
+		panic(fmt.Errorf("failed send msg: %s", err.Error()))
+	}
 
 	// TEST 删除LP
 	//msg2 := newMsgUnLock(accInfo.GetAccountNumber(), accInfo.GetSequence(), sdk.NewDecCoin(lockSymbol, sdk.NewIntWithDecimal(1,8)), addr)
@@ -129,22 +128,22 @@ func TestSendTx(t *testing.T) {
 	//	fmt.Println("failed:", err)
 	//}
 
-	duration, err := time.ParseDuration("5m")
-	if err != nil {
-		return
-	}
-	deadline := time.Now().Add(duration).Unix()
+	//duration, err := time.ParseDuration("5m")
+	//if err != nil {
+	//	return
+	//}
+	//deadline := time.Now().Add(duration).Unix()
 	// TEST 添加流动性
-	maxOkt := sdk.NewDecCoinFromDec(baseCoin, sdk.MustNewDecFromStr("4"))
-	usdt := sdk.NewDecCoinFromDec(quoteCoin, sdk.MustNewDecFromStr("200"))
-
-	msg3 := newMsgAddLiquidity(accInfo.GetAccountNumber(), accInfo.GetSequence(),
-		sdk.MustNewDecFromStr("0.00000001"), maxOkt, usdt, deadline,
-		addr)
-	err = common.SendMsg(common.Farm, msg3, index)
-	if err != nil {
-		fmt.Println("failed:", err)
-	}
+	//maxOkt := sdk.NewDecCoinFromDec(baseCoin, sdk.MustNewDecFromStr("4"))
+	//usdt := sdk.NewDecCoinFromDec(quoteCoin, sdk.MustNewDecFromStr("200"))
+	//
+	//msg3 := newMsgAddLiquidity(accInfo.GetAccountNumber(), accInfo.GetSequence(),
+	//	sdk.MustNewDecFromStr("0.00000001"), maxOkt, usdt, deadline,
+	//	addr)
+	//err = common.SendMsg(common.Farm, msg3, index)
+	//if err != nil {
+	//	fmt.Println("failed:", err)
+	//}
 	//
 	//// TEST 添加流动性
 	//msg4 := newMsgRemoveLiquidity(accInfo.GetAccountNumber(), accInfo.GetSequence(),
@@ -154,4 +153,19 @@ func TestSendTx(t *testing.T) {
 	//if err != nil {
 	//	fmt.Println("failed:", err)
 	//}
+
+	fmt.Println("success")
+}
+
+func TestQueryAmount(t *testing.T) {
+	cfg, err := gosdk.NewClientConfig("http://10.0.240.37:26657", "okexchain-66", gosdk.BroadcastBlock, "0.002okt", 200000, 0, "")
+	if err != nil {
+		panic(err)
+	}
+	cli := gosdk.NewClient(cfg)
+	res, err := cli.AmmSwap().QueryBuyAmount("10"+quoteCoin, baseCoin)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(res)
 }
