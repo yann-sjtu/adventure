@@ -38,7 +38,7 @@ func runFarmControlCmd(cmd *cobra.Command, args []string) error {
 
 	for i := 0; ; i++ {
 		// 0. sleep 60 seconds, or so
-		time.Sleep(time.Second * 120)
+		//time.Sleep(time.Second * 120)
 		log.Printf("\n======================== Round %d ========================\n", i)
 		cli := clientManager.GetClient()
 		if i%10 == 0 && i != 0  { // todo: used for refreshing accounts cache storged in local, this judgement might be removed
@@ -67,5 +67,6 @@ func runFarmControlCmd(cmd *cobra.Command, args []string) error {
 			// 2.1 our_total_locked_lpt / total_locked_lpt < 80%, then promote the ratio over 81%
 			replenishLockedToken(cli, requiredToken)
 		}
+		time.Sleep(time.Second * 600)
 	}
 }

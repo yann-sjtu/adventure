@@ -23,8 +23,13 @@ func replenishLockedToken(cli *gosdk.Client, requiredToken types.DecCoin) {
 	remainToken, totalNewLockedToken, totalNewQuoteToken := requiredToken, zeroLpt, zeroQuoteAmount
 
 	// loop[index:100]
-	for i := 0; i < len(accounts)/4; i++ {
+	bloom := make([]int, len(accounts), len(accounts))
+	for i := 0; i < len(accounts)/2; i++ {
 		r := pickRandomIndex()
+		if bloom[r] == 1 {
+			continue
+		}
+		bloom[r] = 1
 		index, addr := accounts[r].Index, accounts[r].Address
 		
 		// 1. query account
