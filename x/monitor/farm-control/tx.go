@@ -22,13 +22,15 @@ func replenishLockedToken(cli *gosdk.Client, requiredToken types.DecCoin) {
 	fmt.Printf("======> [Phase2 Replenish] start, require %s \n", requiredToken.String())
 	remainToken, totalNewLockedToken, totalNewQuoteToken := requiredToken, zeroLpt, zeroQuoteAmount
 
-	index := pickRandomIndex()
 	// loop[index:100]
-	for i := index; i < len(accounts); i++ {
+	for i := 0; i < len(accounts)/4; i++ {
+		r := pickRandomIndex()
+		index, addr := accounts[r].Index, accounts[r].Address
+		
 		// 1. query account
-		accInfo, err := cli.Auth().QueryAccount(accounts[i].Address)
+		accInfo, err := cli.Auth().QueryAccount(addr)
 		if err != nil {
-			log.Printf("[%d] %s failed to query its own account: %s\n", accounts[i].Index, accounts[i].Address, err)
+			log.Printf("[%d] %s failed to query its own account: %s\n", index, addr, err)
 			continue
 		}
 
@@ -36,28 +38,28 @@ func replenishLockedToken(cli *gosdk.Client, requiredToken types.DecCoin) {
 		// 2. if there is not enough lpt in this addr, then add-liquidity in swap
 		lptToken := types.NewDecCoinFromDec(lockSymbol, accInfo.GetCoins().AmountOf(lockSymbol))
 		if lptToken.IsLT(minLpt) {
-			addLiquidityMsg := newMsgAddLiquidity(accNum, seq, minLptDec, defaultMaxBaseAmount, defaultQuoteAmount, getDeadline(), accounts[i].Address)
-			err = common.SendMsg(common.Farm, addLiquidityMsg, accounts[i].Index)
+			addLiquidityMsg := newMsgAddLiquidity(accNum, seq, minLptDec, defaultMaxBaseAmount, defaultQuoteAmount, getDeadline(), addr)
+			err = common.SendMsg(common.Farm, addLiquidityMsg, index)
 			if err != nil {
-				log.Printf("[%d] %s failed to add-liquidity: %s\n", accounts[i].Index, accounts[i].Address, err)
+				log.Printf("[%d] %s failed to add-liquidity: %s\n", index, addr, err)
 				continue
 			}
-			log.Printf("[%d] %s send add-liquidity msg: %+v\n", accounts[i].Index, accounts[i].Address, addLiquidityMsg.Msgs[0])
+			log.Printf("[%d] %s send add-liquidity msg: %+v\n", index, addr, addLiquidityMsg.Msgs[0])
 			totalNewQuoteToken = totalNewQuoteToken.Add(defaultQuoteAmount)
 			lptToken = minLpt
 		}
 
 		// 3. lock lpt in the farm pool
-		lockMsg := newMsgLock(accNum, seq+1, lptToken, accounts[i].Address)
-		err = common.SendMsg(common.Farmlp, lockMsg, accounts[i].Index)
+		lockMsg := newMsgLock(accNum, seq+1, lptToken, addr)
+		err = common.SendMsg(common.Farmlp, lockMsg, index)
 		if err != nil {
-			log.Printf("[%d] %s failed to lock: %s\n", accounts[i].Index, accounts[i].Address, err)
+			log.Printf("[%d] %s failed to lock: %s\n", index, addr, err)
 			continue
 		}
-		log.Printf("[%d] %s send lock msg: %+v\n", accounts[i].Index, accounts[i].Address, lockMsg.Msgs[0])
+		log.Printf("[%d] %s send lock msg: %+v\n", index, addr, lockMsg.Msgs[0])
 
 		// 4. update statistics data
-		accounts[i].LockedCoin = accounts[i].LockedCoin.Add(lptToken)
+		accounts[r].LockedCoin = accounts[r].LockedCoin.Add(lptToken)
 		totalNewLockedToken = totalNewLockedToken.Add(lptToken)
 		if remainToken.IsLT(lptToken) {
 			remainToken = zeroLpt
