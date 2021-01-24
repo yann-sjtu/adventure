@@ -85,7 +85,7 @@ func newMsgLock(accNum, seqNum uint64, amount sdk.SysCoin, addr string) authtype
 		Sequence:      seqNum,
 		Memo:          "",
 		Msgs:          msgs,
-		Fee:           authtypes.NewStdFee(200000, sdk.NewDecCoinsFromDec(common.NativeToken, sdk.NewDecWithPrec(2, 3))),
+		Fee:           authtypes.NewStdFee(200000, sdk.NewDecCoinsFromDec(common.NativeToken, sdk.NewDecWithPrec(2, 4))),
 	}
 
 	return signMsg
@@ -105,7 +105,7 @@ func newMsgUnLock(accNum, seqNum uint64, amount sdk.SysCoin, addr string) authty
 		Sequence:      seqNum,
 		Memo:          "",
 		Msgs:          msgs,
-		Fee:           authtypes.NewStdFee(200000, sdk.NewDecCoinsFromDec(common.NativeToken, sdk.NewDecWithPrec(2, 3))),
+		Fee:           authtypes.NewStdFee(200000, sdk.NewDecCoinsFromDec(common.NativeToken, sdk.NewDecWithPrec(2, 4))),
 	}
 
 	return signMsg
@@ -125,7 +125,7 @@ func newMsgAddLiquidity(accNum, seqNum uint64, minLiquidity sdk.Dec, maxBaseAmou
 		Sequence:      seqNum,
 		Memo:          "",
 		Msgs:          msgs,
-		Fee:           authtypes.NewStdFee(200000, sdk.NewDecCoinsFromDec(common.NativeToken, sdk.NewDecWithPrec(2, 3))),
+		Fee:           authtypes.NewStdFee(200000, sdk.NewDecCoinsFromDec(common.NativeToken, sdk.NewDecWithPrec(2, 4))),
 	}
 	return signMsg
 }
@@ -144,7 +144,7 @@ func newMsgRemoveLiquidity(accNum, seqNum uint64, liquidity sdk.Dec, minBaseAmou
 		Sequence:      seqNum,
 		Memo:          "",
 		Msgs:          msgs,
-		Fee:           authtypes.NewStdFee(200000, sdk.NewDecCoinsFromDec(common.NativeToken, sdk.NewDecWithPrec(2, 3))),
+		Fee:           authtypes.NewStdFee(200000, sdk.NewDecCoinsFromDec(common.NativeToken, sdk.NewDecWithPrec(2, 4))),
 	}
 	return signMsg
 }

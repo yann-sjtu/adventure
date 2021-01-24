@@ -83,6 +83,7 @@ func DoPost(timeStr string, object Object) error {
 	}
 
 	bodyStr := string(body)
+	fmt.Println(bodyStr)
 	if strings.Contains(bodyStr, "failed") {
 		return errors.New(bodyStr)
 	}
