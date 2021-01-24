@@ -24,7 +24,7 @@ func replenishLockedToken(cli *gosdk.Client, requiredToken types.DecCoin) {
 
 	// loop[index:100]
 	bloom := make([]int, len(accounts), len(accounts))
-	for i := 0; i < len(accounts)/2; i++ {
+	for i := 0; i < len(accounts)/5; i++ {
 		r := pickRandomIndex()
 		if bloom[r] == 1 {
 			continue
