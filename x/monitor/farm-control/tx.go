@@ -75,7 +75,7 @@ func replenishLockedToken(cli *gosdk.Client, requiredToken types.DecCoin) {
 
 	// todo: there need another loop[0:index]
 
-	fmt.Printf(" %s is locked in farm, %s is added in swap\n", totalNewLockedToken, totalNewQuoteToken)
+	fmt.Printf("%s is locked in farm, %s is added in swap\n", totalNewLockedToken, totalNewQuoteToken)
 	if !remainToken.IsZero() {
 		fmt.Printf("%s is still remainning\n", remainToken)
 	}
