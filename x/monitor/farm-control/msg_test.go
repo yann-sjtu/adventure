@@ -4,7 +4,10 @@ import (
 	"fmt"
 	"testing"
 
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/okex/okexchain-go-sdk/utils"
+	"github.com/okex/okexchain/app/types"
+	stakingtypes "github.com/okex/okexchain/x/staking/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/adventure/x/monitor/common"
@@ -67,6 +70,7 @@ func TestWithdraw(t *testing.T) {
 	}
 
 	msg := newMsgWithdraw(accInfo.GetAccountNumber(), accInfo.GetSequence(), coins, addr)
+	fmt.Printf("%+v \n", msg.Msgs[0])
 	err = common.SendMsg(common.Undelegate, msg, 801)
 	if err != nil {
 		fmt.Println("failed:", err)
@@ -128,11 +132,7 @@ func TestSendTx(t *testing.T) {
 	//	fmt.Println("failed:", err)
 	//}
 
-	//duration, err := time.ParseDuration("5m")
-	//if err != nil {
-	//	return
-	//}
-	//deadline := time.Now().Add(duration).Unix()
+	//deadline := getDeadline()
 	// TEST 添加流动性
 	//maxOkt := sdk.NewDecCoinFromDec(baseCoin, sdk.MustNewDecFromStr("4"))
 	//usdt := sdk.NewDecCoinFromDec(quoteCoin, sdk.MustNewDecFromStr("200"))
@@ -181,4 +181,65 @@ func TestQueryLockInfo(t *testing.T) {
 		panic(err)
 	}
 	fmt.Println(res)
+}
+
+
+func newMsgDeposit(accNum, seqNum uint64, amount sdk.SysCoin, addr string) authtypes.StdSignMsg {
+	cosmosAddr, err := utils.ToCosmosAddress(addr)
+	if err != nil {
+		panic(err)
+	}
+
+	msg := stakingtypes.NewMsgDeposit(cosmosAddr, amount)
+	msgs := []sdk.Msg{msg}
+	signMsg := authtypes.StdSignMsg{
+		ChainID:       "okexchain-66",
+		AccountNumber: accNum,
+		Sequence:      seqNum,
+		Memo:          "",
+		Msgs:          msgs,
+		Fee:           authtypes.NewStdFee(200000, sdk.NewDecCoinsFromDec(types.NativeToken, sdk.NewDecWithPrec(2, 3))),
+	}
+
+	return signMsg
+}
+
+func newMsgWithdraw(accNum, seqNum uint64, amount sdk.SysCoin, addr string) authtypes.StdSignMsg {
+	cosmosAddr, err := utils.ToCosmosAddress(addr)
+	if err != nil {
+		panic(err)
+	}
+
+	msg := stakingtypes.NewMsgWithdraw(cosmosAddr, amount)
+	msgs := []sdk.Msg{msg}
+	signMsg := authtypes.StdSignMsg{
+		ChainID:       "okexchain-66",
+		AccountNumber: accNum,
+		Sequence:      seqNum,
+		Memo:          "",
+		Msgs:          msgs,
+		Fee:           authtypes.NewStdFee(200000, sdk.NewDecCoinsFromDec(types.NativeToken, sdk.NewDecWithPrec(2, 3))),
+	}
+
+	return signMsg
+}
+
+func newMsgAddShares(accNum, seqNum uint64, valAddrs []sdk.ValAddress, addr string) authtypes.StdSignMsg {
+	cosmosAddr, err := utils.ToCosmosAddress(addr)
+	if err != nil {
+		panic(err)
+	}
+
+	msg := stakingtypes.NewMsgAddShares(cosmosAddr, valAddrs)
+	msgs := []sdk.Msg{msg}
+	signMsg := authtypes.StdSignMsg{
+		ChainID:       "okexchain-66",
+		AccountNumber: accNum,
+		Sequence:      seqNum,
+		Memo:          "",
+		Msgs:          msgs,
+		Fee:           authtypes.NewStdFee(200000, sdk.NewDecCoinsFromDec(types.NativeToken, sdk.NewDecWithPrec(2, 3))),
+	}
+
+	return signMsg
 }

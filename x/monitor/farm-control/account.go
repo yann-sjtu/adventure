@@ -5,59 +5,57 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/cosmos/cosmos-sdk/types"
 	gosdk "github.com/okex/okexchain-go-sdk"
 )
 
 const startIndex = 925
 
 var (
-	accounts = newFarmAddrBook()
+	accounts = newFarmAddrAccounts()
 )
 
 type FarmAccounts []*FarmAccount
 
 type FarmAccount struct {
-	Address  string
-	Index    int
-	IsLocked bool
+	Address    string
+	Index      int
+	LockedCoin types.DecCoin
 }
 
-func newFarmAddrBook() FarmAccounts {
+func newFarmAddrAccounts() FarmAccounts {
 	farmAccounts := make([]*FarmAccount, len(addrs), len(addrs))
 	for i := 0; i < len(addrs); i++ {
-		farmAccounts[i] = &FarmAccount{Address: addrs[i], Index: startIndex+i, IsLocked: false}
+		farmAccounts[i] = &FarmAccount{Address: addrs[i], Index: startIndex + i, LockedCoin: types.NewDecCoinFromDec(lockSymbol, types.ZeroDec())}
 	}
 	return farmAccounts
 }
 
-func initFarmAccounts(cli *gosdk.Client) {
-	for _, account := range accounts {
-		addr := account.Address
-		lockInfo, err := cli.Farm().QueryLockInfo(poolName, addr)
+func refreshFarmAccounts(cli *gosdk.Client) error {
+	for i := 0; i < len(accounts); i++ {
+		lockInfo, err := cli.Farm().QueryLockInfo(poolName, accounts[i].Address)
 		if err != nil {
-			continue
+			return fmt.Errorf("[Phase0 query] failed to query %s lock-info: %s", accounts[i].Address, err.Error())
 		}
-		if !lockInfo.Amount.IsZero() {
-			account.IsLocked = true
-		}
+		accounts[i].LockedCoin = lockInfo.Amount
 	}
 
-	// output all accounts information
-	for _, account := range accounts {
-		if account.IsLocked {
-			fmt.Printf("%s[%d] has locked lpt on pool\n", account.Address, account.Index)
-		} else {
-			fmt.Printf("%s[%d] hasn't locked lpt on pool\n", account.Address, account.Index)
-		}
+	fmt.Printf("=== accounts on %s ===\n", poolName)
+	for i := 0; i < len(accounts); i++ {
+		fmt.Println(accounts[i].Index, accounts[i].Address, accounts[i].LockedCoin.String())
 	}
+	return nil
 }
-
-
 
 func pickOneAccount() *FarmAccount {
 	rand.Seed(time.Now().UnixNano())
 	index := rand.Intn(len(accounts))
 	return accounts[index]
+}
+
+func pickRandomIndex() int {
+	rand.Seed(time.Now().UnixNano())
+	return rand.Intn(len(accounts))
 }
 
 var addrs = []string{

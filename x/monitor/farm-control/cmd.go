@@ -1,12 +1,11 @@
 package farm_control
 
 import (
+	"fmt"
 	"log"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/adventure/common"
-	gosdk "github.com/okex/okexchain-go-sdk"
 	"github.com/spf13/cobra"
 )
 
@@ -23,53 +22,50 @@ func FarmControlCmd() *cobra.Command {
 	return farmControlCmd
 }
 
+const (
+	poolName   = "1st_pool_okt_usdt"
+	lockSymbol = "ammswap_okt_usdt-a2b"
+
+	baseCoin  = "okt"
+	quoteCoin = "usdt-a2b"
+)
+
 func runFarmControlCmd(cmd *cobra.Command, args []string) error {
 	clientManager := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
-	initFarmAccounts(clientManager.GetClient())
+	if err := refreshFarmAccounts(clientManager.GetClient()); err != nil {
+		return err
+	}
 
-	for {
-		time.Sleep(time.Second * 5)
-
+	for i := 0; ; i++ {
+		// 0. sleep 60 seconds, or so
+		time.Sleep(time.Second * 60)
+		log.Printf("\n======================== Round %d ========================\n", i)
 		cli := clientManager.GetClient()
+		if i%10 == 0 && i != 0  { // todo: used for refreshing accounts cache storged in local, this judgement might be removed
+			time.Sleep(time.Second * 60)
+			for j := 0; j < 10; j++ {
+				if 	err := refreshFarmAccounts(cli); err != nil {
+					fmt.Printf("[Phase0 Refresh %d] failed: %s\n", j, err.Error())
+					continue
+				}
+				break
+			}
+		}
 
-		// 1. check the ratio of (our_total_locked_lpt / total_locked_lpt)
-		requiredToken, err := checkLockedRatio(cli)
+		// 1. check the ratio of (our_total_locked_lpt / total_locked_lpt), then return how many lpt to be replenished
+		requiredToken, err := calculateReuiredAmount(cli)
 		if err != nil {
-			log.Printf("[checkLockedRatio] failed: %s\n", err.Error())
+			fmt.Printf("[Phase1 Calculate] failed: %s\n", err.Error())
 			continue
 		}
-		if !requiredToken.IsZero() { // 2.1 our_total_locked_lpt / total_locked_lpt < 81%, then promote the ratio over 85%
+
+		// 2. judge if the requiredToken is zero or not
+		if requiredToken.IsZero() {
+			// 2.1 our_total_locked_lpt / total_locked_lpt > 80%, then do nothing
+			fmt.Printf("This Round doesn't need to lock more %s \n", lockSymbol)
+		} else {
+			// 2.1 our_total_locked_lpt / total_locked_lpt < 80%, then promote the ratio over 81%
 			replenishLockedToken(cli, requiredToken)
-		} else { // 2.1 our_total_locked_lpt / total_locked_lpt > 81%, then do nothing
-			// just go into next round, keep monitoring
 		}
-	}
-}
-
-func replenishLockedToken(cli *gosdk.Client, requiredToken types.SysCoin) {
-	remainToken := requiredToken
-
-	for i := 0; i < 200 || remainToken.Amount.LTE(types.ZeroDec()); i++ {
-		// pick one addr, then query its own account
-		account := pickOneAccount()
-		accInfo, err := cli.Auth().QueryAccount(account.Address)
-		if err != nil {
-			return
-		}
-
-		// 2.3 there is not enough lpt in this addr, then add-liquidity in swap
-		accCoin := types.NewCoin(lockSymbol, accInfo.GetCoins().AmountOf(lockSymbol))
-		if accCoin.Amount.LT(requiredToken.Amount) {
-			// todo
-		}
-
-		// 2.4 lock lpt in the farm pool
-		// todo
-
-
-		// 2.5 update accounts
-		account.IsLocked = true
-
-		remainToken = requiredToken.Sub(accCoin)
 	}
 }

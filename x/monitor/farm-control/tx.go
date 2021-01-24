@@ -1,150 +1,70 @@
 package farm_control
 
 import (
+	"fmt"
+	"log"
+
 	"github.com/cosmos/cosmos-sdk/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/okex/adventure/common"
-	"github.com/okex/okexchain-go-sdk/utils"
-	ammswaptypes "github.com/okex/okexchain/x/ammswap/types"
-	farmtypes "github.com/okex/okexchain/x/farm/types"
-	stakingtypes "github.com/okex/okexchain/x/staking/types"
+	"github.com/okex/adventure/x/monitor/common"
+	gosdk "github.com/okex/okexchain-go-sdk"
 )
 
-func newMsgDeposit(accNum, seqNum uint64, amount sdk.SysCoin, addr string) authtypes.StdSignMsg {
-	cosmosAddr, err := utils.ToCosmosAddress(addr)
-	if err != nil {
-		panic(err)
+var (
+	minLptDec = types.MustNewDecFromStr("0.001")
+	minLpt = types.NewDecCoinFromDec(lockSymbol, minLptDec)
+
+	defaultMaxBaseAmount = types.NewDecCoinFromDec(baseCoin, types.MustNewDecFromStr("0.25"))
+	defaultQuoteAmount = types.NewDecCoinFromDec(quoteCoin, types.MustNewDecFromStr("13"))
+)
+
+func replenishLockedToken(cli *gosdk.Client, requiredToken types.DecCoin) {
+	fmt.Printf("======> [Phase2 Replenish] start, require %s \n", requiredToken.String())
+	remainToken, totalNewLockedToken := requiredToken, zeroLpt
+
+	index := pickRandomIndex()
+	// loop[index:100]
+	for i := index; i < len(accounts); i++ {
+		accInfo, err := cli.Auth().QueryAccount(accounts[i].Address)
+		if err != nil {
+			log.Printf("[%d] %s failed to query its own account: %s\n", accounts[i].Index, accounts[i].Address, err)
+			continue
+		}
+
+		accNum, seq := accInfo.GetAccountNumber(), accInfo.GetSequence()
+		// if there is not enough lpt in this addr, then add-liquidity in swap
+		lptToken := types.NewDecCoinFromDec(lockSymbol, accInfo.GetCoins().AmountOf(lockSymbol))
+		if lptToken.IsLT(minLpt) {
+			addLiquidityMsg := newMsgAddLiquidity(accNum, seq, minLptDec, defaultMaxBaseAmount, defaultQuoteAmount, getDeadline(), accounts[i].Address)
+			err = common.SendMsg(common.Farm, addLiquidityMsg, accounts[i].Index)
+			if err != nil {
+				log.Printf("[%d] %s failed to add liquidity: %s\n", accounts[i].Index, accounts[i].Address, err)
+				continue
+			}
+			log.Printf("[%d] %s send add-liquidity msg: %+v\n", accounts[i].Index, accounts[i].Address, addLiquidityMsg.Msgs[0])
+			lptToken = minLpt
+		}
+
+		// 2.4 lock lpt in the farm pool
+		lockMsg := newMsgLock(accNum, seq, lptToken, accounts[i].Address)
+		err = common.SendMsg(common.Farmlp, lockMsg, accounts[i].Index)
+		if err != nil {
+			log.Printf("[%d] %s failed to add liquidity: %s\n", accounts[i].Index, accounts[i].Address, err)
+			continue
+		}
+		log.Printf("[%d] %s send lock-pool msg: %+v\n", accounts[i].Index, accounts[i].Address, lockMsg.Msgs[0])
+
+		// 2.5 update accounts
+		accounts[i].LockedCoin = accounts[i].LockedCoin.Add(lptToken)
+
+		if remainToken.IsLT(lptToken) {
+			break
+		}
+		remainToken = remainToken.Sub(lptToken)
 	}
 
-	msg := stakingtypes.NewMsgDeposit(cosmosAddr, amount)
-	msgs := []types.Msg{msg}
-	signMsg := authtypes.StdSignMsg{
-		ChainID:       "okexchain-66",
-		AccountNumber: accNum,
-		Sequence:      seqNum,
-		Memo:          "",
-		Msgs:          msgs,
-		Fee:           authtypes.NewStdFee(200000, sdk.NewDecCoinsFromDec(common.NativeToken, sdk.NewDecWithPrec(2, 3))),
+	//todo: there need another loop[0:index]
+
+	if !remainToken.IsZero() {
+		fmt.Printf("%s is still remain, replenish it in next round\n", remainToken)
 	}
-
-	return signMsg
-}
-
-func newMsgWithdraw(accNum, seqNum uint64, amount sdk.SysCoin, addr string) authtypes.StdSignMsg {
-	cosmosAddr, err := utils.ToCosmosAddress(addr)
-	if err != nil {
-		panic(err)
-	}
-
-	msg := stakingtypes.NewMsgWithdraw(cosmosAddr, amount)
-	msgs := []types.Msg{msg}
-	signMsg := authtypes.StdSignMsg{
-		ChainID:       "okexchain-66",
-		AccountNumber: accNum,
-		Sequence:      seqNum,
-		Memo:          "",
-		Msgs:          msgs,
-		Fee:           authtypes.NewStdFee(200000, sdk.NewDecCoinsFromDec(common.NativeToken, sdk.NewDecWithPrec(2, 3))),
-	}
-
-	return signMsg
-}
-
-func newMsgAddShares(accNum, seqNum uint64, valAddrs []sdk.ValAddress, addr string) authtypes.StdSignMsg {
-	cosmosAddr, err := utils.ToCosmosAddress(addr)
-	if err != nil {
-		panic(err)
-	}
-
-	msg := stakingtypes.NewMsgAddShares(cosmosAddr, valAddrs)
-	msgs := []types.Msg{msg}
-	signMsg := authtypes.StdSignMsg{
-		ChainID:       "okexchain-66",
-		AccountNumber: accNum,
-		Sequence:      seqNum,
-		Memo:          "",
-		Msgs:          msgs,
-		Fee:           authtypes.NewStdFee(200000, sdk.NewDecCoinsFromDec(common.NativeToken, sdk.NewDecWithPrec(2, 3))),
-	}
-
-	return signMsg
-}
-
-func newMsgLock(accNum, seqNum uint64, amount sdk.SysCoin, addr string) authtypes.StdSignMsg {
-	cosmosAddr, err := utils.ToCosmosAddress(addr)
-	if err != nil {
-		panic(err)
-	}
-
-	msg := farmtypes.NewMsgLock(poolName, cosmosAddr, amount)
-	msgs := []types.Msg{msg}
-	signMsg := authtypes.StdSignMsg{
-		ChainID:       "okexchain-66",
-		AccountNumber: accNum,
-		Sequence:      seqNum,
-		Memo:          "",
-		Msgs:          msgs,
-		Fee:           authtypes.NewStdFee(200000, sdk.NewDecCoinsFromDec(common.NativeToken, sdk.NewDecWithPrec(2, 4))),
-	}
-
-	return signMsg
-}
-
-func newMsgUnLock(accNum, seqNum uint64, amount sdk.SysCoin, addr string) authtypes.StdSignMsg {
-	cosmosAddr, err := utils.ToCosmosAddress(addr)
-	if err != nil {
-		panic(err)
-	}
-
-	msg := farmtypes.NewMsgUnlock(poolName, cosmosAddr, amount)
-	msgs := []types.Msg{msg}
-	signMsg := authtypes.StdSignMsg{
-		ChainID:       "okexchain-66",
-		AccountNumber: accNum,
-		Sequence:      seqNum,
-		Memo:          "",
-		Msgs:          msgs,
-		Fee:           authtypes.NewStdFee(200000, sdk.NewDecCoinsFromDec(common.NativeToken, sdk.NewDecWithPrec(2, 4))),
-	}
-
-	return signMsg
-}
-
-func newMsgAddLiquidity(accNum, seqNum uint64, minLiquidity sdk.Dec, maxBaseAmount, quoteAmount sdk.SysCoin, deadline int64, addr string) authtypes.StdSignMsg {
-	cosmosAddr, err := utils.ToCosmosAddress(addr)
-	if err != nil {
-		panic(err)
-	}
-
-	msg := ammswaptypes.NewMsgAddLiquidity(minLiquidity, maxBaseAmount, quoteAmount, deadline, cosmosAddr)
-	msgs := []types.Msg{msg}
-	signMsg := authtypes.StdSignMsg{
-		ChainID:       "okexchain-66",
-		AccountNumber: accNum,
-		Sequence:      seqNum,
-		Memo:          "",
-		Msgs:          msgs,
-		Fee:           authtypes.NewStdFee(200000, sdk.NewDecCoinsFromDec(common.NativeToken, sdk.NewDecWithPrec(2, 4))),
-	}
-	return signMsg
-}
-
-func newMsgRemoveLiquidity(accNum, seqNum uint64, liquidity sdk.Dec, minBaseAmount, minQuoteAmount sdk.SysCoin, deadline int64, addr string) authtypes.StdSignMsg {
-	cosmosAddr, err := utils.ToCosmosAddress(addr)
-	if err != nil {
-		panic(err)
-	}
-
-	msg := ammswaptypes.NewMsgRemoveLiquidity(liquidity, minBaseAmount, minQuoteAmount, deadline, cosmosAddr)
-	msgs := []types.Msg{msg}
-	signMsg := authtypes.StdSignMsg{
-		ChainID:       "okexchain-66",
-		AccountNumber: accNum,
-		Sequence:      seqNum,
-		Memo:          "",
-		Msgs:          msgs,
-		Fee:           authtypes.NewStdFee(200000, sdk.NewDecCoinsFromDec(common.NativeToken, sdk.NewDecWithPrec(2, 4))),
-	}
-	return signMsg
 }
