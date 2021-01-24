@@ -3,6 +3,7 @@ package farm_control
 import (
 	"fmt"
 	"math/rand"
+	"strings"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/types"
@@ -31,13 +32,19 @@ func newFarmAddrAccounts() FarmAccounts {
 	return farmAccounts
 }
 
+const errMsg = "hasn't locked"
 func refreshFarmAccounts(cli *gosdk.Client) error {
 	for i := 0; i < len(accounts); i++ {
 		lockInfo, err := cli.Farm().QueryLockInfo(poolName, accounts[i].Address)
 		if err != nil {
-			return fmt.Errorf("[Phase0 query] failed to query %s lock-info: %s", accounts[i].Address, err.Error())
+			if strings.Contains(err.Error(), errMsg) {
+				accounts[i].LockedCoin = zeroLpt
+			} else {
+				return fmt.Errorf("[Phase0 query] failed to query %s lock-info: %s", accounts[i].Address, err.Error())
+			}
+		} else {
+			accounts[i].LockedCoin = lockInfo.Amount
 		}
-		accounts[i].LockedCoin = lockInfo.Amount
 	}
 
 	fmt.Printf("=== accounts on %s ===\n", poolName)
