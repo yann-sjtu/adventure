@@ -8,9 +8,10 @@ import (
 )
 
 var (
-	limitRatio  = types.MustNewDecFromStr("0.80")
+	limitRatio  = types.MustNewDecFromStr("0.70")
 	//lockedRatio = types.NewDecWithPrec(81, 2)
-	multiple = types.MustNewDecFromStr("5.0")
+	numerator = types.MustNewDecFromStr("3.0")
+	denominator = types.MustNewDecFromStr("10.0")
 
 	zeroLpt = types.NewDecCoinFromDec(lockSymbol, types.ZeroDec())
 )
@@ -33,9 +34,9 @@ func calculateReuiredAmount(cli *gosdk.Client) (types.DecCoin, error) {
 	}
 
 	//   ourTotalLockedAmount + requiredAmount
-	//   ——————————————————————————————————————  = 0.8
+	//   ——————————————————————————————————————  = 0.7
 	//   totaLockedAmount     + requiredAmount
-	requiredAmount := limitRatio.Mul(totaLockedAmount).Sub(ourTotalLockedAmount).Mul(multiple)
+	requiredAmount := limitRatio.Mul(totaLockedAmount).Sub(ourTotalLockedAmount).Mul(denominator).Quo(numerator)
 	return types.NewDecCoinFromDec(lockSymbol, requiredAmount), nil
 }
 

@@ -14,8 +14,10 @@ var (
 	minLpt = types.NewDecCoinFromDec(lockSymbol, minLptDec)
 
 	defaultMaxBaseAmount = types.NewDecCoinFromDec(baseCoin, types.MustNewDecFromStr("5"))
-	defaultQuoteAmount = types.NewDecCoinFromDec(quoteCoin, types.MustNewDecFromStr("100"))
+	defaultQuoteAmount = types.NewDecCoinFromDec(quoteCoin, types.MustNewDecFromStr("200"))
 	zeroQuoteAmount = types.NewDecCoinFromDec(quoteCoin, types.ZeroDec())
+
+	bloom = make([]int, len(accounts), len(accounts))
 )
 
 func replenishLockedToken(cli *gosdk.Client, requiredToken types.DecCoin) {
@@ -23,13 +25,12 @@ func replenishLockedToken(cli *gosdk.Client, requiredToken types.DecCoin) {
 	remainToken, totalNewLockedToken, totalNewQuoteToken := requiredToken, zeroLpt, zeroQuoteAmount
 
 	// loop[index:100]
-	bloom := make([]int, len(accounts), len(accounts))
 	for r := 0; r < 10; r++ {
 		i := pickRandomIndex()
 		if bloom[i] == 1 {
+			bloom[i] = 0
 			continue
 		}
-		bloom[i] = 1
 		index, addr := accounts[i].Index, accounts[i].Address
 		
 		// 1. query account
@@ -71,6 +72,8 @@ func replenishLockedToken(cli *gosdk.Client, requiredToken types.DecCoin) {
 			}
 			remainToken = remainToken.Sub(lptToken)
 		}
+
+		bloom[i] = 1
 	}
 
 	fmt.Printf("%s is locked in farm, %s is added in swap\n", totalNewLockedToken, totalNewQuoteToken)
