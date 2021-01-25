@@ -38,7 +38,8 @@ func runFarmControlCmd(cmd *cobra.Command, args []string) error {
 	clientManager := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
 
 	for i := 0; ; i++ {
-		log.Printf("\n======================== Round %d ========================\n", i)
+		fmt.Println()
+		log.Printf("================================================ Round %d ================================================\n", i)
 		cli := clientManager.GetClient()
 		if 	err := refreshFarmAccounts(cli); err != nil {
 			fmt.Printf("[Phase0 Refresh] failed: %s\n", err.Error())
