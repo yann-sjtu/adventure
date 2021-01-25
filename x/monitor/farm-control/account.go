@@ -63,6 +63,14 @@ func pickOneAccount() *FarmAccount {
 
 func pickRandomIndex() int {
 	rand.Seed(time.Now().UnixNano())
+	var index int
+	for i := 0; i < 5; i++ {
+		index = rand.Intn(len(accounts))
+		if bloom[i] == 0{
+			return index
+		}
+		bloom[i] = 0
+	}
 	return rand.Intn(len(accounts))
 }
 
