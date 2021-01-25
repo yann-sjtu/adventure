@@ -116,7 +116,7 @@ func calculateBaseCoinAndQuoteCoin(cli *gosdk.Client, ownBaseAmount, ownQuoteAmo
 	toBaseAmount := types.NewDecCoinFromDec(baseCoin, baseCoinPrice)
 	if toBaseAmount.Amount.LT(ownBaseAmount.Amount) {
 		log.Printf("swap price %s with %s \n", toBaseAmount, ownQuoteAmount)
-		toBaseAmount.Amount = toBaseAmount.Amount.Add(types.MustNewDecFromStr("50.0"))
+		toBaseAmount.Amount = toBaseAmount.Amount.Add(types.MustNewDecFromStr("100.0"))
 		return toBaseAmount, ownQuoteAmount, nil
 	}
 
