@@ -44,8 +44,19 @@ func replenishLockedToken(cli *gosdk.Client, requiredToken types.DecCoin) {
 		// 2. if there is not enough lpt in this addr, then add-liquidity in swap
 		lptToken := types.NewDecCoinFromDec(lockSymbol, accInfo.GetCoins().AmountOf(lockSymbol))
 		if lptToken.IsZero() {
-			// 3. add okt & usdt to get lpt
-			addLiquidityMsg := newMsgAddLiquidity(accNum, seq, minLptDec, defaultMaxBaseAmount, defaultQuoteAmount, getDeadline(), addr)
+			toQuoteAmount := defaultQuoteAmount
+			// 3.1 query the account balance
+			ownQuoteAmount := types.NewDecCoinFromDec(quoteCoin,  accInfo.GetCoins().AmountOf(quoteCoin))
+			if ownQuoteAmount.Amount.IsZero() {
+				log.Printf("[%d] %s has no %s, balance: %s\n", index, addr, quoteCoin, accInfo.GetCoins().String())
+				continue
+			}
+			if ownQuoteAmount.Amount.LT(toQuoteAmount.Amount) {
+				toQuoteAmount = ownQuoteAmount
+			}
+
+			// 3.2 add okt & usdt to get lpt
+			addLiquidityMsg := newMsgAddLiquidity(accNum, seq, minLptDec, defaultMaxBaseAmount, toQuoteAmount, getDeadline(), addr)
 			err = common.SendMsg(common.Farm, addLiquidityMsg, index)
 			if err != nil {
 				log.Printf("[%d] %s failed to add-liquidity: %s\n", index, addr, err)
