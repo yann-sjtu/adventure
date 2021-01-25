@@ -1,7 +1,7 @@
 package monitor
 
 import (
-	farm_control "github.com/okex/adventure/x/monitor/farm-control"
+	"github.com/okex/adventure/x/monitor/farm-control"
 	"github.com/okex/adventure/x/monitor/shares-control"
 	"github.com/spf13/cobra"
 )
