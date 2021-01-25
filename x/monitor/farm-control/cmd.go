@@ -9,6 +9,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	sleepTime int
+)
+
 func FarmControlCmd() *cobra.Command {
 	farmControlCmd := &cobra.Command{
 		Use:   "farm-control",
@@ -17,8 +21,8 @@ func FarmControlCmd() *cobra.Command {
 		RunE:  runFarmControlCmd,
 	}
 
-	//flags := farmControlCmd.Flags()
-
+	flags := farmControlCmd.Flags()
+	flags.IntVarP(&sleepTime, "sleep_time", "s",60, "")
 	return farmControlCmd
 }
 
@@ -32,24 +36,13 @@ const (
 
 func runFarmControlCmd(cmd *cobra.Command, args []string) error {
 	clientManager := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
-	if err := refreshFarmAccounts(clientManager.GetClient()); err != nil {
-		return err
-	}
 
 	for i := 0; ; i++ {
-		// 0. sleep 60 seconds, or so
-		//time.Sleep(time.Second * 120)
 		log.Printf("\n======================== Round %d ========================\n", i)
 		cli := clientManager.GetClient()
-		if i%10 == 0 && i != 0  { // todo: used for refreshing accounts cache storged in local, this judgement might be removed
-			time.Sleep(time.Second * 60)
-			for j := 0; j < 10; j++ {
-				if 	err := refreshFarmAccounts(cli); err != nil {
-					fmt.Printf("[Phase0 Refresh %d] failed: %s\n", j, err.Error())
-					continue
-				}
-				break
-			}
+		if 	err := refreshFarmAccounts(cli); err != nil {
+			fmt.Printf("[Phase0 Refresh] failed: %s\n", err.Error())
+			continue
 		}
 
 		// 1. check the ratio of (our_total_locked_lpt / total_locked_lpt), then return how many lpt to be replenished
@@ -67,6 +60,6 @@ func runFarmControlCmd(cmd *cobra.Command, args []string) error {
 			// 2.1 our_total_locked_lpt / total_locked_lpt < 80%, then promote the ratio over 81%
 			replenishLockedToken(cli, requiredToken)
 		}
-		time.Sleep(time.Second * 300)
+		time.Sleep(time.Duration(sleepTime) * time.Second )
 	}
 }
