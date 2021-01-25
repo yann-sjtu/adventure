@@ -69,8 +69,8 @@ func pickRandomIndex() int {
 		if bloom[index] == 0 {
 			return index
 		}
+		bloom[index] = 0
 	}
-	bloom[index] = 0
 	return rand.Intn(len(accounts))
 }
 
