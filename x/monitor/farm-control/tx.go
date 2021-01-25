@@ -18,7 +18,9 @@ var (
 	zeroQuoteAmount = types.NewDecCoinFromDec(quoteCoin, types.ZeroDec())
 
 	bloom = make([]int, len(accounts), len(accounts))
+	k = 0
 )
+
 
 func replenishLockedToken(cli *gosdk.Client, requiredToken types.DecCoin) {
 	fmt.Printf("======> [Phase2 Replenish] start, require %s \n", requiredToken.String())
@@ -26,11 +28,8 @@ func replenishLockedToken(cli *gosdk.Client, requiredToken types.DecCoin) {
 
 	// loop[index:100]
 	for r := 0; r < 10; r++ {
-		i := pickRandomIndex()
-		if bloom[i] == 1 {
-			bloom[i] = 0
-			continue
-		}
+		i := (k*10+r)%100
+		k++
 		index, addr := accounts[i].Index, accounts[i].Address
 		
 		// 1. query account
