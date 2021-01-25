@@ -40,7 +40,7 @@ func refreshFarmAccounts(cli *gosdk.Client) error {
 			if strings.Contains(err.Error(), errMsg) {
 				accounts[i].LockedCoin = zeroLpt
 			} else {
-				return fmt.Errorf("[Phase0 query] failed to query %s lock-info: %s", accounts[i].Address, err.Error())
+				return fmt.Errorf("failed to query %s lock-info: %s", accounts[i].Address, err.Error())
 			}
 		} else {
 			accounts[i].LockedCoin = lockInfo.Amount
