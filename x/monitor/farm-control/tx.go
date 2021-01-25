@@ -52,22 +52,24 @@ func replenishLockedToken(cli *gosdk.Client, requiredToken types.DecCoin) {
 				log.Printf("[%d] %s has no %s, balance: %s\n", index, addr, quoteCoin, accInfo.GetCoins().String())
 				continue
 			}
+			ownBaseAmount := types.NewDecCoinFromDec(baseCoin,  accInfo.GetCoins().AmountOf(baseCoin))
+			if ownBaseAmount.Amount.IsZero() {
+				log.Printf("[%d] %s has no %s, balance: %s\n", index, addr, baseCoin, accInfo.GetCoins().String())
+				continue
+			}
 			//if ownQuoteAmount.Amount.LT(toQuoteAmount.Amount) {
 			//	toQuoteAmount = ownQuoteAmount
 			//}
 
 			// 3.2 query & calculate how okt could be bought with the number of usdt
-			baseCoinPrice, err := cli.AmmSwap().QueryBuyAmount(ownQuoteAmount.String(), baseCoin)
+			toBaseCoin, toQuoteCoin, err := calculateBaseCoinAndQuoteCoin(cli, ownBaseAmount, ownQuoteAmount)
 			if err != nil {
 				log.Printf("[%d] %s failed to query base coin price: %s\n", index, addr, err.Error())
 				continue
 			}
-			maxBaseAmount := types.NewDecCoinFromDec(baseCoin, baseCoinPrice)
-			log.Printf("[%d] %s could add-liquiqity %s with %s \n", index, addr, ownQuoteAmount, maxBaseAmount)
-			maxBaseAmount.Amount = maxBaseAmount.Amount.Add(types.MustNewDecFromStr("5"))
 
 			// 3.3 add okt & usdt to get lpt
-			addLiquidityMsg := newMsgAddLiquidity(accNum, seq, types.ZeroDec(), maxBaseAmount, ownQuoteAmount, getDeadline(), addr)
+			addLiquidityMsg := newMsgAddLiquidity(accNum, seq, types.ZeroDec(), toBaseCoin, toQuoteCoin, getDeadline(), addr)
 			err = common.SendMsg(common.Farm, addLiquidityMsg, index)
 			if err != nil {
 				log.Printf("[%d] %s failed to add-liquidity: %s\n", index, addr, err)
@@ -103,6 +105,36 @@ func replenishLockedToken(cli *gosdk.Client, requiredToken types.DecCoin) {
 	if !remainToken.IsZero() {
 		fmt.Printf("%s remainning still have to be replenished\n", remainToken)
 	}
+}
+
+func calculateBaseCoinAndQuoteCoin(cli *gosdk.Client, ownBaseAmount, ownQuoteAmount types.DecCoin) (types.DecCoin, types.DecCoin, error) {
+	log.Printf("balance[%s, %s] \n", ownBaseAmount, ownQuoteAmount)
+	baseCoinPrice, err := cli.AmmSwap().QueryBuyAmount(ownQuoteAmount.String(), baseCoin)
+	if err != nil {
+		return types.DecCoin{}, types.DecCoin{}, err
+	}
+	toBaseAmount := types.NewDecCoinFromDec(baseCoin, baseCoinPrice)
+	if toBaseAmount.Amount.LT(ownBaseAmount.Amount) {
+		log.Printf("swap price %s with %s \n", toBaseAmount, ownQuoteAmount)
+		toBaseAmount.Amount = toBaseAmount.Amount.Add(types.MustNewDecFromStr("5.0"))
+		return toBaseAmount, ownQuoteAmount, nil
+	}
+
+	// if not, query okt
+	if ownBaseAmount.Amount.LT(types.OneDec()) {
+		return types.DecCoin{}, types.DecCoin{}, fmt.Errorf("the balance %s is less than 1", ownBaseAmount)
+	}
+	ownBaseAmount.Amount = ownBaseAmount.Amount.Sub(types.OneDec())
+	quoteCoinPrice, err := cli.AmmSwap().QueryBuyAmount(ownBaseAmount.String(), quoteCoin)
+	if err != nil {
+		return types.DecCoin{}, types.DecCoin{}, err
+	}
+	toQuoteCoin := types.NewDecCoinFromDec(quoteCoin, quoteCoinPrice)
+	if toQuoteCoin.Amount.LT(ownQuoteAmount.Amount) {
+		log.Printf("swap price %s with %s \n", ownBaseAmount, toQuoteCoin)
+		return ownBaseAmount, toQuoteCoin, nil
+	}
+	return types.DecCoin{}, types.DecCoin{}, fmt.Errorf("calculate failed")
 }
 
 func generateRandomQuoteCoin() types.DecCoin {
