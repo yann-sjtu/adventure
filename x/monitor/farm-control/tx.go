@@ -54,7 +54,7 @@ func replenishLockedToken(cli *gosdk.Client, requiredToken types.DecCoin) {
 			totalNewQuoteToken = totalNewQuoteToken.Add(defaultQuoteAmount)
 		} else {
 			// 3. lock lpt in the farm pool
-			lockMsg := newMsgLock(accNum, seq+1, lptToken, addr)
+			lockMsg := newMsgLock(accNum, seq, lptToken, addr)
 			err = common.SendMsg(common.Farmlp, lockMsg, index)
 			if err != nil {
 				log.Printf("[%d] %s failed to lock: %s\n", index, addr, err)
