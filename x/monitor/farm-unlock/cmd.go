@@ -4,7 +4,6 @@ import (
 	"log"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/adventure/common"
 	common2 "github.com/okex/adventure/x/monitor/common"
 	farm_control "github.com/okex/adventure/x/monitor/farm-control"
@@ -47,8 +46,7 @@ func runFarmUnlocklCmd(cmd *cobra.Command, args []string) error {
 				continue
 			}
 
-			minLockAmount := types.NewDecCoinFromDec(lockSymbol, types.MustNewDecFromStr("0.00000001"))
-			unlockMsg := farm_control.NewMsgUnLock(acc.GetAccountNumber(), acc.GetSequence(), minLockAmount, addrs[i])
+			unlockMsg := farm_control.NewMsgUnLock(acc.GetAccountNumber(), acc.GetSequence(), lockinfo.Amount, addrs[i])
 			err = common2.SendMsg(common2.Unfarmlp, unlockMsg, index)
 			if err != nil {
 				log.Printf("[%d] %s failed to unlock: %s\n", index, addrs[i], err)
