@@ -33,7 +33,7 @@ func newMsgLock(accNum, seqNum uint64, amount sdk.SysCoin, addr string) authtype
 	return signMsg
 }
 
-func newMsgUnLock(accNum, seqNum uint64, amount sdk.SysCoin, addr string) authtypes.StdSignMsg {
+func NewMsgUnLock(accNum, seqNum uint64, amount sdk.SysCoin, addr string) authtypes.StdSignMsg {
 	cosmosAddr, err := utils.ToCosmosAddress(addr)
 	if err != nil {
 		panic(err)
