@@ -32,6 +32,9 @@ func replenishLockedToken(cli *gosdk.Client, requiredToken types.DecCoin) {
 	// loop[index:100]
 	for r := 0; r < 1; r++ {
 		i := (k*1+r)%100
+		if k%100 == 0 && k!=0 {
+			time.Sleep(time.Second*45)
+		}
 		index, addr := accounts[i].Index, accounts[i].Address
 		
 		// 1. query account
@@ -45,7 +48,6 @@ func replenishLockedToken(cli *gosdk.Client, requiredToken types.DecCoin) {
 		// 2. if there is not enough lpt in this addr, then add-liquidity in swap
 		lptToken := types.NewDecCoinFromDec(lockSymbol, accInfo.GetCoins().AmountOf(lockSymbol))
 		if lptToken.IsZero() {
-			continue
 			//toQuoteAmount := generateRandomQuoteCoin()
 			// 3.1 query the account balance
 			ownQuoteAmount := types.NewDecCoinFromDec(quoteCoin,  accInfo.GetCoins().AmountOf(quoteCoin))
@@ -54,8 +56,8 @@ func replenishLockedToken(cli *gosdk.Client, requiredToken types.DecCoin) {
 				continue
 			}
 			ownBaseAmount := types.NewDecCoinFromDec(baseCoin,  accInfo.GetCoins().AmountOf(baseCoin))
-			if ownBaseAmount.Amount.LT(types.MustNewDecFromStr("1000.0")) {
-				log.Printf("[%d] %s has less than 1 %s, balance: %s\n", index, addr, baseCoin, accInfo.GetCoins().String())
+			if ownBaseAmount.Amount.LT(types.MustNewDecFromStr("2")) {
+				log.Printf("[%d] %s has less than 2 %s, balance: %s\n", index, addr, baseCoin, accInfo.GetCoins().String())
 				continue
 			}
 			//if ownQuoteAmount.Amount.LT(toQuoteAmount.Amount) {
