@@ -24,6 +24,8 @@ import (
 //Farmlp   = 6 //抵押LP
 //Unfarmlp = 7 //删除LP
 
+var addrs = common.Addrs901To1000
+
 func TestDeposit(t *testing.T) {
 	addr := "okexchain1v9asy9x82lk7hfw27kq3pzeg2rgeeg6t5u27uv"
 
@@ -145,7 +147,7 @@ func TestSendTx(t *testing.T) {
 	//	fmt.Println("failed:", err)
 	//}
 	//
-	//// TEST 添加流动性
+	//// TEST 删除流动性
 	//msg4 := newMsgRemoveLiquidity(accInfo.GetAccountNumber(), accInfo.GetSequence(),
 	//	sdk.NewDecWithPrec(1,4), sdk.NewDecCoin(baseCoin, sdk.NewIntWithDecimal(1, 1)), sdk.NewDecCoin(quoteCoin, sdk.NewIntWithDecimal(1, 2)), deadline,
 	//	addr)

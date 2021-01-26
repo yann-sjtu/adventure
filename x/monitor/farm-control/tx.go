@@ -13,17 +13,10 @@ import (
 )
 
 var (
-	minLptDec = types.MustNewDecFromStr("0.0000000000000")
-	minLpt = types.NewDecCoinFromDec(lockSymbol, minLptDec)
+	zeroQuoteAmount types.DecCoin
 
-	defaultMaxBaseAmount = types.NewDecCoinFromDec(baseCoin, types.MustNewDecFromStr("350"))
-	defaultQuoteAmount = types.NewDecCoinFromDec(quoteCoin, types.MustNewDecFromStr("200"))
-	zeroQuoteAmount = types.NewDecCoinFromDec(quoteCoin, types.ZeroDec())
-
-	bloom = make([]int, len(accounts), len(accounts))
 	k = 0
 )
-
 
 func replenishLockedToken(cli *gosdk.Client, requiredToken types.DecCoin) {
 	fmt.Printf("======> [Phase2 Replenish] start, require %s \n", requiredToken.String())
@@ -33,7 +26,7 @@ func replenishLockedToken(cli *gosdk.Client, requiredToken types.DecCoin) {
 	for r := 0; r < 1; r++ {
 		i := (k*1+r)%100
 		if k%100 == 0 && k!=0 {
-			time.Sleep(time.Second*45)
+			time.Sleep(time.Second*time.Duration(sleepTime))
 		}
 		index, addr := accounts[i].Index, accounts[i].Address
 		
@@ -51,18 +44,15 @@ func replenishLockedToken(cli *gosdk.Client, requiredToken types.DecCoin) {
 			//toQuoteAmount := generateRandomQuoteCoin()
 			// 3.1 query the account balance
 			ownQuoteAmount := types.NewDecCoinFromDec(quoteCoin,  accInfo.GetCoins().AmountOf(quoteCoin))
-			if ownQuoteAmount.Amount.LT(types.OneDec()) {
+			if ownQuoteAmount.Amount.LT(types.MustNewDecFromStr("1")) {
 				log.Printf("[%d] %s has less than 1 %s, balance: %s\n", index, addr, quoteCoin, accInfo.GetCoins().String())
 				continue
 			}
 			ownBaseAmount := types.NewDecCoinFromDec(baseCoin,  accInfo.GetCoins().AmountOf(baseCoin))
-			if ownBaseAmount.Amount.LT(types.MustNewDecFromStr("2")) {
-				log.Printf("[%d] %s has less than 2 %s, balance: %s\n", index, addr, baseCoin, accInfo.GetCoins().String())
+			if ownBaseAmount.Amount.LT(types.MustNewDecFromStr("1")) {
+				log.Printf("[%d] %s has less than 1 %s, balance: %s\n", index, addr, baseCoin, accInfo.GetCoins().String())
 				continue
 			}
-			//if ownQuoteAmount.Amount.LT(toQuoteAmount.Amount) {
-			//	toQuoteAmount = ownQuoteAmount
-			//}
 
 			// 3.2 query & calculate how okt could be bought with the number of usdt
 			toBaseCoin, toQuoteCoin, err := calculateBaseCoinAndQuoteCoin(cli, ownBaseAmount, ownQuoteAmount)
@@ -99,9 +89,6 @@ func replenishLockedToken(cli *gosdk.Client, requiredToken types.DecCoin) {
 			}
 			remainToken = remainToken.Sub(lptToken)
 		}
-
-		time.Sleep(time.Duration(sleepTime) * time.Second )
-		bloom[i] = 1
 	}
 	k++
 	fmt.Printf("%s is locked in farm, %s is added in swap\n", totalNewLockedToken, totalNewQuoteToken)
