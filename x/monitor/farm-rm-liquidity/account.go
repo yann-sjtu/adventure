@@ -1,6 +1,5 @@
 package farm_rm_liquidity
 
-
 var addrs = []string{
 	"okexchain1hej6n80vs262wmrpvmkf9zmugqgjfqzydxa8et",
 	"okexchain1mcut93efcpdjgjkpfvemfvvqju0zs8ccj3u0xh",

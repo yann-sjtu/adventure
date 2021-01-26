@@ -60,7 +60,7 @@ func testMsgMarshal() {
 }
 
 func makeMsg() (signMsg authtypes.StdSignMsg) {
-	soldTokenDecCoin, err := types.ParseDecCoin("1"+common.NativeToken)
+	soldTokenDecCoin, err := types.ParseDecCoin("1" + common.NativeToken)
 	if err != nil {
 		return
 	}

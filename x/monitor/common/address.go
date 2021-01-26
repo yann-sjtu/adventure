@@ -1,19 +1,19 @@
 package common
 
 var AddrsBook = [10][]string{
-	[]string{}, // 1  ~100
-	[]string{}, // 101~200
-	[]string{}, // 201~300
-	[]string{}, // 301~400
-	[]string{}, // 401~500
-	[]string{}, // 501~600
-	[]string{}, // 601~700
-	Addrs701To800, // 701~800
-	[]string{}, // 801~900
+	[]string{},     // 1  ~100
+	[]string{},     // 101~200
+	[]string{},     // 201~300
+	[]string{},     // 301~400
+	[]string{},     // 401~500
+	[]string{},     // 501~600
+	[]string{},     // 601~700
+	Addrs701To800,  // 701~800
+	[]string{},     // 801~900
 	Addrs901To1000, // 901~1000
 }
 
-var Addrs701To800 = []string {
+var Addrs701To800 = []string{
 	"okexchain1sweamtw3puhnzrhytnec5vt5vmgmedp4w7pf2c",
 	"okexchain1qf0cm8nprnlfc6n0nt3v5akhpjh34e09er7mse",
 	"okexchain1fteqcsvqksacyhrszt8acuj44sr5ankw97rclt",
@@ -116,7 +116,7 @@ var Addrs701To800 = []string {
 	"okexchain1yhd0hqyr44lk65w6myj9z8tq4yh2gmwgwavg03",
 }
 
-var Addrs901To1000 = []string {
+var Addrs901To1000 = []string{
 	"okexchain1hej6n80vs262wmrpvmkf9zmugqgjfqzydxa8et",
 	"okexchain1mcut93efcpdjgjkpfvemfvvqju0zs8ccj3u0xh",
 	"okexchain1wc49x2rnml97d537vsv4wqj0e67y90xe0y4nzm",

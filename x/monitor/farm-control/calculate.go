@@ -8,9 +8,9 @@ import (
 )
 
 var (
-	limitRatio  types.Dec
+	limitRatio types.Dec
 	//lockedRatio = types.NewDecWithPrec(81, 2)
-	numerator  types.Dec
+	numerator   types.Dec
 	denominator types.Dec
 
 	zeroLpt types.DecCoin

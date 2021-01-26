@@ -24,12 +24,12 @@ func replenishLockedToken(cli *gosdk.Client, requiredToken types.DecCoin) {
 
 	// loop[index:100]
 	for r := 0; r < 1; r++ {
-		i := (k*1+r)%100
-		if k%100 == 0 && k!=0 {
-			time.Sleep(time.Second*time.Duration(sleepTime))
+		i := (k*1 + r) % 100
+		if k%100 == 0 && k != 0 {
+			time.Sleep(time.Second * time.Duration(sleepTime))
 		}
 		index, addr := accounts[i].Index, accounts[i].Address
-		
+
 		// 1. query account
 		accInfo, err := cli.Auth().QueryAccount(addr)
 		if err != nil {
@@ -43,12 +43,12 @@ func replenishLockedToken(cli *gosdk.Client, requiredToken types.DecCoin) {
 		if lptToken.IsZero() {
 			//toQuoteAmount := generateRandomQuoteCoin()
 			// 3.1 query the account balance
-			ownQuoteAmount := types.NewDecCoinFromDec(quoteCoin,  accInfo.GetCoins().AmountOf(quoteCoin))
+			ownQuoteAmount := types.NewDecCoinFromDec(quoteCoin, accInfo.GetCoins().AmountOf(quoteCoin))
 			if ownQuoteAmount.Amount.LT(types.MustNewDecFromStr("1")) {
 				log.Printf("[%d] %s has less than 1 %s, balance: %s\n", index, addr, quoteCoin, accInfo.GetCoins().String())
 				continue
 			}
-			ownBaseAmount := types.NewDecCoinFromDec(baseCoin,  accInfo.GetCoins().AmountOf(baseCoin))
+			ownBaseAmount := types.NewDecCoinFromDec(baseCoin, accInfo.GetCoins().AmountOf(baseCoin))
 			if ownBaseAmount.Amount.LT(types.MustNewDecFromStr("1")) {
 				log.Printf("[%d] %s has less than 1 %s, balance: %s\n", index, addr, baseCoin, accInfo.GetCoins().String())
 				continue
@@ -155,7 +155,7 @@ func generateRandomQuoteCoin() types.DecCoin {
 	rand.Seed(time.Now().UnixNano())
 	// 9000.00~15000.00usdt -> 140~230okt -> 0.8~1.3lpt
 	numInt := rand.Intn(600000) + 900000
-	numFloat := float64(numInt)/100.0
+	numFloat := float64(numInt) / 100.0
 	numStr := strconv.FormatFloat(numFloat, 'f', 4, 64)
 	return types.NewDecCoinFromDec(quoteCoin, types.MustNewDecFromStr(numStr))
 }
@@ -164,7 +164,7 @@ func generateRandomMaxBaseCoin() types.DecCoin {
 	rand.Seed(time.Now().UnixNano())
 	// 240~300okt
 	numInt := rand.Intn(6000) + 24000
-	numFloat := float64(numInt)/100.0
+	numFloat := float64(numInt) / 100.0
 	numStr := strconv.FormatFloat(numFloat, 'f', 4, 64)
 	return types.NewDecCoinFromDec(baseCoin, types.MustNewDecFromStr(numStr))
 }

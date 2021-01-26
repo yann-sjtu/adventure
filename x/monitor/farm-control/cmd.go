@@ -23,16 +23,16 @@ func FarmControlCmd() *cobra.Command {
 	}
 
 	flags := farmControlCmd.Flags()
-	flags.IntVarP(&sleepTime, "sleep_time", "s",30, "")
-	flags.IntVarP(&startIndex, "start_index", "i",701, "")
-	flags.StringVar(&poolName, "pool_name","1st_pool_okt_usdt", "")
-	flags.StringVar(&lockSymbol, "lock_symbol","ammswap-okt_usdt-a2b", "")
-	flags.StringVar(&baseCoin, "base_coin","okt", "")
-	flags.StringVar(&quoteCoin, "quote_coin","usdt-a2b", "")
+	flags.IntVarP(&sleepTime, "sleep_time", "s", 30, "")
+	flags.IntVarP(&startIndex, "start_index", "i", 701, "")
+	flags.StringVar(&poolName, "pool_name", "1st_pool_okt_usdt", "")
+	flags.StringVar(&lockSymbol, "lock_symbol", "ammswap-okt_usdt-a2b", "")
+	flags.StringVar(&baseCoin, "base_coin", "okt", "")
+	flags.StringVar(&quoteCoin, "quote_coin", "usdt-a2b", "")
 	return farmControlCmd
 }
 
-var  (
+var (
 	startIndex = 0
 
 	poolName   = ""
@@ -42,11 +42,11 @@ var  (
 	quoteCoin = ""
 )
 
-func initGlobalParam()  {
-	bookId := startIndex/100
+func initGlobalParam() {
+	bookId := startIndex / 100
 	accounts = newFarmAddrAccounts(monitorcommon.AddrsBook[bookId], startIndex)
 
-	limitRatio  = types.MustNewDecFromStr("0.70")
+	limitRatio = types.MustNewDecFromStr("0.70")
 	//lockedRatio = types.NewDecWithPrec(81, 2)
 	numerator = types.MustNewDecFromStr("3.0")
 	denominator = types.MustNewDecFromStr("10.0")
@@ -63,7 +63,7 @@ func runFarmControlCmd(cmd *cobra.Command, args []string) error {
 		fmt.Println()
 		log.Printf("================================================ Round %d ================================================\n", i)
 		cli := clientManager.GetClient()
-		if 	err := refreshFarmAccounts(cli); err != nil {
+		if err := refreshFarmAccounts(cli); err != nil {
 			fmt.Printf("[Phase0 Refresh] failed: %s\n", err.Error())
 			continue
 		}

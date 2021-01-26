@@ -3,7 +3,7 @@ package locker
 import (
 	"github.com/okex/adventure/x/strategy/farm/constants"
 	"github.com/okex/adventure/x/strategy/farm/emitter"
- "github.com/okex/adventure/x/strategy/farm/locker/types"
+	"github.com/okex/adventure/x/strategy/farm/locker/types"
 	"github.com/okex/adventure/x/strategy/farm/utils"
 	"github.com/spf13/cobra"
 	"time"

@@ -185,7 +185,6 @@ func TestQueryLockInfo(t *testing.T) {
 	fmt.Println(res)
 }
 
-
 func newMsgDeposit(accNum, seqNum uint64, amount sdk.SysCoin, addr string) authtypes.StdSignMsg {
 	cosmosAddr, err := utils.ToCosmosAddress(addr)
 	if err != nil {

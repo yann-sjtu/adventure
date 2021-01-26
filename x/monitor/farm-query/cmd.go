@@ -27,7 +27,7 @@ func runFarmQueryCmd(cmd *cobra.Command, args []string) error {
 	cli := clientManager.GetClient()
 	for i := 0; i < len(addrs); i++ {
 		acc, err := cli.Auth().QueryAccount(addrs[i])
-		if err != nil{
+		if err != nil {
 			log.Printf("[%d]%s failed to query account info. err: %s", 901+i, addrs[i], err.Error())
 			continue
 		}
