@@ -45,6 +45,7 @@ func replenishLockedToken(cli *gosdk.Client, requiredToken types.DecCoin) {
 		// 2. if there is not enough lpt in this addr, then add-liquidity in swap
 		lptToken := types.NewDecCoinFromDec(lockSymbol, accInfo.GetCoins().AmountOf(lockSymbol))
 		if lptToken.IsZero() {
+			continue
 			//toQuoteAmount := generateRandomQuoteCoin()
 			// 3.1 query the account balance
 			ownQuoteAmount := types.NewDecCoinFromDec(quoteCoin,  accInfo.GetCoins().AmountOf(quoteCoin))
@@ -76,7 +77,7 @@ func replenishLockedToken(cli *gosdk.Client, requiredToken types.DecCoin) {
 				continue
 			}
 			log.Printf("[%d] %s send add-liquidity msg: %+v\n", index, addr, addLiquidityMsg.Msgs[0])
-			totalNewQuoteToken = totalNewQuoteToken.Add(ownQuoteAmount)
+			totalNewQuoteToken = totalNewQuoteToken.Add(toQuoteCoin)
 		} else {
 			// 3. lock lpt in the farm pool
 			lockMsg := newMsgLock(accNum, seq, lptToken, addr)
