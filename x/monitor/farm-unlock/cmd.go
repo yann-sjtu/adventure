@@ -55,8 +55,8 @@ func runFarmUnlocklCmd(cmd *cobra.Command, args []string) error {
 			log.Printf("[%d] %s send unlock msg: %+v\n", index, addrs[i], unlockMsg.Msgs[0])
 		}
 
-		if i % 20 == 0{
-			time.Sleep(time.Duration(15) * time.Second )
+		if i % 20 == 0 && i != 0{
+			time.Sleep(time.Duration(5) * time.Second )
 		}
 	}
 	return nil
