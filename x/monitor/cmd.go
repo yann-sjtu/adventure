@@ -2,6 +2,7 @@ package monitor
 
 import (
 	"github.com/okex/adventure/x/monitor/farm-control"
+	farm_query "github.com/okex/adventure/x/monitor/farm-query"
 	farmrmliquidity "github.com/okex/adventure/x/monitor/farm-rm-liquidity"
 	farm_unlock "github.com/okex/adventure/x/monitor/farm-unlock"
 	"github.com/okex/adventure/x/monitor/shares-control"
@@ -19,6 +20,7 @@ func MonitorCmd() *cobra.Command {
 		farm_control.FarmControlCmd(),
 		farm_unlock.FarmUnlockCmd(),
 		farmrmliquidity.FarmRemoveLiquidityCmd(),
+		farm_query.FarmQueryCmd(),
 	)
 
 	return monitorCmd
