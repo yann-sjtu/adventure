@@ -24,7 +24,7 @@ func FarmControlCmd() *cobra.Command {
 
 	flags := farmControlCmd.Flags()
 	flags.IntVarP(&sleepTime, "sleep_time", "s", 30, "")
-	flags.IntVarP(&startIndex, "start_index", "i", 701, "")
+	flags.IntVarP(&startIndex, "start_index", "i", 901, "")
 	flags.StringVar(&poolName, "pool_name", "1st_pool_okt_usdt", "")
 	flags.StringVar(&lockSymbol, "lock_symbol", "ammswap-okt_usdt-a2b", "")
 	flags.StringVar(&baseCoin, "base_coin", "okt", "")
