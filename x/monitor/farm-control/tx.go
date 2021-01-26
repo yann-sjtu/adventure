@@ -45,16 +45,17 @@ func replenishLockedToken(cli *gosdk.Client, requiredToken types.DecCoin) {
 		// 2. if there is not enough lpt in this addr, then add-liquidity in swap
 		lptToken := types.NewDecCoinFromDec(lockSymbol, accInfo.GetCoins().AmountOf(lockSymbol))
 		if lptToken.IsZero() {
+			continue
 			//toQuoteAmount := generateRandomQuoteCoin()
 			// 3.1 query the account balance
 			ownQuoteAmount := types.NewDecCoinFromDec(quoteCoin,  accInfo.GetCoins().AmountOf(quoteCoin))
-			if ownQuoteAmount.Amount.IsZero() {
-				log.Printf("[%d] %s has no %s, balance: %s\n", index, addr, quoteCoin, accInfo.GetCoins().String())
+			if ownQuoteAmount.Amount.LT(types.OneDec()) {
+				log.Printf("[%d] %s has less than 1 %s, balance: %s\n", index, addr, quoteCoin, accInfo.GetCoins().String())
 				continue
 			}
 			ownBaseAmount := types.NewDecCoinFromDec(baseCoin,  accInfo.GetCoins().AmountOf(baseCoin))
-			if ownBaseAmount.Amount.IsZero() {
-				log.Printf("[%d] %s has no %s, balance: %s\n", index, addr, baseCoin, accInfo.GetCoins().String())
+			if ownBaseAmount.Amount.LT(types.MustNewDecFromStr("1000.0")) {
+				log.Printf("[%d] %s has less than 1 %s, balance: %s\n", index, addr, baseCoin, accInfo.GetCoins().String())
 				continue
 			}
 			//if ownQuoteAmount.Amount.LT(toQuoteAmount.Amount) {
@@ -76,7 +77,7 @@ func replenishLockedToken(cli *gosdk.Client, requiredToken types.DecCoin) {
 				continue
 			}
 			log.Printf("[%d] %s send add-liquidity msg: %+v\n", index, addr, addLiquidityMsg.Msgs[0])
-			totalNewQuoteToken = totalNewQuoteToken.Add(ownQuoteAmount)
+			totalNewQuoteToken = totalNewQuoteToken.Add(toQuoteCoin)
 		} else {
 			// 3. lock lpt in the farm pool
 			lockMsg := newMsgLock(accNum, seq, lptToken, addr)
@@ -97,10 +98,10 @@ func replenishLockedToken(cli *gosdk.Client, requiredToken types.DecCoin) {
 			remainToken = remainToken.Sub(lptToken)
 		}
 
+		time.Sleep(time.Duration(sleepTime) * time.Second )
 		bloom[i] = 1
 	}
 	k++
-
 	fmt.Printf("%s is locked in farm, %s is added in swap\n", totalNewLockedToken, totalNewQuoteToken)
 	if !remainToken.IsZero() {
 		fmt.Printf("%s remainning still have to be replenished\n", remainToken)

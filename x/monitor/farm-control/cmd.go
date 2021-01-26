@@ -3,7 +3,6 @@ package farm_control
 import (
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/okex/adventure/common"
 	"github.com/spf13/cobra"
@@ -61,6 +60,5 @@ func runFarmControlCmd(cmd *cobra.Command, args []string) error {
 			// 2.1 our_total_locked_lpt / total_locked_lpt < 80%, then promote the ratio over 81%
 			replenishLockedToken(cli, requiredToken)
 		}
-		time.Sleep(time.Duration(sleepTime) * time.Second )
 	}
 }
