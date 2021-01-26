@@ -33,6 +33,7 @@ func newFarmAddrAccounts() FarmAccounts {
 }
 
 const errMsg = "hasn't locked"
+
 func refreshFarmAccounts(cli *gosdk.Client) error {
 	for i := 0; i < len(accounts); i++ {
 		lockInfo, err := cli.Farm().QueryLockInfo(poolName, accounts[i].Address)
