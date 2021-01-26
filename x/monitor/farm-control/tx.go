@@ -122,33 +122,6 @@ func calculateBaseCoinAndQuoteCoin(cli *gosdk.Client, ownBaseAmount, ownQuoteAmo
 		log.Printf("add-liquidity %s with %s \n", ownBaseAmount, quoteAmount)
 		return ownBaseAmount, quoteAmount, nil
 	}
-
-	//baseCoinPrice, err := cli.AmmSwap().QueryBuyAmount(ownQuoteAmount.String(), baseCoin)
-	//if err != nil {
-	//	return types.DecCoin{}, types.DecCoin{}, err
-	//}
-	//toBaseAmount := types.NewDecCoinFromDec(baseCoin, baseCoinPrice)
-	//if toBaseAmount.Amount.LT(ownBaseAmount.Amount) {
-	//	log.Printf("swap price %s with %s \n", toBaseAmount, ownQuoteAmount)
-	//	toBaseAmount.Amount = toBaseAmount.Amount.Add(types.MustNewDecFromStr("200.0"))
-	//	return toBaseAmount, ownQuoteAmount, nil
-	//}
-	//
-	//// if not, query okt
-	//if ownBaseAmount.Amount.LT(types.OneDec()) {
-	//	return types.DecCoin{}, types.DecCoin{}, fmt.Errorf("the balance %s is less than 1", ownBaseAmount)
-	//}
-	//ownBaseAmount.Amount = ownBaseAmount.Amount.Sub(types.OneDec())
-	//quoteCoinPrice, err := cli.AmmSwap().QueryBuyAmount(ownBaseAmount.String(), quoteCoin)
-	//if err != nil {
-	//	return types.DecCoin{}, types.DecCoin{}, err
-	//}
-	//toQuoteCoin := types.NewDecCoinFromDec(quoteCoin, quoteCoinPrice)
-	//if toQuoteCoin.Amount.LT(ownQuoteAmount.Amount) {
-	//	log.Printf("swap price %s with %s \n", ownBaseAmount, toQuoteCoin)
-	//	return ownBaseAmount, toQuoteCoin, nil
-	//}
-	//return types.DecCoin{}, types.DecCoin{}, fmt.Errorf("calculate failed")
 }
 
 func generateRandomQuoteCoin() types.DecCoin {
