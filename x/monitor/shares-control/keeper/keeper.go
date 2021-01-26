@@ -175,8 +175,13 @@ func (k *Keeper) ensureWorkerDeposited(worker types.Worker) error {
 		return err
 	}
 
+	nativeTokenAmount := accInfo.GetCoins().AmountOf(common.NativeToken)
+	if nativeTokenAmount.LTE(sdk.OneDec()) {
+		return fmt.Errorf("worker [%s] has less than 1%s", workerAddrStr, common.NativeToken)
+	}
+
 	// depositAmount = balance - 1okt
-	depositAmount := accInfo.GetCoins().AmountOf(common.NativeToken).Sub(sdk.OneDec())
+	depositAmount := nativeTokenAmount.Sub(sdk.OneDec())
 	return k.deposit(worker, sdk.NewDecCoinFromDec(common.NativeToken, depositAmount))
 }
 
