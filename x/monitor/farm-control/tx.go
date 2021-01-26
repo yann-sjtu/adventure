@@ -31,7 +31,7 @@ func replenishLockedToken(cli *gosdk.Client, requiredToken types.DecCoin) {
 
 	// loop[index:100]
 	for r := 0; r < 1; r++ {
-		i := (k*1+r)%100
+		i := (k*1+r)%28
 		index, addr := accounts[i].Index, accounts[i].Address
 		
 		// 1. query account
