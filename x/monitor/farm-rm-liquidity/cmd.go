@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 	"log"
 	"strings"
+	"time"
 )
 
 func FarmRemoveLiquidityCmd() *cobra.Command {
@@ -30,6 +31,7 @@ func runFarmRemoveLiquidityCmd(cmd *cobra.Command, args []string) error {
 	fmt.Printf("%d addresses are loaded\n", len(filters))
 	var counter int
 	for {
+		time.Sleep(queryInterval)
 		counter++
 		fmt.Printf("================================ Round %d ================================\n", counter)
 		var targetAddr string
@@ -57,7 +59,7 @@ func runFarmRemoveLiquidityCmd(cmd *cobra.Command, args []string) error {
 
 			index, ok := filters[addr]
 			if !ok {
-				panic("index of worker does not exist, " + addr)
+				log.Fatalf("index of worker [%s] does not exist\n", addr)
 			}
 
 			if err = mntcmn.SendMsg(mntcmn.Undelefarm, msgRmLiquidity, index); err != nil {
