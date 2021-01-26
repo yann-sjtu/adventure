@@ -13,7 +13,7 @@ import (
 var (
 	startIndex = 0
 
-	poolName   = ""
+	poolName = ""
 )
 
 func FarmUnlockCmd() *cobra.Command {

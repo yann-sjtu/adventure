@@ -99,7 +99,7 @@ func getOwnBaseCoinAndQuoteCoin(coins types.DecCoins) (ownBaseAmount, ownQuoteAm
 		return ownBaseAmount, ownQuoteAmount, fmt.Errorf("has no %s, balance[%s]", baseCoin, coins.String())
 	}
 	if strings.Compare(ownBaseAmount.Denom, common2.NativeToken) == 0 && ownBaseAmount.Amount.LTE(types.OneDec()) {
-		err =  fmt.Errorf("has less than 1 %s, so not to add-liquidity. balance[%s]", common2.NativeToken, coins.String())
+		err = fmt.Errorf("has less than 1 %s, so not to add-liquidity. balance[%s]", common2.NativeToken, coins.String())
 		return
 	}
 	ownQuoteAmount = types.NewDecCoinFromDec(quoteCoin, coins.AmountOf(quoteCoin))
