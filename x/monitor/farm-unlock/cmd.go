@@ -2,7 +2,6 @@ package farm_unlock
 
 import (
 	"log"
-	"time"
 
 	"github.com/okex/adventure/common"
 	common2 "github.com/okex/adventure/x/monitor/common"
@@ -52,10 +51,10 @@ func runFarmUnlocklCmd(cmd *cobra.Command, args []string) error {
 				log.Printf("[%d] %s failed to unlock: %s\n", index, addrs[i], err)
 				continue
 			}
-			log.Printf("[%d] %s send lock msg: %+v\n", index, addrs[i], unlockMsg.Msgs[0])
+			log.Printf("[%d] %s send unlock msg: %+v\n", index, addrs[i], unlockMsg.Msgs[0])
 		}
 
-		time.Sleep(time.Duration(10) * time.Second )
+		//time.Sleep(time.Duration(10) * time.Second )
 	}
 	return nil
 }
