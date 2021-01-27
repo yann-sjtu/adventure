@@ -5,11 +5,9 @@ import (
 	"log"
 	"math/rand"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/types"
-	common2 "github.com/okex/adventure/common"
 	"github.com/okex/adventure/x/monitor/common"
 	gosdk "github.com/okex/okexchain-go-sdk"
 )
@@ -68,7 +66,7 @@ func replenishLockedToken(cli *gosdk.Client, requiredToken types.DecCoin) {
 			totalNewQuoteToken = totalNewQuoteToken.Add(toQuoteCoin)
 		} else {
 			// 3. lock lpt in the farm pool
-			lockMsg := newMsgLock(accNum, seq, lptToken, addr)
+			lockMsg := newMsgLock(accNum, seq, poolName, lptToken, addr)
 			err = common.SendMsg(common.Farmlp, lockMsg, index)
 			if err != nil {
 				log.Printf("[%d] %s failed to lock: %s\n", index, addr, err)
@@ -95,16 +93,12 @@ func replenishLockedToken(cli *gosdk.Client, requiredToken types.DecCoin) {
 
 func getOwnBaseCoinAndQuoteCoin(coins types.DecCoins) (ownBaseAmount, ownQuoteAmount types.DecCoin, err error) {
 	ownBaseAmount = types.NewDecCoinFromDec(baseCoin, coins.AmountOf(baseCoin))
-	if ownBaseAmount.Amount.LT(types.ZeroDec()) {
-		return ownBaseAmount, ownQuoteAmount, fmt.Errorf("has no %s, balance[%s]", baseCoin, coins.String())
-	}
-	if strings.Compare(ownBaseAmount.Denom, common2.NativeToken) == 0 && ownBaseAmount.Amount.LTE(types.OneDec()) {
-		err = fmt.Errorf("has less than 1 %s, so not to add-liquidity. balance[%s]", common2.NativeToken, coins.String())
-		return
+	if ownBaseAmount.Amount.LTE(types.MustNewDecFromStr("2.0")) {
+		return ownBaseAmount, ownQuoteAmount, fmt.Errorf("has less than 2 %s, balance[%s]", baseCoin, coins.String())
 	}
 	ownQuoteAmount = types.NewDecCoinFromDec(quoteCoin, coins.AmountOf(quoteCoin))
-	if ownQuoteAmount.Amount.LT(types.ZeroDec()) {
-		return ownBaseAmount, ownQuoteAmount, fmt.Errorf("has no %s, balance[%s]", quoteCoin, coins.String())
+	if ownQuoteAmount.Amount.LTE(types.MustNewDecFromStr("2.0")) {
+		return ownBaseAmount, ownQuoteAmount, fmt.Errorf("has less than 1 %s, balance[%s]", quoteCoin, coins.String())
 	}
 	return
 }
@@ -116,15 +110,13 @@ func calculateBaseCoinAndQuoteCoin(cli *gosdk.Client, ownBaseAmount, ownQuoteAmo
 	}
 	log.Printf("balance[%s, %s] perPrice:%s \n", ownBaseAmount, ownQuoteAmount, quotePerPrice)
 	if ownBaseAmount.Amount.Mul(quotePerPrice).GT(ownQuoteAmount.Amount) {
-		// all in quote coin
+		// all in quote coin USDT
 		toBaseAmount := types.NewDecCoinFromDec(baseCoin, ownQuoteAmount.Amount.Quo(quotePerPrice).Mul(types.MustNewDecFromStr("1.01")))
 		return toBaseAmount, ownQuoteAmount, nil
 	} else {
-		// all in base coin
-		if strings.Compare(ownBaseAmount.Denom, common2.NativeToken) == 0 {
-			ownBaseAmount.Amount = ownBaseAmount.Amount.Sub(types.OneDec())
-		}
-		toQuoteAmount := types.NewDecCoinFromDec(quoteCoin, ownBaseAmount.Amount.Mul(quotePerPrice))
+		// all in base coin OKT
+		//ownBaseAmount.Amount = ownBaseAmount.Amount.Sub(types.OneDec())
+		toQuoteAmount := types.NewDecCoinFromDec(quoteCoin, ownBaseAmount.Amount.Sub(types.OneDec()).Mul(quotePerPrice))
 		return ownBaseAmount, toQuoteAmount, nil
 	}
 }

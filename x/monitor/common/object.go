@@ -9,6 +9,7 @@ import (
 	"github.com/okex/okexchain/x/ammswap"
 	farmtypes "github.com/okex/okexchain/x/farm/types"
 	"github.com/okex/okexchain/x/staking"
+	"github.com/okex/okexchain/x/token"
 )
 
 type MsgWithIndex struct {
@@ -42,6 +43,7 @@ func init() {
 	farmtypes.RegisterCodec(cdc)
 	ammswap.RegisterCodec(cdc)
 	staking.RegisterCodec(cdc)
+	token.RegisterCodec(cdc)
 }
 
 func NewObject(msg types.StdSignMsg, addresIndex int, time string, txType int) (Object, error) {
