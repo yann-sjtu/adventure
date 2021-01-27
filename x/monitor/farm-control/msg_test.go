@@ -8,6 +8,7 @@ import (
 	"github.com/okex/okexchain-go-sdk/utils"
 	"github.com/okex/okexchain/app/types"
 	stakingtypes "github.com/okex/okexchain/x/staking/types"
+	tokentypes "github.com/okex/okexchain/x/token/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/adventure/x/monitor/common"
@@ -125,8 +126,8 @@ func TestAddShares(t *testing.T) {
 }
 
 func TestSendTx(t *testing.T) {
-	addr := addrs[1]
-	index := startIndex + 1
+	addr := "okexchain1sweamtw3puhnzrhytnec5vt5vmgmedp4w7pf2c"
+	index := 701
 	fmt.Println(addr, index)
 
 	cfg, err := gosdk.NewClientConfig("http://10.0.240.37:26657", "okexchain-66", gosdk.BroadcastBlock, "0.002okt", 200000, 0, "")
@@ -140,11 +141,14 @@ func TestSendTx(t *testing.T) {
 	}
 
 	// TEST 抵押LP
-	msg := newMsgLock(accInfo.GetAccountNumber(), accInfo.GetSequence(), sdk.NewDecCoinFromDec(lockSymbol, sdk.MustNewDecFromStr("0.128147322151976840")), addr)
-	err = common.SendMsg(common.Farmlp, msg, index)
-	if err != nil {
-		panic(fmt.Errorf("failed send msg: %s", err.Error()))
-	}
+	//msg := newMsgLock(accInfo.GetAccountNumber(), accInfo.GetSequence(),
+	//  "okb_usdt",
+	//	sdk.NewDecCoinFromDec("ammswap_okb-c4d_usdt-a2b", sdk.MustNewDecFromStr("343.408870298749067968")),
+	//	addr)
+	//err = common.SendMsg(common.Farmlp, msg, index)
+	//if err != nil {
+	//	panic(fmt.Errorf("failed send msg: %s", err.Error()))
+	//}
 
 	// TEST 删除LP
 	//msg2 := newMsgUnLock(accInfo.GetAccountNumber(), accInfo.GetSequence(), sdk.NewDecCoin(lockSymbol, sdk.NewIntWithDecimal(1,8)), addr)
@@ -155,16 +159,27 @@ func TestSendTx(t *testing.T) {
 
 	//deadline := getDeadline()
 	// TEST 添加流动性
-	//maxOkt := sdk.NewDecCoinFromDec(baseCoin, sdk.MustNewDecFromStr("4"))
-	//usdt := sdk.NewDecCoinFromDec(quoteCoin, sdk.MustNewDecFromStr("200"))
-	//
-	//msg3 := newMsgAddLiquidity(accInfo.GetAccountNumber(), accInfo.GetSequence(),
-	//	sdk.MustNewDecFromStr("0.00000001"), maxOkt, usdt, deadline,
-	//	addr)
-	//err = common.SendMsg(common.Farm, msg3, index)
-	//if err != nil {
-	//	fmt.Println("failed:", err)
-	//}
+	baseCoin = "okb-c4d"
+	quoteCoin = "usdt-a2b"
+	ownBaseAmount, ownQuoteAmount, err := getOwnBaseCoinAndQuoteCoin(accInfo.GetCoins())
+	if err != nil {
+		panic(fmt.Errorf("[%d] %s %s\n", index, addr, err.Error()))
+	}
+
+	// 3.2 query & calculate how okt could be bought with the number of usdt
+	toBaseCoin, toQuoteCoin, err := calculateBaseCoinAndQuoteCoin(&cli, ownBaseAmount, ownQuoteAmount)
+	if err != nil {
+		panic(fmt.Errorf("[%d] %s failed to calculate max-base-coin & quote-coin: %s\n", index, addr, err.Error()))
+	}
+	fmt.Println(toBaseCoin, toQuoteCoin)
+
+	msg3 := newMsgAddLiquidity(accInfo.GetAccountNumber(), accInfo.GetSequence(),
+		sdk.MustNewDecFromStr("0.00000001"), toBaseCoin, toQuoteCoin, getDeadline(),
+		addr)
+	err = common.SendMsg(common.Farm, msg3, index)
+	if err != nil {
+		fmt.Println("failed:", err)
+	}
 	//
 	//// TEST 删除流动性
 	//msg4 := newMsgRemoveLiquidity(accInfo.GetAccountNumber(), accInfo.GetSequence(),
@@ -251,6 +266,54 @@ func newMsgAddShares(accNum, seqNum uint64, valAddrs []sdk.ValAddress, addr stri
 	}
 
 	msg := stakingtypes.NewMsgAddShares(cosmosAddr, valAddrs)
+	msgs := []sdk.Msg{msg}
+	signMsg := authtypes.StdSignMsg{
+		ChainID:       "okexchain-66",
+		AccountNumber: accNum,
+		Sequence:      seqNum,
+		Memo:          "",
+		Msgs:          msgs,
+		Fee:           authtypes.NewStdFee(500000, sdk.NewDecCoinsFromDec(types.NativeToken, sdk.MustNewDecFromStr("0.005"))),
+	}
+
+	return signMsg
+}
+
+func TestTokenTransfer(t *testing.T) {
+	addr := "okexchain1pa345e0qmn7hrhfyv4a7ys3zhshcnetlx008qs"
+	index := 1000
+
+	cfg, err := gosdk.NewClientConfig("http://10.0.240.37:26657", "okexchain-66", gosdk.BroadcastBlock, "0.002okt", 200000, 0, "")
+	if err != nil {
+		panic(err)
+	}
+
+	cli := gosdk.NewClient(cfg)
+	accInfo, err := cli.Auth().QueryAccount(addr)
+	if err != nil {
+		panic(err)
+	}
+
+	amount := sdk.NewDecCoinsFromDec("usdt-a2b", sdk.MustNewDecFromStr("1.0"))
+	msg := newSendToken(accInfo.GetAccountNumber(), accInfo.GetSequence(),addr,"okexchain1kcptmghl3k52zt4zmzz29lleq8c7jaecgh40gx", amount)
+	fmt.Printf("%+v \n", msg.Msgs[0])
+	err = common.SendMsg(common.Send, msg, index)
+	if err != nil {
+		fmt.Println("failed:", err)
+	}
+}
+
+func newSendToken(accNum, seqNum uint64, from, to string, amount sdk.DecCoins) authtypes.StdSignMsg {
+	fromCosmosAddr, err := utils.ToCosmosAddress(from)
+	if err != nil {
+		panic(err)
+	}
+	toCosmosAddr, err := utils.ToCosmosAddress(to)
+	if err != nil {
+		panic(err)
+	}
+
+	msg := tokentypes.MsgSend{fromCosmosAddr, toCosmosAddr, amount}
 	msgs := []sdk.Msg{msg}
 	signMsg := authtypes.StdSignMsg{
 		ChainID:       "okexchain-66",

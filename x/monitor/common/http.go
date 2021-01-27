@@ -24,6 +24,8 @@ const (
 
 	Farmlp   = 6 //抵押LP
 	Unfarmlp = 7 //删除LP
+
+	Send = 8 //转账
 )
 
 var (

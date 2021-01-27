@@ -13,7 +13,7 @@ import (
 	farmtypes "github.com/okex/okexchain/x/farm/types"
 )
 
-func newMsgLock(accNum, seqNum uint64, amount sdk.SysCoin, addr string) authtypes.StdSignMsg {
+func newMsgLock(accNum, seqNum uint64, poolName string, amount sdk.SysCoin, addr string) authtypes.StdSignMsg {
 	cosmosAddr, err := utils.ToCosmosAddress(addr)
 	if err != nil {
 		panic(err)
