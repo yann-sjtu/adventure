@@ -30,7 +30,7 @@ func NewKeeper() Keeper {
 func (k *Keeper) Init(configFilePath string) (err error) {
 	// cli
 	k.cliManager = common.NewClientManager(common.Cfg.Hosts, common.AUTO)
-
+	
 	// params from toml
 	var config types.Config
 	if _, err = toml.DecodeFile(configFilePath, &config); err != nil {
