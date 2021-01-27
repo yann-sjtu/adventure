@@ -27,9 +27,10 @@ import (
 var addrs = common.Addrs901To1000
 
 func TestDeposit(t *testing.T) {
-	addr := "okexchain1v9asy9x82lk7hfw27kq3pzeg2rgeeg6t5u27uv"
+	addr := "okexchain1gln5srut8yr4da5czc6rrvwsa8t0nqr0j8py6j"
+	index := 803
 
-	cfg, err := gosdk.NewClientConfig("http://10.0.240.37:26657", "okexchain-66", gosdk.BroadcastBlock, "0.002okt", 200000, 0, "")
+	cfg, err := gosdk.NewClientConfig("http://10.0.240.38:26657", "okexchain-66", gosdk.BroadcastBlock, "0.002okt", 200000, 0, "")
 	if err != nil {
 		panic(err)
 	}
@@ -40,13 +41,10 @@ func TestDeposit(t *testing.T) {
 		panic(err)
 	}
 
-	coins, err := sdk.ParseDecCoin("5.5555okt")
-	if err != nil {
-		panic(err)
-	}
+	coins := sdk.NewDecCoinFromDec("okt", sdk.MustNewDecFromStr("4000.0"))
 
 	msg := newMsgDeposit(accInfo.GetAccountNumber(), accInfo.GetSequence(), coins, addr)
-	err = common.SendMsg(common.Staking, msg, 801)
+	err = common.SendMsg(common.Staking, msg, index)
 	if err != nil {
 		fmt.Println("failed:", err)
 	}
@@ -80,9 +78,10 @@ func TestWithdraw(t *testing.T) {
 }
 
 func TestAddShares(t *testing.T) {
-	addr := "okexchain1v9asy9x82lk7hfw27kq3pzeg2rgeeg6t5u27uv"
+	addr := "okexchain1gln5srut8yr4da5czc6rrvwsa8t0nqr0j8py6j"
+	index := 803
 
-	cfg, err := gosdk.NewClientConfig("http://10.0.240.37:26657", "okexchain-66", gosdk.BroadcastBlock, "0.002okt", 200000, 0, "")
+	cfg, err := gosdk.NewClientConfig("http://10.0.240.38:26657", "okexchain-66", gosdk.BroadcastBlock, "0.002okt", 200000, 0, "")
 	if err != nil {
 		panic(err)
 	}
@@ -93,13 +92,33 @@ func TestAddShares(t *testing.T) {
 		panic(err)
 	}
 
-	valAddrs, err := utils.ParseValAddresses([]string{"okexchainvaloper18au05qx485u2qcw2gvqsrfh29evq77lm45mf4h", "okexchainvaloper1s6nfs7mlj7ewsskkrmekqhpq2w234fczy53wqq"})
+	valAddrs, err := utils.ParseValAddresses([]string{
+		//"okexchainvaloper1xkl5agjzqnjnptyat2dng2asmx8g5kllckhxqc",
+		//"okexchainvaloper1fymxn4gazxzjdfvwvr0ccnrnjpwmj0r9uxqs3s",
+		//"okexchainvaloper1m569cfenudxemegcf4mmykhugnslhdv0klarfw",
+		//"okexchainvaloper1tkwxgcpvptua0q0h5tn0at58ufnjdue7kf5fvp",
+		//"okexchainvaloper1ygcvtcqxl82xvzrq25dymam434k3nnc8xxacd0",
+		//"okexchainvaloper1c34s7lc7ec8gs9xrtxeh0j2wjaam25c3c8ta69",
+		//"okexchainvaloper1ja9xngm4zh0t442mse73ll30p7dczd49q0kg3j",
+		//"okexchainvaloper1zza3jrylyecrtuh0p9ts2xauzsefuvwa9h5jtj",
+		//"okexchainvaloper1ka92ujcwh6hyyeu4tymzy3dedgxplt4dmcj9ar",
+		//"okexchainvaloper1qva0ejf0t943x6rt824gwmvtjgec9cjrvr94gn",
+		//"okexchainvaloper19wln93k3faq7vkqzlc9gljr3ey5fljt9p6cats",
+		//"okexchainvaloper195ez67wmhprwrru34gvttyd8ttpl7edxpfhu8f",
+		//"okexchainvaloper1s6nfs7mlj7ewsskkrmekqhpq2w234fczy53wqq",
+		//"okexchainvaloper1q9nct2gska2yutx24starv6s63xz022faxunec",
+		"okexchainvaloper1q9nct2gska2yutx24starv6s63xz022faxunec",
+		"okexchainvaloper195ez67wmhprwrru34gvttyd8ttpl7edxpfhu8f",
+		"okexchainvaloper19wln93k3faq7vkqzlc9gljr3ey5fljt9p6cats",
+		"okexchainvaloper1qva0ejf0t943x6rt824gwmvtjgec9cjrvr94gn",
+		"okexchainvaloper1s6nfs7mlj7ewsskkrmekqhpq2w234fczy53wqq",
+	})
 	if err != nil {
 		panic(err)
 	}
 
 	msg := newMsgAddShares(accInfo.GetAccountNumber(), accInfo.GetSequence(), valAddrs, addr)
-	err = common.SendMsg(common.Vote, msg, 801)
+	err = common.SendMsg(common.Vote, msg, index)
 	if err != nil {
 		fmt.Println("failed:", err)
 	}
@@ -199,7 +218,7 @@ func newMsgDeposit(accNum, seqNum uint64, amount sdk.SysCoin, addr string) autht
 		Sequence:      seqNum,
 		Memo:          "",
 		Msgs:          msgs,
-		Fee:           authtypes.NewStdFee(200000, sdk.NewDecCoinsFromDec(types.NativeToken, sdk.NewDecWithPrec(2, 3))),
+		Fee:           authtypes.NewStdFee(5000000, sdk.NewDecCoinsFromDec(types.NativeToken, sdk.MustNewDecFromStr("0.005"))),
 	}
 
 	return signMsg
@@ -239,7 +258,7 @@ func newMsgAddShares(accNum, seqNum uint64, valAddrs []sdk.ValAddress, addr stri
 		Sequence:      seqNum,
 		Memo:          "",
 		Msgs:          msgs,
-		Fee:           authtypes.NewStdFee(200000, sdk.NewDecCoinsFromDec(types.NativeToken, sdk.NewDecWithPrec(2, 3))),
+		Fee:           authtypes.NewStdFee(500000, sdk.NewDecCoinsFromDec(types.NativeToken, sdk.MustNewDecFromStr("0.005"))),
 	}
 
 	return signMsg
