@@ -2,9 +2,15 @@ package top21
 
 import (
 	"fmt"
-	"github.com/okex/adventure/x/monitor/cval_control/constant"
+	"github.com/okex/adventure/x/monitor/top21_shares_control/constant"
 	"github.com/okex/adventure/x/monitor/top21_shares_control/keeper"
 	"github.com/spf13/cobra"
+	"log"
+	"time"
+)
+
+const (
+	flagTomlFilePath = "toml-path"
 )
 
 func Top21SharesControlCmd() *cobra.Command {
@@ -16,13 +22,13 @@ func Top21SharesControlCmd() *cobra.Command {
 	}
 
 	flags := top21SharesControlCmd.Flags()
-	flags.StringP(constant.FlagTomlFilePath, "p", "./config.toml", "the file path of config.toml")
+	flags.StringP(flagTomlFilePath, "p", "./config.toml", "the file path of config.toml")
 
 	return top21SharesControlCmd
 }
 
 func runTop21SharesControlCmd(cmd *cobra.Command, args []string) error {
-	path, err := cmd.Flags().GetString(constant.FlagTomlFilePath)
+	path, err := cmd.Flags().GetString(flagTomlFilePath)
 	if err != nil {
 		return err
 	}
@@ -33,12 +39,22 @@ func runTop21SharesControlCmd(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Println(kp)
+	var round int
+	for {
+		round++
+		fmt.Printf("============================== Round %d ==============================\n", round)
+		// 1. sum shares
+		enemyTotalShares, tarValsTotalShares, err := kp.SumShares()
+		if err != nil {
+			log.Println(err)
+			continue
+		}
 
-	//var round int
-	//for {
-	//	round++
-	//	fmt.Printf("============================== Round %d ==============================\n", round)
+		// 2. calculate how much shares to add
+		kp.CalculateHowMuchToDeposit(enemyTotalShares, tarValsTotalShares)
+
+		time.Sleep(constant.RoundInterval)
+	}
 	//	// analyse shares
 	//	result, err := kp.AnalyseShares()
 	//	if err != nil {
@@ -64,6 +80,4 @@ func runTop21SharesControlCmd(cmd *cobra.Command, args []string) error {
 	//
 	//	time.Sleep(constant.RoundInterval)
 	//}
-
-	return nil
 }

@@ -6,19 +6,23 @@ import (
 	"github.com/okex/adventure/common"
 	mntcmn "github.com/okex/adventure/x/monitor/common"
 	"github.com/okex/adventure/x/monitor/top21_shares_control/types"
+	"log"
 	"strconv"
 	"strings"
 )
 
 type Keeper struct {
-	cliManager     *common.ClientManager
-	targetValAddrs []sdk.ValAddress
-	workers        []mntcmn.Worker
-	dominationPct  sdk.Dec
+	cliManager       *common.ClientManager
+	targetValAddrs   []sdk.ValAddress
+	targetValsFilter map[string]struct{}
+	workers          []mntcmn.Worker
+	dominationPct    sdk.Dec
 }
 
 func NewKeeper() Keeper {
-	return Keeper{}
+	return Keeper{
+		targetValsFilter: make(map[string]struct{}),
+	}
 }
 
 func (k *Keeper) Init(configFilePath string) (err error) {
@@ -56,6 +60,8 @@ func (k *Keeper) parseConfig(config *types.Config) error {
 
 		valAddr := sdk.ValAddress(accAddr)
 		k.targetValAddrs = append(k.targetValAddrs, valAddr)
+		// add to filter
+		k.targetValsFilter[addrStr] = struct{}{}
 	}
 
 	// worker info
@@ -72,6 +78,11 @@ func (k *Keeper) parseConfig(config *types.Config) error {
 		}
 
 		k.workers = append(k.workers, mntcmn.NewWorker(accAddr, index))
+	}
+
+	// sanity check
+	if len(k.targetValAddrs) != len(k.targetValsFilter) {
+		log.Panicf("different length with targetValAddrs and targetValsFilter\n")
 	}
 
 	return nil
