@@ -58,10 +58,16 @@ func runTop21SharesControlCmd(cmd *cobra.Command, args []string) error {
 
 		// 3. get the targets vals that will be promote
 		valAddrsStrToPromote := kp.GetTargetValAddrsStrToPromote(limitShares)
+		if len(valAddrsStrToPromote) == 0 {
+			// no target val to promote
+			time.Sleep(constant.RoundInterval)
+			continue
+		}
 
+		// 4. get the shares to add to the valAddrsStrToPromote
+		requiredShares := kp.GetSharesToPromote(valAddrsStrToPromote, limitShares)
 
-		_ = valAddrsStrToPromote
-		// 3. info to deposit
+		_ = requiredShares
 		time.Sleep(constant.RoundInterval)
 	}
 }

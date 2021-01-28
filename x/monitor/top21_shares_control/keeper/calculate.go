@@ -4,6 +4,7 @@ import (
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	mntcmn "github.com/okex/adventure/x/monitor/common"
+	"github.com/okex/adventure/x/monitor/top21_shares_control/constant"
 	"log"
 	"math/rand"
 	"time"
@@ -53,4 +54,23 @@ func (k *Keeper) GetTargetValAddrsStrToPromote(limitShares sdk.Dec) []string {
 
 	log.Printf("%d target vals %s need to be promoted\n", len(targetValAddrsStrToPromote), targetValAddrsStrToPromote)
 	return targetValAddrsStrToPromote
+}
+
+func (k *Keeper) GetSharesToPromote(valAddrsStrToPromote []string, limitShares sdk.Dec) sdk.Dec {
+	// 1. get the lowest shares in valAddrsStrToPromote
+	var lowestShares sdk.Dec
+	for i, valAddrStr := range valAddrsStrToPromote {
+		shares := k.data.TargetValSharesMap[valAddrStr]
+		if i == 0 {
+			lowestShares = shares
+		} else if shares.LT(lowestShares) {
+			lowestShares = shares
+		}
+	}
+
+	// 2. get the shares to promote
+	sharesToPromte := limitShares.Sub(lowestShares).Add(constant.RedundancySharesToPromote)
+
+	log.Printf("lowest shares of target validator: [%s]     shares to promote: [%s]\n", lowestShares, sharesToPromte)
+	return sharesToPromte
 }
