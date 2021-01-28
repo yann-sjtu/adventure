@@ -54,7 +54,7 @@ func runFarmQueryCmd(cmd *cobra.Command, args []string) error {
 				return fmt.Errorf("failed to query %s lock-info: %s", addrs[i], err.Error())
 			}
 		} else {
-			ourTotalLpt = totalLpt.Add(lockInfo.Amount)
+			ourTotalLpt = ourTotalLpt.Add(lockInfo.Amount)
 			fmt.Printf("[%d] %s lock %s\n", startIndex+i, addrs[i], lockInfo.Amount)
 		}
 	}
