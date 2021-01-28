@@ -79,6 +79,7 @@ func (k *Keeper) HandleStrategy() (sdk.DecCoin, []string, error) {
 		return sdk.DecCoin{}, []string{}, err
 	}
 
+	_ = accInfo
 
 	return sdk.DecCoin{}, []string{}, nil
 }

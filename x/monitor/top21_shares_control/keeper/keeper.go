@@ -30,6 +30,7 @@ func NewKeeper() Keeper {
 }
 
 func (k *Keeper) InitRound() error {
+	k.data.EnemyLowestShares = sdk.ZeroDec()
 	vals, err := k.cliManager.GetClient().Staking().QueryValidators()
 	if err != nil {
 		return err
@@ -49,6 +50,9 @@ func (k *Keeper) InitRound() error {
 			}
 
 			if _, ok := enemyFilter[valAddrStr]; ok {
+				if val.DelegatorShares.LT(k.data.EnemyLowestShares) {
+					k.data.EnemyLowestShares = val.DelegatorShares
+				}
 				k.data.EnemyTotalShares = k.data.EnemyTotalShares.Add(val.DelegatorShares)
 				enemyCounter++
 			}
@@ -56,7 +60,7 @@ func (k *Keeper) InitRound() error {
 	}
 
 	if enemyCounter+oursCounter != 21 {
-		log.Println("Warning! the sum of enemy and ours is not 21.")
+		log.Println("Warning! the sum of enemies and ours is not 21.")
 	}
 
 	return nil

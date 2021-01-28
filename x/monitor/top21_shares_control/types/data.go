@@ -6,7 +6,8 @@ import (
 )
 
 type Data struct {
-	Vals             []stakingtypes.Validator
-	OurTotalShares   sdk.Dec
-	EnemyTotalShares sdk.Dec
+	Vals              []stakingtypes.Validator
+	OurTotalShares    sdk.Dec
+	EnemyTotalShares  sdk.Dec
+	EnemyLowestShares sdk.Dec
 }
