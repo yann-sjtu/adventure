@@ -10,32 +10,29 @@ import (
 )
 
 var (
-	limitRatio types.Dec
-	//lockedRatio = types.NewDecWithPrec(81, 2)
-	numerator   types.Dec
-	denominator types.Dec
-
-	zeroLpt types.DecCoin
+	limitRatio = types.MustNewDecFromStr("0.70")
+	numerator = types.MustNewDecFromStr("3.0")
+	denominator = types.MustNewDecFromStr("10.0")
 )
 
 func calculateReuiredAmount(cli *gosdk.Client, accs []common.Account) (types.DecCoin, error) {
 	// 1. query how many lpt locked on a farm pool
 	totaLockedAmount, err := queryFarmPool(cli)
 	if err != nil {
-		return zeroLpt, err
+		return types.DecCoin{}, err
 	}
 
 	// 2. statistics how many lpt from our accounts locked on a farm pool
 	ourTotalLockedAmount, err := statisticsOurLockedCoinInPool(cli, accs)
 	if err != nil {
-		return zeroLpt, err
+		return types.DecCoin{}, err
 	}
 
 	// 3. calculate the ratio ourTotalLockedAmount to totaLockedAmount
 	ratio := ourTotalLockedAmount.Quo(totaLockedAmount)
 	fmt.Printf("current ratio: %s, limit ratio: %s\n", ratio.String(), limitRatio)
 	if ratio.GT(limitRatio) {
-		return zeroLpt, nil
+		return types.NewDecCoinFromDec(lockSymbol, types.ZeroDec()), nil
 	}
 
 	//   ourTotalLockedAmount + requiredAmount
@@ -48,7 +45,7 @@ func calculateReuiredAmount(cli *gosdk.Client, accs []common.Account) (types.Dec
 const errMsg = "hasn't locked"
 
 func statisticsOurLockedCoinInPool(cli *gosdk.Client, accs []common.Account) (types.Dec, error) {
-	totalAmount := zeroLpt
+	totalAmount := types.NewDecCoinFromDec(lockSymbol, types.ZeroDec())
 	for _, acc := range accs {
 		lockInfo, err := cli.Farm().QueryLockInfo(poolName, acc.Address)
 		if err != nil {

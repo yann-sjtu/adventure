@@ -3,15 +3,12 @@ package farm_control
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/adventure/common"
 	monitorcommon "github.com/okex/adventure/x/monitor/common"
 	"github.com/spf13/cobra"
-)
-
-var (
-	sleepTime int
 )
 
 func FarmControlCmd() *cobra.Command {
@@ -23,43 +20,47 @@ func FarmControlCmd() *cobra.Command {
 	}
 
 	flags := farmControlCmd.Flags()
-	flags.IntVarP(&sleepTime, "sleep_time", "s", 30, "")
-	flags.IntVarP(&startIndex, "start_index", "i", 901, "")
-	flags.StringVar(&poolName, "pool_name", "1st_pool_okt_usdt", "")
-	flags.StringVar(&lockSymbol, "lock_symbol", "ammswap-okt_usdt-a2b", "")
-	flags.StringVar(&baseCoin, "base_coin", "okt", "")
-	flags.StringVar(&quoteCoin, "quote_coin", "usdt-a2b", "")
+	flags.IntVarP(&sleepTime, "sleep_time", "s", 0, "sleep time of add-liquidity msg and lock msg")
+	flags.IntVarP(&startIndex, "start_index", "i", 0, "account index")
+	flags.StringVar(&poolName, "pool_name", "", "farm pool name")
+	flags.StringVar(&lockSymbol, "lock_symbol", "", "token name used for locking into farm pool")
+	flags.StringVar(&baseCoin, "base_coin", "", "base coin name in swap pool")
+	flags.StringVar(&quoteCoin, "quote_coin", "", "quote coin name in swap pool")
+	flags.BoolVarP(&toAddLiquidity, "to_add_liquidity", "a", true, "decide to add liquidity or not")
+	flags.BoolVarP(&toLock, "to_lock", "l", true, "decide to lock lpt or not")
+
 	return farmControlCmd
 }
 
 var (
+	sleepTime = 0
+
 	startIndex = 0
 
 	poolName   = ""
 	lockSymbol = ""
+	baseCoin   = ""
+	quoteCoin  = ""
 
-	baseCoin  = ""
-	quoteCoin = ""
+	toAddLiquidity = true
+	toLock         = true
 )
 
-func initGlobalParam() {
-	limitRatio = types.MustNewDecFromStr("0.70")
-	numerator = types.MustNewDecFromStr("3.0")
-	denominator = types.MustNewDecFromStr("10.0")
-
-	zeroLpt = types.NewDecCoinFromDec(lockSymbol, types.ZeroDec())
-	zeroQuoteAmount = types.NewDecCoinFromDec(quoteCoin, types.ZeroDec())
-}
-
 func runFarmControlCmd(cmd *cobra.Command, args []string) error {
-	initGlobalParam()
 	accounts := monitorcommon.AddrsBook[startIndex/100]
 	clientManager := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
 
 	for _, account := range accounts {
+		cli := clientManager.GetClient()
+		if accInfo, err := cli.Auth().QueryAccount(account.Address); err != nil {
+			continue
+		} else if accInfo.GetCoins().AmountOf(baseCoin).LT(types.MustNewDecFromStr("2")) {
+			continue
+		} else if accInfo.GetCoins().AmountOf(quoteCoin).LT(types.MustNewDecFromStr("2")) {
+			continue
+		}
 		fmt.Println()
 		log.Printf("======================================== %+v ========================================\n", account)
-		cli := clientManager.GetClient()
 
 		// 1. check the ratio of (our_total_locked_lpt / total_locked_lpt), then return how many lpt to be replenished
 		requiredToken, err := calculateReuiredAmount(cli, accounts)
@@ -72,12 +73,16 @@ func runFarmControlCmd(cmd *cobra.Command, args []string) error {
 		if requiredToken.IsZero() {
 			// 2.1 our_total_locked_lpt / total_locked_lpt > 80%, then do nothing
 			fmt.Printf("This Round doesn't need to lock more %s \n", lockSymbol)
+			time.Sleep(time.Duration(sleepTime) * time.Second)
 		} else {
+			fmt.Printf("there is %s to be replenished\n", requiredToken)
 			// 2.1 our_total_locked_lpt / total_locked_lpt < 80%, then promote the ratio over 81%
-			err = replenishLockedToken(cli, account, requiredToken)
+			err = replenishLockedToken(cli, account.Index, account.Address)
 			if err != nil {
 				fmt.Printf("[Phase2 Replenish] failed: %s\n", err.Error())
+				continue
 			}
+			time.Sleep(time.Hour*5)
 		}
 	}
 
