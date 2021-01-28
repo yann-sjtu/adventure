@@ -56,9 +56,11 @@ func runTop21SharesControlCmd(cmd *cobra.Command, args []string) error {
 		// 2. get the highest shares of intruders
 		limitShares := kp.GetTheHighestShares(intruders)
 
-		fmt.Println(limitShares)
+		// 3. get the targets vals that will be promote
+		valAddrsStrToPromote := kp.GetTargetValAddrsStrToPromote(limitShares)
 
-		//fmt.Println(kp)
+
+		_ = valAddrsStrToPromote
 		// 3. info to deposit
 		time.Sleep(constant.RoundInterval)
 	}

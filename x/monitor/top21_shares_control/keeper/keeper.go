@@ -39,10 +39,16 @@ func (k *Keeper) InitRound() error {
 	enemyFilter, oursFilter := utils.BuildFilter(k.enemyValAddrs), utils.BuildFilter(k.targetValAddrs)
 	k.data.EnemyTotalShares, k.data.OurTotalShares = sdk.ZeroDec(), sdk.ZeroDec()
 	k.data.Top21SharesMap = make(map[string]sdk.Dec)
+	k.data.TargetValSharesMap = make(map[string]sdk.Dec)
 	var enemyCounter, oursCounter int
 	for _, val := range vals {
+		valAddrStr := val.OperatorAddress.String()
+		// check whether target val
+		if _, ok := k.targetValsFilter[valAddrStr]; ok {
+			k.data.TargetValSharesMap[valAddrStr] = val.DelegatorShares
+		}
+
 		if val.Status.Equal(sdk.Bonded) {
-			valAddrStr := val.OperatorAddress.String()
 			k.data.Top21SharesMap[valAddrStr] = val.DelegatorShares
 			if _, ok := oursFilter[valAddrStr]; ok {
 				k.data.OurTotalShares = k.data.OurTotalShares.Add(val.DelegatorShares)

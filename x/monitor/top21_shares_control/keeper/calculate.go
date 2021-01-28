@@ -41,3 +41,16 @@ func (k *Keeper) GetTheHighestShares(valAddrsStr []string) sdk.Dec {
 
 	return highestShares
 }
+
+func (k *Keeper) GetTargetValAddrsStrToPromote(limitShares sdk.Dec) []string {
+	var targetValAddrsStrToPromote []string
+
+	for targetValAddr, shares := range k.data.TargetValSharesMap {
+		if shares.LTE(limitShares) {
+			targetValAddrsStrToPromote = append(targetValAddrsStrToPromote, targetValAddr)
+		}
+	}
+
+	log.Printf("%d target vals %s need to be promoted\n", len(targetValAddrsStrToPromote), targetValAddrsStrToPromote)
+	return targetValAddrsStrToPromote
+}
