@@ -55,6 +55,7 @@ func (k *Keeper) CalculateHowMuchToDeposit(enemyTotalShares, tarValsCurrentTotal
 
 func (k *Keeper) pickWorker() (worker mntcmn.Worker, valNum int, err error) {
 	// pick worker randomly
+	rand.Seed(time.Now().UnixNano())
 	worker = k.workers[rand.Intn(len(k.workers))]
 	delegator, err := k.cliManager.GetClient().Staking().QueryDelegator(worker.GetAccAddr().String())
 	if err != nil {
@@ -67,4 +68,17 @@ func (k *Keeper) pickWorker() (worker mntcmn.Worker, valNum int, err error) {
 	}
 
 	return
+}
+
+func (k *Keeper) HandleStrategy() (sdk.DecCoin, []string, error) {
+	// pick worker randomly
+	rand.Seed(time.Now().UnixNano())
+	worker := k.workers[rand.Intn(len(k.workers))]
+	accInfo, err := k.cliManager.GetClient().Auth().QueryAccount(worker.GetAccAddr().String())
+	if err != nil {
+		return sdk.DecCoin{}, []string{}, err
+	}
+
+
+	return sdk.DecCoin{}, []string{}, nil
 }
