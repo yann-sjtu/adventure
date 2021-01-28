@@ -30,7 +30,6 @@ func NewKeeper() Keeper {
 }
 
 func (k *Keeper) InitRound() error {
-	k.data.EnemyLowestShares = sdk.ZeroDec()
 	vals, err := k.cliManager.GetClient().Staking().QueryValidators()
 	if err != nil {
 		return err
@@ -38,7 +37,7 @@ func (k *Keeper) InitRound() error {
 
 	k.data.Vals = vals
 	enemyFilter, oursFilter := utils.BuildFilter(k.enemyValAddrs), utils.BuildFilter(k.targetValAddrs)
-	k.data.EnemyTotalShares, k.data.EnemyTotalShares = sdk.ZeroDec(), sdk.ZeroDec()
+	k.data.EnemyTotalShares, k.data.OurTotalShares = sdk.ZeroDec(), sdk.ZeroDec()
 	var enemyCounter, oursCounter int
 	for _, val := range vals {
 		if val.Status.Equal(sdk.Bonded) {
@@ -50,9 +49,12 @@ func (k *Keeper) InitRound() error {
 			}
 
 			if _, ok := enemyFilter[valAddrStr]; ok {
-				if val.DelegatorShares.LT(k.data.EnemyLowestShares) {
+				if enemyCounter == 0 {
+					k.data.EnemyLowestShares = val.DelegatorShares
+				} else if val.DelegatorShares.LT(k.data.EnemyLowestShares) {
 					k.data.EnemyLowestShares = val.DelegatorShares
 				}
+
 				k.data.EnemyTotalShares = k.data.EnemyTotalShares.Add(val.DelegatorShares)
 				enemyCounter++
 			}

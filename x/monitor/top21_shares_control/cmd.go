@@ -50,6 +50,7 @@ func runTop21SharesControlCmd(cmd *cobra.Command, args []string) error {
 			continue
 		}
 
+		//fmt.Println(kp)
 		// 3. info to deposit
 		time.Sleep(constant.RoundInterval)
 	}
