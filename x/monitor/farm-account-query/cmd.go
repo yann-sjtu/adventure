@@ -1,4 +1,4 @@
-package farm_query
+package farm_account_query
 
 import (
 	"fmt"
@@ -11,8 +11,8 @@ import (
 
 func FarmQueryCmd() *cobra.Command {
 	farmUnlockCmd := &cobra.Command{
-		Use:   "farm-query",
-		Short: "farm-query",
+		Use:   "farm-account-query",
+		Short: "farm-account-query",
 		Args:  cobra.NoArgs,
 		RunE:  runFarmQueryCmd,
 	}
