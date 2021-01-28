@@ -60,7 +60,7 @@ func runFarmControlCmd(cmd *cobra.Command, args []string) error {
 			continue
 		}
 		fmt.Println()
-		log.Printf("======================================== %+v ========================================\n", account)
+		log.Printf("=================== %+v ===================\n", account)
 
 		// 1. check the ratio of (our_total_locked_lpt / total_locked_lpt), then return how many lpt to be replenished
 		requiredToken, err := calculateReuiredAmount(cli, accounts)
