@@ -44,10 +44,10 @@ func refreshFarmAccounts(cli *gosdk.Client) error {
 		}
 	}
 
-	fmt.Printf("=== accounts on %s ===\n", poolName)
-	for i := 0; i < len(accounts); i++ {
-		fmt.Println(accounts[i].Index, accounts[i].Address, accounts[i].LockedCoin.String())
-	}
-	fmt.Printf("======================================\n")
+	//fmt.Printf("=== accounts on %s ===\n", poolName)
+	//for i := 0; i < len(accounts); i++ {
+	//	fmt.Println(accounts[i].Index, accounts[i].Address, accounts[i].LockedCoin.String())
+	//}
+	//fmt.Printf("======================================\n")
 	return nil
 }
