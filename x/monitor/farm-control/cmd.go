@@ -43,11 +43,9 @@ var (
 )
 
 func initGlobalParam() {
-	bookId := startIndex / 100
-	accounts = newFarmAddrAccounts(monitorcommon.AddrsBook[bookId], startIndex)
+	accounts = newFarmAddrAccounts(monitorcommon.AddrsBook[startIndex/100], startIndex)
 
 	limitRatio = types.MustNewDecFromStr("0.70")
-	//lockedRatio = types.NewDecWithPrec(81, 2)
 	numerator = types.MustNewDecFromStr("3.0")
 	denominator = types.MustNewDecFromStr("10.0")
 
@@ -59,7 +57,8 @@ func runFarmControlCmd(cmd *cobra.Command, args []string) error {
 	initGlobalParam()
 	clientManager := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
 
-	for i := 0; ; i++ {
+	start, end := startIndex, startIndex + len(accounts) //[901: 1001)
+	for i := start; i < end; i++ {
 		fmt.Println()
 		log.Printf("================================================ Round %d ================================================\n", i)
 		cli := clientManager.GetClient()
@@ -81,7 +80,12 @@ func runFarmControlCmd(cmd *cobra.Command, args []string) error {
 			fmt.Printf("This Round doesn't need to lock more %s \n", lockSymbol)
 		} else {
 			// 2.1 our_total_locked_lpt / total_locked_lpt < 80%, then promote the ratio over 81%
-			replenishLockedToken(cli, requiredToken)
+			err = replenishLockedToken(cli, accounts[i%100], requiredToken)
+			if err != nil {
+				fmt.Printf("[Phase2 Replenish] failed: %s\n", err.Error())
+			}
 		}
 	}
+
+	return nil
 }
