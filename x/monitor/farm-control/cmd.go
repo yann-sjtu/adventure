@@ -82,7 +82,6 @@ func runFarmControlCmd(cmd *cobra.Command, args []string) error {
 				fmt.Printf("[Phase2 Replenish] failed: %s\n", err.Error())
 				continue
 			}
-			time.Sleep(time.Hour*5)
 		}
 	}
 

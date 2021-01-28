@@ -61,6 +61,7 @@ func replenishLockedToken(cli *gosdk.Client, index int, addr string) error {
 		}
 		log.Printf("[%d] %s send lock msg: %+v\n", index, addr, lockMsg.Msgs[0])
 		fmt.Printf("%s is locked in farm pool\n", lptCoin)
+		time.Sleep(time.Hour*5)
 	}
 
 	return nil
