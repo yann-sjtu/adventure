@@ -50,6 +50,17 @@ func runTop21SharesControlCmd(cmd *cobra.Command, args []string) error {
 			continue
 		}
 
+		// 1.found the intruder(stranger in top21, neither target vals and enemies)
+		intruders := kp.CatchTheIntruders()
+
+		// 2. get the highest shares of intruders
+		limitShares := kp.GetTheHighestShares(intruders)
+
+		// 3. get the targets vals that will be promote
+		valAddrsStrToPromote := kp.GetTargetValAddrsStrToPromote(limitShares)
+
+
+		_ = valAddrsStrToPromote
 		// 3. info to deposit
 		time.Sleep(constant.RoundInterval)
 	}

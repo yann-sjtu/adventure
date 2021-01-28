@@ -4,5 +4,5 @@ import "time"
 
 const (
 	RoundInterval            = 3 * time.Second
-	IntervalAfterTxBroadcast = 1 * time.Minute
+	IntervalAfterTxBroadcast = 2 * time.Minute
 )
