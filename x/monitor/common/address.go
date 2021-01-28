@@ -1,16 +1,36 @@
 package common
 
-var AddrsBook = [10][]string{
-	[]string{},     // 1  ~100
-	[]string{},     // 101~200
-	[]string{},     // 201~300
-	[]string{},     // 301~400
-	[]string{},     // 401~500
-	[]string{},     // 501~600
-	[]string{},     // 601~700
-	Addrs701To800,  // 701~800
-	[]string{},     // 801~900
-	Addrs901To1000, // 901~1000
+var AddrsBook = [10][]Account{
+	[]Account{},     // 1  ~100
+	[]Account{},     // 101~200
+	[]Account{},     // 201~300
+	[]Account{},     // 301~400
+	[]Account{},     // 401~500
+	[]Account{},     // 501~600
+	[]Account{},     // 601~700
+	makeNewAccounts(Addrs701To800, 701),  // 701~800
+	[]Account{},     // 801~900
+	makeNewAccounts(Addrs901To1000, 901), // 901~1000
+}
+
+type Account struct {
+	Address string
+	Index   int
+}
+
+func newAccount(address string, index int) Account {
+	return Account{
+		Address: address,
+		Index: index,
+	}
+}
+
+func makeNewAccounts(addrs []string, startIndex int) []Account {
+	accounts := make([]Account, len(addrs), len(addrs))
+	for i := 0; i < len(addrs); i++ {
+		accounts[i] = newAccount(addrs[i], i+startIndex)
+	}
+	return accounts
 }
 
 var Addrs701To800 = []string{

@@ -16,7 +16,7 @@ var (
 	zeroQuoteAmount types.DecCoin
 )
 
-func replenishLockedToken(cli *gosdk.Client, account *FarmAccount, requiredToken types.DecCoin) error {
+func replenishLockedToken(cli *gosdk.Client, account common.Account, requiredToken types.DecCoin) error {
 	fmt.Printf("======> [Phase2 Replenish] start, require %s \n", requiredToken.String())
 	remainToken, totalNewLockedToken, totalNewQuoteToken := requiredToken, zeroLpt, zeroQuoteAmount
 

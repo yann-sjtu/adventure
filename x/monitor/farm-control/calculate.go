@@ -2,8 +2,10 @@ package farm_control
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/cosmos/cosmos-sdk/types"
+	"github.com/okex/adventure/x/monitor/common"
 	gosdk "github.com/okex/okexchain-go-sdk"
 )
 
@@ -16,7 +18,7 @@ var (
 	zeroLpt types.DecCoin
 )
 
-func calculateReuiredAmount(cli *gosdk.Client) (types.DecCoin, error) {
+func calculateReuiredAmount(cli *gosdk.Client, accs []common.Account) (types.DecCoin, error) {
 	// 1. query how many lpt locked on a farm pool
 	totaLockedAmount, err := queryFarmPool(cli)
 	if err != nil {
@@ -24,7 +26,10 @@ func calculateReuiredAmount(cli *gosdk.Client) (types.DecCoin, error) {
 	}
 
 	// 2. statistics how many lpt from our accounts locked on a farm pool
-	ourTotalLockedAmount := statisticsOurLockedCoinInPool()
+	ourTotalLockedAmount, err := statisticsOurLockedCoinInPool(cli, accs)
+	if err != nil {
+		return zeroLpt, err
+	}
 
 	// 3. calculate the ratio ourTotalLockedAmount to totaLockedAmount
 	ratio := ourTotalLockedAmount.Quo(totaLockedAmount)
@@ -40,17 +45,23 @@ func calculateReuiredAmount(cli *gosdk.Client) (types.DecCoin, error) {
 	return types.NewDecCoinFromDec(lockSymbol, requiredAmount), nil
 }
 
-func statisticsOurLockedCoinInPool() types.Dec {
-	totalAmount := zeroLpt
-	for i := 0; i < len(accounts); i++ {
-		if accounts[i].LockedCoin.IsZero() {
-			continue
-		}
+const errMsg = "hasn't locked"
 
-		totalAmount = totalAmount.Add(accounts[i].LockedCoin)
+func statisticsOurLockedCoinInPool(cli *gosdk.Client, accs []common.Account) (types.Dec, error) {
+	totalAmount := zeroLpt
+	for _, acc := range accs {
+		lockInfo, err := cli.Farm().QueryLockInfo(poolName, acc.Address)
+		if err != nil {
+			if strings.Contains(err.Error(), errMsg) {
+				continue
+			} else {
+				return types.ZeroDec(), fmt.Errorf("failed to query %s lock-info: %s", acc.Address, err.Error())
+			}
+		}
+		totalAmount = totalAmount.Add(lockInfo.Amount)
 	}
 	fmt.Println("  our total locked:", totalAmount)
-	return totalAmount.Amount
+	return totalAmount.Amount, nil
 }
 
 func queryFarmPool(cli *gosdk.Client) (types.Dec, error) {
