@@ -1,5 +1,15 @@
 domination_percentage = "0.74"
 
+# 3 enemy validators
+enemy_validators_addresses = [
+    # ChainUP Labs
+    "okexchainvaloper1vlzgq74y6hm9crhkkhdjy77uvyqa0zdu3c6tmx",
+    # X-DUCK
+    "okexchainvaloper1vsjcts3ga8dgf6nj2q7vmlrnu5en4cnedc8n76",
+    # Nebulas NOVA
+    "okexchainvaloper188dhgmaq8cka2yczzjfzsw0nely6y8ua3ad0du",
+]
+
 # 18 target validators
 target_validator_addresses = [
     "okexchain1q9nct2gska2yutx24starv6s63xz022fuzvv96",
@@ -10,30 +20,20 @@ target_validator_addresses = [
     "okexchain19wln93k3faq7vkqzlc9gljr3ey5fljt9q7gzhj",
     "okexchain195ez67wmhprwrru34gvttyd8ttpl7edxqd8rmt",
     "okexchain1xkl5agjzqnjnptyat2dng2asmx8g5kllej8eu6",
-    "okexchain18v23ln9ycrtg0mrwsm004sh4tdknudtdvdedlk",
-    "okexchain1g3a6vtau2k93n4tqgqnrggeu3qa4x20reu5zjx",
+    "okexchain18au05qx485u2qcw2gvqsrfh29evq77lm5stkf4",
     "okexchain1fymxn4gazxzjdfvwvr0ccnrnjpwmj0r9azs0dj",
-    "okexchain1tkwxgcpvptua0q0h5tn0at58ufnjdue7hdyksr",
     "okexchain1s6nfs7mlj7ewsskkrmekqhpq2w234fcz9sp3uz",
     "okexchain1ja9xngm4zh0t442mse73ll30p7dczd49ptxhds",
     "okexchain1508d7eq592kg2lh9d46xvv3r4sm7gm8w7lza4q",
     "okexchain1ka92ujcwh6hyyeu4tymzy3dedgxplt4d6uz6pp",
     "okexchain1c34s7lc7ec8gs9xrtxeh0j2wjaam25c3ermzx8",
     "okexchain1m569cfenudxemegcf4mmykhugnslhdv0hmdu4v",
+    "okexchain1tkwxgcpvptua0q0h5tn0at58ufnjdue7hdyksr",
+    "okexchain18v23ln9ycrtg0mrwsm004sh4tdknudtdvdedlk",
 ]
 
 # 18 workers
 workers_infos = [
-    "okexchain1v9asy9x82lk7hfw27kq3pzeg2rgeeg6t5u27uv,801",
-    "okexchain16p9xfn6437rz898a89zq09755ng2fdt5pqp70j,802",
-    "okexchain1gln5srut8yr4da5czc6rrvwsa8t0nqr0j8py6j,803",
-    "okexchain1p4fk4kehstehj9k4r0qgqmnpukcxx20c9txvg3,804",
-    "okexchain1vy0d5a4rh5l42dhs39e8zhjyjapa6ym32g4f6z,805",
-    "okexchain1ra6urge6c8amyjk0pln2s3aefa7ak6sf2dqqku,806",
-    "okexchain139kffxgctrnydhv5ahnx86mt2mkpcxcv4zry8x,807",
-    "okexchain1637p2lzdfp48x4jvtmk6a4la6nmnp0v4vzlqv5,808",
-    "okexchain1eyze64nqrjqxg40w7y5l8z2rah39hpx4d3ch5m,809",
-    "okexchain1xs0ndkxultgldk2dvrf7dww0q4wku3t8uzu7zp,810",
     "okexchain1zua7exxn2wpdam6rlgrcgapv7fsjrct6770cwe,811",
     "okexchain1p50urkew76a6nk0s6r0falwc0jzznpxw2clz6h,812",
     "okexchain1gs90zkfql6jzj3zer06d3zmsdj0fuxx83qtuyf,813",
@@ -42,4 +42,26 @@ workers_infos = [
     "okexchain1fvrt05h0chp37lkyy6zq4mayd6mflaahgk6333,816",
     "okexchain19eyu8zxlhuwy9rjsz8c36m4luu0dlaryz2cv4u,817",
     "okexchain134qfmgn0p5dpffxq57zdycaepl2mtpjdmcexq9,818",
+    "okexchain1e0mr4vfjhxz30z6nx97nsd3z0a69vld0us6lv0,819",
+    "okexchain1wgtgkzyzm3ecxntpqzzs2vr4rhqawlnpdld09k,820",
+    "okexchain1uhph220d3mnhd2cgdgc8le0n6u654wsafufqem,821",
+    "okexchain1zn3kd97jv385p27fnx3txp6j75exrq20pxkzuu,822",
+    "okexchain1apl77v9q6eelphy067jkczuc78gckdgkzrc6gu,823",
+    "okexchain1dtycve9dq2pgxx9nq5qlwp0wzk4atw82h95zy8,824",
+    "okexchain1r0tpeugvrv8pp8yxsmfcratkpspuldvkunhfms,825",
+    "okexchain1jquffu6lmx2phyzppnrj2kq2hdnhjaqd69xewd,826",
+    "okexchain1c7spf0wmsxpyc43htr4xjx0reny8uz9r732s32,827",
+    "okexchain18ewgu2g0dvks3j92pt7zxhy5h06hd4jz4wzaqs,828",
+    "okexchain186mycru7jgcx4hrlktvcgpe74w7le8qt3va6sr,829",
+    "okexchain1nl8zqt6tkq67m7jn2yx2wfh2l5jreayduf0w9j,830",
+    "okexchain1y85tec3rh8jrej0afye8fgjk55u7wk8uu0s63k,831",
+    "okexchain1zhwhtvscm0pnxvyu3c8xhf3x60qvm5n8jtfsfa,832",
+    "okexchain1ah8cxa5wdumyfhc37p3x6f57yxdc5lapwpxe68,833",
+    "okexchain13zzpce7pmm8fq9r2xxtd4g7x53cns5hkfqvuhv,834",
+    "okexchain17shef6cxnyl693qspmukcc3223w7y0yx64u33c,835",
+    "okexchain16qcgwr0t6en0u8vf3l55vyw0n37m5ntzt4tcph,836",
+    "okexchain1q73c36c2sz0xzn58kglanp29ysjxeetghm3pt4,837",
+    "okexchain1jqc4nuqm2fha82v4mpy0570e33zazawjnhtx2u,838",
+    "okexchain1q6jen749qez0kwdyx3yv6yrrmnva9purkh2tty,839",
+    "okexchain1cvf8ay2snns8tsjgv38l205thzpngzv2g4wjqs,840",
 ]

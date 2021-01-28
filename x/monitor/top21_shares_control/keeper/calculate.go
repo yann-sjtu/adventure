@@ -3,6 +3,10 @@ package keeper
 import (
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	mntcmn "github.com/okex/adventure/x/monitor/common"
+	"github.com/okex/adventure/x/monitor/top21_shares_control/utils"
+	"math/rand"
+	"time"
 )
 
 func (k *Keeper) SumShares() (enemyTotalShares, tarValsTotalShares sdk.Dec, err error) {
@@ -28,11 +32,39 @@ func (k *Keeper) SumShares() (enemyTotalShares, tarValsTotalShares sdk.Dec, err 
 	return
 }
 
-func (k *Keeper) CalculateHowMuchToDeposit(enemyTotalShares, tarValsCurrentTotalShares sdk.Dec) error {
+func (k *Keeper) CalculateHowMuchToDeposit(enemyTotalShares, tarValsCurrentTotalShares sdk.Dec) (worker mntcmn.Worker, depositCoin sdk.SysCoin, err error) {
 	expectedTotalShares := enemyTotalShares.Quo(sdk.OneDec().Sub(k.dominationPct))
-	//expectedTarValsTotalShares := expectedTotalShares.Mul(k.dominationPct)
-	_ = expectedTotalShares.Mul(k.dominationPct)
-	// pick worker randomly
-	return nil
+	expectedTarValsTotalShares := expectedTotalShares.Mul(k.dominationPct)
 
+	// pick worker
+	worker, valNum, err := k.pickWorker()
+	if err != nil {
+		return
+	}
+
+	// get coin for required shares
+	sharesRequired := expectedTarValsTotalShares.Sub(tarValsCurrentTotalShares)
+	if !sharesRequired.IsPositive() {
+		// TODO: add withdraw delegation function
+		return worker, depositCoin, fmt.Errorf("required shares is not positive, target vals shares: current[%s] expected[%s]", tarValsCurrentTotalShares.String(), expectedTarValsTotalShares.String())
+	}
+
+	depositCoin = sdk.NewDecCoinFromDec("okt", utils.ReverseSharesIntoToken(sharesRequired.QuoInt64(int64(valNum)), time.Now().Unix()))
+	return
+}
+
+func (k *Keeper) pickWorker() (worker mntcmn.Worker, valNum int, err error) {
+	// pick worker randomly
+	worker = k.workers[rand.Intn(len(k.workers))]
+	delegator, err := k.cliManager.GetClient().Staking().QueryDelegator(worker.GetAccAddr().String())
+	if err != nil {
+		return
+	}
+
+	valNum = len(delegator.ValidatorAddresses)
+	if valNum == 0 {
+		return worker, valNum, fmt.Errorf("worker [%s] hasn't voted yet", delegator.DelegatorAddress.String())
+	}
+
+	return
 }

@@ -9,8 +9,8 @@ func (k *Keeper) logInit() {
 ============================================================
 
 `, len(k.targetValAddrs))
-	for i, valAddr := range k.targetValAddrs {
-		fmt.Println(i, valAddr.String())
+	for i, valAddrStr := range k.targetValAddrs {
+		fmt.Println(i, valAddrStr)
 	}
 
 	fmt.Printf(`

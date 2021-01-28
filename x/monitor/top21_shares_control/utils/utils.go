@@ -22,7 +22,7 @@ func calculateWeight(nowTime int64, tokens sdk.Dec) (shares sdk.Dec, sdkErr erro
 
 	precision := fmt.Sprintf("%d", sdk.Precision)
 
-	weightByDec, sdkErr := sdk.NewDecFromStr(fmt.Sprintf("%." + precision + "f", weight))
+	weightByDec, sdkErr := sdk.NewDecFromStr(fmt.Sprintf("%."+precision+"f", weight))
 	if sdkErr == nil {
 		shares = tokens.Mul(weightByDec)
 	}
@@ -36,10 +36,33 @@ func ReverseSharesIntoToken(shares sdk.Dec, nowTime int64) sdk.Dec {
 	weight := math.Pow(float64(2), rate)
 	precision := fmt.Sprintf("%d", sdk.Precision)
 
-	weightByDec, sdkErr := sdk.NewDecFromStr(fmt.Sprintf("%." + precision + "f", weight))
+	weightByDec, sdkErr := sdk.NewDecFromStr(fmt.Sprintf("%."+precision+"f", weight))
 	if sdkErr == nil {
 		token := shares.Quo(weightByDec)
 		return token
 	}
 	return sdk.ZeroDec()
+}
+
+func BuildFilter(addrs []string) map[string]struct{} {
+	filter := make(map[string]struct{})
+
+	for _, addr := range addrs {
+		filter[addr] = struct{}{}
+	}
+
+	return filter
+}
+
+func ConvertValAddrsStr2AccAddrsStr(valAddrsStr []string) (accAddrsStr []string, err error) {
+	for _, valAddrStr := range valAddrsStr {
+		valAddr, err := sdk.ValAddressFromBech32(valAddrStr)
+		if err != nil {
+			return nil, err
+		}
+
+		accAddrsStr = append(accAddrsStr, sdk.AccAddress(valAddr).String())
+	}
+
+	return
 }
