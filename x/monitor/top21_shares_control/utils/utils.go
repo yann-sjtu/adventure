@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	stakingtypes "github.com/okex/okexchain/x/staking/types"
 	"math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -65,4 +66,13 @@ func ConvertValAddrsStr2AccAddrsStr(valAddrsStr []string) (accAddrsStr []string,
 	}
 
 	return
+}
+
+func GetValAddrsStrFromVals(vals []stakingtypes.Validator) []string {
+	var valAddrsStr []string
+	for _, val := range vals {
+		valAddrsStr = append(valAddrsStr, val.OperatorAddress.String())
+	}
+
+	return valAddrsStr
 }

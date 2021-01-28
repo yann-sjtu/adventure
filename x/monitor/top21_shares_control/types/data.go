@@ -10,4 +10,5 @@ type Data struct {
 	OurTotalShares    sdk.Dec
 	EnemyTotalShares  sdk.Dec
 	EnemyLowestShares sdk.Dec
+	Top21SharesMap    map[string]sdk.Dec
 }

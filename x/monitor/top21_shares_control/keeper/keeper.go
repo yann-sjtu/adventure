@@ -38,10 +38,12 @@ func (k *Keeper) InitRound() error {
 	k.data.Vals = vals
 	enemyFilter, oursFilter := utils.BuildFilter(k.enemyValAddrs), utils.BuildFilter(k.targetValAddrs)
 	k.data.EnemyTotalShares, k.data.OurTotalShares = sdk.ZeroDec(), sdk.ZeroDec()
+	k.data.Top21SharesMap = make(map[string]sdk.Dec)
 	var enemyCounter, oursCounter int
 	for _, val := range vals {
 		if val.Status.Equal(sdk.Bonded) {
 			valAddrStr := val.OperatorAddress.String()
+			k.data.Top21SharesMap[valAddrStr] = val.DelegatorShares
 			if _, ok := oursFilter[valAddrStr]; ok {
 				k.data.OurTotalShares = k.data.OurTotalShares.Add(val.DelegatorShares)
 				oursCounter++
@@ -168,4 +170,28 @@ func (k *Keeper) GetTargetValsAddr(enemyAddrs []string, addrType int) (targetAdd
 
 func (k *Keeper) GetEnemyValAddrs() []string {
 	return k.enemyValAddrs
+}
+
+func (k *Keeper) CatchTheIntruders() []string {
+	// build top21Filter
+	top21Filter := make(map[string]struct{})
+	for valAddrStr := range k.data.Top21SharesMap {
+		top21Filter[valAddrStr] = struct{}{}
+	}
+
+	for _, targetValAddrStr := range k.targetValAddrs {
+		delete(top21Filter, targetValAddrStr)
+	}
+
+	for _, enemyValAddrStr := range k.enemyValAddrs {
+		delete(top21Filter, enemyValAddrStr)
+	}
+
+	var intruders []string
+	for intruder := range top21Filter {
+		intruders = append(intruders, intruder)
+	}
+
+	log.Printf("WARNING! instrders %s are found\n", intruders)
+	return intruders
 }
