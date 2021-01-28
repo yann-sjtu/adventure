@@ -100,27 +100,38 @@ func TestAddShares(t *testing.T) {
 	}
 
 	valAddrs, err := utils.ParseValAddresses([]string{
-		//"okexchainvaloper18au05qx485u2qcw2gvqsrfh29evq77lm45mf4h", //1
-		//"okexchainvaloper1s6nfs7mlj7ewsskkrmekqhpq2w234fczy53wqq", //2
-		//"okexchainvaloper1zxthrcdcecfe5ss4tal0tq30hzel2lks2fp8v0", //3
-		//"okexchainvaloper1q9nct2gska2yutx24starv6s63xz022faxunec", //4
-		//"okexchainvaloper195ez67wmhprwrru34gvttyd8ttpl7edxpfhu8f", //5
-		//"okexchainvaloper19wln93k3faq7vkqzlc9gljr3ey5fljt9p6cats", //6
-		//"okexchainvaloper1qva0ejf0t943x6rt824gwmvtjgec9cjrvr94gn", //7
+		"okexchainvaloper18au05qx485u2qcw2gvqsrfh29evq77lm45mf4h", //1
+		"okexchainvaloper1s6nfs7mlj7ewsskkrmekqhpq2w234fczy53wqq", //2
+		"okexchainvaloper1zxthrcdcecfe5ss4tal0tq30hzel2lks2fp8v0", //3
+		"okexchainvaloper1q9nct2gska2yutx24starv6s63xz022faxunec", //4
+		"okexchainvaloper195ez67wmhprwrru34gvttyd8ttpl7edxpfhu8f", //5
+		"okexchainvaloper19wln93k3faq7vkqzlc9gljr3ey5fljt9p6cats", //6
+		"okexchainvaloper1qva0ejf0t943x6rt824gwmvtjgec9cjrvr94gn", //7
 		"okexchainvaloper1ka92ujcwh6hyyeu4tymzy3dedgxplt4dmcj9ar", //8
 		"okexchainvaloper1zza3jrylyecrtuh0p9ts2xauzsefuvwa9h5jtj", //9
 		"okexchainvaloper1ja9xngm4zh0t442mse73ll30p7dczd49q0kg3j", //10
 		"okexchainvaloper1c34s7lc7ec8gs9xrtxeh0j2wjaam25c3c8ta69", //11
 		"okexchainvaloper1ygcvtcqxl82xvzrq25dymam434k3nnc8xxacd0", //12
-		//"okexchainvaloper1m569cfenudxemegcf4mmykhugnslhdv0klarfw", //13
+		"okexchainvaloper1m569cfenudxemegcf4mmykhugnslhdv0klarfw", //13
 		"okexchainvaloper1fymxn4gazxzjdfvwvr0ccnrnjpwmj0r9uxqs3s", //14
 		"okexchainvaloper1xkl5agjzqnjnptyat2dng2asmx8g5kllckhxqc", //15
-		//"okexchainvaloper1tkwxgcpvptua0q0h5tn0at58ufnjdue7kf5fvp", //16
+		"okexchainvaloper1tkwxgcpvptua0q0h5tn0at58ufnjdue7kf5fvp", //16
 		"okexchainvaloper1508d7eq592kg2lh9d46xvv3r4sm7gm8wlmjzfz", //17
-		//"okexchainvaloper18v23ln9ycrtg0mrwsm004sh4tdknudtddffjr5", //18
-		//"okexchainvaloper1ucmx6vvtrwam9pg20fnwmy9z80uhchyxsmt945", //19
-		//"okexchainvaloper1g3a6vtau2k93n4tqgqnrggeu3qa4x20rccyawy", //20
-		//"okexchainvaloper19e6edpu97d6w2t5dlp7lph2fkdja0lvlz0zndm", //21
+		"okexchainvaloper18v23ln9ycrtg0mrwsm004sh4tdknudtddffjr5", //18
+		"okexchainvaloper1ucmx6vvtrwam9pg20fnwmy9z80uhchyxsmt945", //19
+		"okexchainvaloper1g3a6vtau2k93n4tqgqnrggeu3qa4x20rccyawy", //20
+		"okexchainvaloper19e6edpu97d6w2t5dlp7lph2fkdja0lvlz0zndm", //21
+
+		//"okexchainvaloper1tat4lam8wjqmeax9mv4s584vu2mp7c0ccywxft", //22
+		//"okexchainvaloper1mlmwvdprn8dj6g45vdxkjsjgu4ntu9j7amrdl7", //23
+		//"okexchainvaloper1rz7frqz9ky52qqjwlpawfe5hz6plcrmm3lv56j", //24
+		//"okexchainvaloper1w3ptfgekjgdvwkqmdepdeyvuxqmcplfsjhn2f0", //25
+		//"okexchainvaloper1v4kagglr3vq82vqywqd8quhsuarkm4kf6mnu0h", //26
+		//"okexchainvaloper1rmrx7wp60almzvghx2820aamjfd4kgwlgw9w34", //27
+		//"okexchainvaloper13mayrjzsrp976y0ae0qw8sjan3qg2xfdfgkhqr", //28
+		//"okexchainvaloper104y8sy0r6fke4a9qr8u05j6v5y68gkh4uedk7l", //29
+		//"okexchainvaloper14zgafe7cynlpuhpfpqpxu2gntzhq6tteagj8px", //30
+		//"okexchainvaloper1rv8tjxp8d8ucuak8c7svewwugzfdjwf9dtr80x", //31
 	})
 	if err != nil {
 		panic(err)
@@ -289,7 +300,7 @@ func newMsgAddShares(accNum, seqNum uint64, valAddrs []sdk.ValAddress, addr stri
 		Sequence:      seqNum,
 		Memo:          "",
 		Msgs:          msgs,
-		Fee:           authtypes.NewStdFee(1000000, sdk.NewDecCoinsFromDec(types.NativeToken, sdk.MustNewDecFromStr("0.01"))),
+		Fee:           authtypes.NewStdFee(1100000, sdk.NewDecCoinsFromDec(types.NativeToken, sdk.MustNewDecFromStr("0.011"))),
 	}
 
 	return signMsg
