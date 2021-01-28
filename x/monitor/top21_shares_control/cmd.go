@@ -2,9 +2,11 @@ package top21
 
 import (
 	"fmt"
+	"github.com/okex/adventure/x/monitor/top21_shares_control/constant"
 	"github.com/okex/adventure/x/monitor/top21_shares_control/keeper"
-	"github.com/okex/adventure/x/monitor/top21_shares_control/utils"
 	"github.com/spf13/cobra"
+	"log"
+	"time"
 )
 
 const (
@@ -37,52 +39,18 @@ func runTop21SharesControlCmd(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	targetValAddrsStr, err := kp.GetTargetValsAddr(kp.GetEnemyValAddrs(), 2)
-	if err != nil {
-		return err
-	}
+	var round int
+	for {
+		round++
+		fmt.Printf("============================== Round %d ==============================\n", round)
+		// 0.round init
+		err := kp.InitRound()
+		if err != nil {
+			log.Println(err)
+			continue
+		}
 
-	accAddrsStr, err := utils.ConvertValAddrsStr2AccAddrsStr(targetValAddrsStr)
-	if err != nil {
-		return err
+		// 3. info to deposit
+		time.Sleep(constant.RoundInterval)
 	}
-
-	fmt.Println(len(accAddrsStr))
-	for _, a := range accAddrsStr {
-		fmt.Println(a)
-	}
-
-	strs := []string{
-		"okexchainvaloper1tkwxgcpvptua0q0h5tn0at58ufnjdue7kf5fvp",
-		"okexchainvaloper18v23ln9ycrtg0mrwsm004sh4tdknudtddffjr5",
-	}
-
-	accAddrsStr, err = utils.ConvertValAddrsStr2AccAddrsStr(strs)
-	if err != nil {
-		return err
-	}
-
-	fmt.Println(len(accAddrsStr))
-	for _, a := range accAddrsStr {
-		fmt.Println(a)
-	}
-
-	return nil
-	//var round int
-	//for {
-	//	round++
-	//	fmt.Printf("============================== Round %d ==============================\n", round)
-	//	// 1. sum shares
-	//	enemyTotalShares, tarValsTotalShares, err := kp.SumShares()
-	//	if err != nil {
-	//		log.Println(err)
-	//		continue
-	//	}
-	//
-	//	// 2. calculate how much shares to add
-	//	_, _, err = kp.CalculateHowMuchToDeposit(enemyTotalShares, tarValsTotalShares)
-	//
-	//	// 3. info to deposit
-	//	time.Sleep(constant.RoundInterval)
-	//}
 }
