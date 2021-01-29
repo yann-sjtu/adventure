@@ -135,7 +135,7 @@ func (k *Keeper) CatchTheIntruders() []string {
 	}
 
 	if len(intruders) != 0 {
-		log.Printf("WARNING! instrders %s are found\n", intruders)
+		log.Printf("WARNING! instruders %s are found\n", intruders)
 	}
 
 	return intruders
