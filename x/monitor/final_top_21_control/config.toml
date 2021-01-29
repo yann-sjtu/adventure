@@ -1,0 +1,81 @@
+domination_percentage = "0.74"
+
+# 18 target validators
+target_validator_addresses = [
+    # ChainUP Labs
+    "okexchainvaloper1vlzgq74y6hm9crhkkhdjy77uvyqa0zdu3c6tmx",
+    # Nebulas NOVA
+    "okexchainvaloper188dhgmaq8cka2yczzjfzsw0nely6y8ua3ad0du",
+    # Chillcrypto
+    "okexchainvaloper1xkl5agjzqnjnptyat2dng2asmx8g5kllckhxqc",
+    # Unique farming
+    "okexchainvaloper1fymxn4gazxzjdfvwvr0ccnrnjpwmj0r9uxqs3s",
+    # Tombolo
+    "okexchainvaloper1m569cfenudxemegcf4mmykhugnslhdv0klarfw",
+    # Defilego
+    "okexchainvaloper1tkwxgcpvptua0q0h5tn0at58ufnjdue7kf5fvp",
+    # Nodeplus
+    "okexchainvaloper1ygcvtcqxl82xvzrq25dymam434k3nnc8xxacd0",
+    # DeLab
+    "okexchainvaloper1c34s7lc7ec8gs9xrtxeh0j2wjaam25c3c8ta69",
+    # Hydrus
+    "okexchainvaloper1508d7eq592kg2lh9d46xvv3r4sm7gm8wlmjzfz",
+    # Blockpro
+    "okexchainvaloper1ja9xngm4zh0t442mse73ll30p7dczd49q0kg3j",
+    # ZK capitial
+    "okexchainvaloper1zza3jrylyecrtuh0p9ts2xauzsefuvwa9h5jtj",
+    # Samual
+    "okexchainvaloper1ka92ujcwh6hyyeu4tymzy3dedgxplt4dmcj9ar",
+    # Zapzap
+    "okexchainvaloper1qva0ejf0t943x6rt824gwmvtjgec9cjrvr94gn",
+    # Squares
+    "okexchainvaloper19wln93k3faq7vkqzlc9gljr3ey5fljt9p6cats",
+    # Nozash
+    "okexchainvaloper195ez67wmhprwrru34gvttyd8ttpl7edxpfhu8f",
+    # Collector
+    "okexchainvaloper1q9nct2gska2yutx24starv6s63xz022faxunec",
+    # Unicorn
+    "okexchainvaloper1zxthrcdcecfe5ss4tal0tq30hzel2lks2fp8v0",
+    # ChainHub
+    "okexchainvaloper1s6nfs7mlj7ewsskkrmekqhpq2w234fczy53wqq",
+    # Cryptomars
+    "okexchainvaloper18au05qx485u2qcw2gvqsrfh29evq77lm45mf4h",
+    # Validator4
+    "okexchainvaloper19e6edpu97d6w2t5dlp7lph2fkdja0lvlz0zndm",
+    # Validator1
+    "okexchainvaloper18v23ln9ycrtg0mrwsm004sh4tdknudtddffjr5",
+]
+
+# 18 workers
+workers_infos = [
+    "okexchain1zua7exxn2wpdam6rlgrcgapv7fsjrct6770cwe,811",
+    "okexchain1p50urkew76a6nk0s6r0falwc0jzznpxw2clz6h,812",
+    "okexchain1gs90zkfql6jzj3zer06d3zmsdj0fuxx83qtuyf,813",
+    "okexchain1en33je7g67t0eh2yswyzcrwjjsfwdpa9uhedjn,814",
+    "okexchain16xqmjn3z36ues8hmhtvnrve9gm3gp760rgceqw,815",
+    "okexchain1fvrt05h0chp37lkyy6zq4mayd6mflaahgk6333,816",
+    "okexchain19eyu8zxlhuwy9rjsz8c36m4luu0dlaryz2cv4u,817",
+    "okexchain134qfmgn0p5dpffxq57zdycaepl2mtpjdmcexq9,818",
+    "okexchain1e0mr4vfjhxz30z6nx97nsd3z0a69vld0us6lv0,819",
+    "okexchain1wgtgkzyzm3ecxntpqzzs2vr4rhqawlnpdld09k,820",
+    "okexchain1uhph220d3mnhd2cgdgc8le0n6u654wsafufqem,821",
+    "okexchain1zn3kd97jv385p27fnx3txp6j75exrq20pxkzuu,822",
+    "okexchain1apl77v9q6eelphy067jkczuc78gckdgkzrc6gu,823",
+    "okexchain1dtycve9dq2pgxx9nq5qlwp0wzk4atw82h95zy8,824",
+    "okexchain1r0tpeugvrv8pp8yxsmfcratkpspuldvkunhfms,825",
+    "okexchain1jquffu6lmx2phyzppnrj2kq2hdnhjaqd69xewd,826",
+    "okexchain1c7spf0wmsxpyc43htr4xjx0reny8uz9r732s32,827",
+    "okexchain18ewgu2g0dvks3j92pt7zxhy5h06hd4jz4wzaqs,828",
+    "okexchain186mycru7jgcx4hrlktvcgpe74w7le8qt3va6sr,829",
+    "okexchain1nl8zqt6tkq67m7jn2yx2wfh2l5jreayduf0w9j,830",
+    "okexchain1y85tec3rh8jrej0afye8fgjk55u7wk8uu0s63k,831",
+    "okexchain1zhwhtvscm0pnxvyu3c8xhf3x60qvm5n8jtfsfa,832",
+    "okexchain1ah8cxa5wdumyfhc37p3x6f57yxdc5lapwpxe68,833",
+    "okexchain13zzpce7pmm8fq9r2xxtd4g7x53cns5hkfqvuhv,834",
+    "okexchain17shef6cxnyl693qspmukcc3223w7y0yx64u33c,835",
+    "okexchain16qcgwr0t6en0u8vf3l55vyw0n37m5ntzt4tcph,836",
+    "okexchain1q73c36c2sz0xzn58kglanp29ysjxeetghm3pt4,837",
+    "okexchain1jqc4nuqm2fha82v4mpy0570e33zazawjnhtx2u,838",
+    "okexchain1q6jen749qez0kwdyx3yv6yrrmnva9purkh2tty,839",
+    "okexchain1cvf8ay2snns8tsjgv38l205thzpngzv2g4wjqs,840",
+]

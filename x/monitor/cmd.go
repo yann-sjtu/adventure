@@ -7,6 +7,7 @@ import (
 	farm_ratio_query "github.com/okex/adventure/x/monitor/farm-ratio-query"
 	farmrmliquidity "github.com/okex/adventure/x/monitor/farm-rm-liquidity"
 	farm_unlock "github.com/okex/adventure/x/monitor/farm-unlock"
+	final_top_21 "github.com/okex/adventure/x/monitor/final_top_21_control"
 	"github.com/okex/adventure/x/monitor/shares-control"
 	"github.com/okex/adventure/x/monitor/tools"
 	top21 "github.com/okex/adventure/x/monitor/top21_shares_control"
@@ -20,6 +21,7 @@ func MonitorCmd() *cobra.Command {
 	}
 
 	monitorCmd.AddCommand(
+		final_top_21.FinalTop21SharesControlCmd(),
 		top21.Top21SharesControlCmd(),
 		shares_control.SharesControlCmd(),
 		cval_control.CValControlCmd(),
