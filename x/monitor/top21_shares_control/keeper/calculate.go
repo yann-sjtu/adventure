@@ -84,6 +84,6 @@ func (k *Keeper) CalculateTokenToDeposit(shares sdk.Dec) sdk.SysCoin {
 		Amount: utils.ReverseSharesIntoToken(shares, time.Now().Unix()),
 	}
 
-	log.Printf("it's expected to deposit %d to promote the target validators\n", token.String())
+	log.Printf("it's expected to deposit %s to promote the target validators\n", token.String())
 	return token
 }
