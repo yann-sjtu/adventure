@@ -69,13 +69,22 @@ workers_infos = [
 # 1 worker serves 2 val
 # member: "worker addr, val1 addr, val2 addr"
 workers_schedule = [
-    "okexchain1zua7exxn2wpdam6rlgrcgapv7fsjrct6770cwe,okexchain1qva0ejf0t943x6rt824gwmvtjgec9cjrd84253,okexchain19wln93k3faq7vkqzlc9gljr3ey5fljt9q7gzhj",
-    "okexchain1p50urkew76a6nk0s6r0falwc0jzznpxw2clz6h,",
-    "okexchain1gs90zkfql6jzj3zer06d3zmsdj0fuxx83qtuyf,",
-    "okexchain1en33je7g67t0eh2yswyzcrwjjsfwdpa9uhedjn,",
-    "okexchain16xqmjn3z36ues8hmhtvnrve9gm3gp760rgceqw,",
-    "okexchain1fvrt05h0chp37lkyy6zq4mayd6mflaahgk6333,",
-    "okexchain19eyu8zxlhuwy9rjsz8c36m4luu0dlaryz2cv4u,",
-    "okexchain134qfmgn0p5dpffxq57zdycaepl2mtpjdmcexq9,",
-    "okexchain1e0mr4vfjhxz30z6nx97nsd3z0a69vld0us6lv0,"
+    # worker811,Zapzap,Squares
+    "okexchain1zua7exxn2wpdam6rlgrcgapv7fsjrct6770cwe,okexchainvaloper1qva0ejf0t943x6rt824gwmvtjgec9cjrvr94gn,okexchainvaloper19wln93k3faq7vkqzlc9gljr3ey5fljt9p6cats",
+    # worker812,Nozash,Collector
+    "okexchain1p50urkew76a6nk0s6r0falwc0jzznpxw2clz6h,okexchainvaloper195ez67wmhprwrru34gvttyd8ttpl7edxpfhu8f,okexchainvaloper1q9nct2gska2yutx24starv6s63xz022faxunec",
+    # worker813,Unicorn,ChainHub
+    "okexchain1gs90zkfql6jzj3zer06d3zmsdj0fuxx83qtuyf,okexchainvaloper1zxthrcdcecfe5ss4tal0tq30hzel2lks2fp8v0,okexchainvaloper1s6nfs7mlj7ewsskkrmekqhpq2w234fczy53wqq",
+    # worker814,Chillcrypto,Unique farming
+    "okexchain1en33je7g67t0eh2yswyzcrwjjsfwdpa9uhedjn,okexchainvaloper1xkl5agjzqnjnptyat2dng2asmx8g5kllckhxqc,okexchainvaloper1fymxn4gazxzjdfvwvr0ccnrnjpwmj0r9uxqs3s",
+    # worker815,Cryptomars,Nodeplus
+    "okexchain16xqmjn3z36ues8hmhtvnrve9gm3gp760rgceqw,okexchainvaloper18au05qx485u2qcw2gvqsrfh29evq77lm45mf4h,okexchainvaloper1ygcvtcqxl82xvzrq25dymam434k3nnc8xxacd0",
+    # worker816,DeLab,Hydrus
+    "okexchain1fvrt05h0chp37lkyy6zq4mayd6mflaahgk6333,okexchainvaloper1c34s7lc7ec8gs9xrtxeh0j2wjaam25c3c8ta69,okexchainvaloper1508d7eq592kg2lh9d46xvv3r4sm7gm8wlmjzfz",
+    # worker817,Blockpro,ZK capitial
+    "okexchain19eyu8zxlhuwy9rjsz8c36m4luu0dlaryz2cv4u,okexchainvaloper1ja9xngm4zh0t442mse73ll30p7dczd49q0kg3j,okexchainvaloper1zza3jrylyecrtuh0p9ts2xauzsefuvwa9h5jtj",
+    # worker818,Tombolo,Samual
+    "okexchain134qfmgn0p5dpffxq57zdycaepl2mtpjdmcexq9,okexchainvaloper1m569cfenudxemegcf4mmykhugnslhdv0klarfw,okexchainvaloper1ka92ujcwh6hyyeu4tymzy3dedgxplt4dmcj9ar",
+    # worker819,Defilego,Validator1
+    "okexchain1e0mr4vfjhxz30z6nx97nsd3z0a69vld0us6lv0,okexchainvaloper1tkwxgcpvptua0q0h5tn0at58ufnjdue7kf5fvp,okexchainvaloper18v23ln9ycrtg0mrwsm004sh4tdknudtddffjr5"
 ]
