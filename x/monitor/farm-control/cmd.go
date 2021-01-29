@@ -72,7 +72,7 @@ func runFarmControlCmd(cmd *cobra.Command, args []string) error {
 			fmt.Printf("This Round doesn't need to lock more %s \n", lockSymbol)
 			time.Sleep(time.Duration(sleepTime) * time.Second)
 		} else {
-			fmt.Printf("there is %s to be replenished\n", requiredToken)
+			fmt.Printf("There is %s to be replenished\n", requiredToken)
 			// 2.1 our_total_locked_lpt / total_locked_lpt < 80%, then promote the ratio over 81%
 			err = replenishLockedToken(cli, account.Index, account.Address)
 			if err != nil {
