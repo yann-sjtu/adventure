@@ -1,31 +1,12 @@
 package keeper
 
 import (
-	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	mntcmn "github.com/okex/adventure/x/monitor/common"
 	"github.com/okex/adventure/x/monitor/top21_shares_control/constant"
+	utils "github.com/okex/adventure/x/monitor/top21_shares_control/utils"
 	"log"
-	"math/rand"
-	"time"
 )
-
-func (k *Keeper) pickWorker() (worker mntcmn.Worker, valNum int, err error) {
-	// pick worker randomly
-	rand.Seed(time.Now().UnixNano())
-	worker = k.workers[rand.Intn(len(k.workers))]
-	delegator, err := k.cliManager.GetClient().Staking().QueryDelegator(worker.GetAccAddr().String())
-	if err != nil {
-		return
-	}
-
-	valNum = len(delegator.ValidatorAddresses)
-	if valNum == 0 {
-		return worker, valNum, fmt.Errorf("worker [%s] hasn't voted yet", delegator.DelegatorAddress.String())
-	}
-
-	return
-}
 
 func (k *Keeper) GetTheHighestShares(valAddrsStr []string) sdk.Dec {
 	highestShares := sdk.ZeroDec()
@@ -75,6 +56,18 @@ func (k *Keeper) GetSharesToPromote(valAddrsStrToPromote []string, limitShares s
 	return sharesToPromte
 }
 
-func (k *Keeper) PickWorker(valAddrsStrToPromote []string) mntcmn.Worker {
-	return mntcmn.Worker{}
+func (k *Keeper) PickWorker(valAddrsStrToPromote []string) []mntcmn.Worker {
+	var workersList []string
+	for _, valAddr := range valAddrsStrToPromote {
+		workersList = append(workersList, k.workersSchedule[valAddr])
+	}
+
+	workersList = utils.RemoveDuplicate(workersList)
+	var workers []mntcmn.Worker
+	for _, workerAddr := range workersList {
+		workers = append(workers, k.workers[workerAddr])
+	}
+
+	log.Printf("%d worker %s is ready\n", len(workersList), workersList)
+	return workers
 }

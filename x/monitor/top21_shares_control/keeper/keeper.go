@@ -18,7 +18,7 @@ type Keeper struct {
 	enemyValAddrs    []string
 	targetValAddrs   []string
 	targetValsFilter map[string]struct{}
-	workers          []mntcmn.Worker
+	workers          map[string]mntcmn.Worker
 	dominationPct    sdk.Dec
 	data             types.Data
 	// key:target val address  value: its worker's acc address
@@ -29,6 +29,7 @@ func NewKeeper() Keeper {
 	return Keeper{
 		targetValsFilter: make(map[string]struct{}),
 		workersSchedule:  make(map[string]string),
+		workers:          make(map[string]mntcmn.Worker),
 	}
 }
 
@@ -121,6 +122,10 @@ func (k *Keeper) parseConfig(config *types.Config) error {
 	// worker info
 	for _, workerInfoStr := range config.WorkersAccInfo {
 		strs := strings.Split(workerInfoStr, ",")
+		if len(strs) != 2 {
+			return fmt.Errorf("length of item in config.workers_infos is not 2")
+		}
+
 		accAddr, err := sdk.AccAddressFromBech32(strs[0])
 		if err != nil {
 			return err
@@ -131,7 +136,7 @@ func (k *Keeper) parseConfig(config *types.Config) error {
 			return err
 		}
 
-		k.workers = append(k.workers, mntcmn.NewWorker(accAddr, index))
+		k.workers[strs[0]] = mntcmn.NewWorker(accAddr, index)
 	}
 
 	// enemy info
