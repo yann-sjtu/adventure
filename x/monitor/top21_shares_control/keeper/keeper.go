@@ -21,11 +21,14 @@ type Keeper struct {
 	workers          []mntcmn.Worker
 	dominationPct    sdk.Dec
 	data             types.Data
+	// key:target val address  value: its worker's acc address
+	workersSchedule map[string]string
 }
 
 func NewKeeper() Keeper {
 	return Keeper{
 		targetValsFilter: make(map[string]struct{}),
+		workersSchedule:  make(map[string]string),
 	}
 }
 
@@ -142,8 +145,14 @@ func (k *Keeper) parseConfig(config *types.Config) error {
 	}
 
 	// init worker schedule
-	// worker 811-819, one
-
+	for _, workerSchedule := range config.WorkersSchedule {
+		strs := strings.Split(workerSchedule, ",")
+		if len(strs) != 3 {
+			return fmt.Errorf("length of item in config.workers_schedule is not 3")
+		}
+		k.workersSchedule[strs[1]] = strs[0]
+		k.workersSchedule[strs[2]] = strs[0]
+	}
 
 	return nil
 }
