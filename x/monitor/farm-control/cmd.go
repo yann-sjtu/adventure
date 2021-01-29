@@ -54,9 +54,9 @@ func runFarmControlCmd(cmd *cobra.Command, args []string) error {
 		cli := clientManager.GetClient()
 		if accInfo, err := cli.Auth().QueryAccount(account.Address); err != nil {
 			continue
-		} else if accInfo.GetCoins().AmountOf(baseCoin).LT(types.MustNewDecFromStr("2")) {
+		} else if accInfo.GetCoins().AmountOf(baseCoin).LT(types.MustNewDecFromStr("1000")) {
 			continue
-		} else if accInfo.GetCoins().AmountOf(quoteCoin).LT(types.MustNewDecFromStr("2")) {
+		} else if accInfo.GetCoins().AmountOf(quoteCoin).LT(types.MustNewDecFromStr("200")) {
 			continue
 		}
 		fmt.Println()
