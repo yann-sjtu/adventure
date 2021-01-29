@@ -8,6 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/adventure/common"
 	monitorcommon "github.com/okex/adventure/x/monitor/common"
+	gosdk "github.com/okex/okexchain-go-sdk"
 	"github.com/spf13/cobra"
 )
 
@@ -52,11 +53,7 @@ func runFarmControlCmd(cmd *cobra.Command, args []string) error {
 
 	for _, account := range accounts {
 		cli := clientManager.GetClient()
-		if accInfo, err := cli.Auth().QueryAccount(account.Address); err != nil {
-			continue
-		} else if accInfo.GetCoins().AmountOf(baseCoin).LT(types.MustNewDecFromStr("1000")) {
-			continue
-		} else if accInfo.GetCoins().AmountOf(quoteCoin).LT(types.MustNewDecFromStr("200")) {
+		if !filterAddr(cli, account.Address) {
 			continue
 		}
 		fmt.Println()
@@ -86,4 +83,56 @@ func runFarmControlCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
+}
+
+func filterAddr(cli *gosdk.Client, addr string) bool {
+	if i := monitorcommon.StringsContains(limitAddrs, addr); i == -1 {
+		return false
+	} else {
+		if accInfo, err := cli.Auth().QueryAccount(addr); err != nil {
+			return false
+		} else if accInfo.GetCoins().AmountOf(baseCoin).LT(types.MustNewDecFromStr("1000")) {
+			return false
+		} else if accInfo.GetCoins().AmountOf(quoteCoin).LT(types.MustNewDecFromStr("200")) {
+			return false
+		}
+		return true
+	}
+}
+
+var limitAddrs = []string{
+	"okexchain1wc49x2rnml97d537vsv4wqj0e67y90xe0y4nzm",
+	"okexchain1992paeg9p7v4kkvqkp6qynk7ujy3220gw7l9ps",
+	"okexchain10gclna4ds064tpxq74s3jfyyjvnylkdkjftvyd",
+	"okexchain1u56l3ehphegvgx0557wyawqggcw7m8j36sfwwa",
+	"okexchain19s7zpd3jc8wtt7uwz67n7703fzudsrpeam2jte",
+	"okexchain1mwmgfge472httc7n2vznlmu3q6vfd7h3ft3ewy",
+	"okexchain1mcut93efcpdjgjkpfvemfvvqju0zs8ccj3u0xh",
+	"okexchain1tts22z7zrd80shyelpxw3h4p8vgfxlp0y9vaf0",
+	"okexchain1ztp8hz25hqt5pcvym698vnqglfu8kfxhp30x05",
+	"okexchain1fqtg6rs73jfs6gz6zndnc0ufy8sm0wk8d0vzuu",
+	"okexchain12mq8qa5vfqmwmjhekq47a8hfxlp7ft2vl077kd",
+	"okexchain1nlve0y2tjgwskpxrr4c3lywyklx2xdylmxsdl7",
+	"okexchain12rkvgnsge0py6dfcyhnu82zn334nne3skv589m",
+	"okexchain140sy6yc4mx7equhrzavm20snzm5vd9va6f5rfw",
+	"okexchain1sey3syrw0xsqsvkdlk86j72w0hfnq8j4yqk9e3",
+	"okexchain1mpmw2jx0dfnrh73tj0xzcc79n5ddsp5s323y03",
+	"okexchain183quv4zattal80tkq3ccnxntv3yrpt6yyjt6sa",
+	"okexchain1zyufn2zm8az8664ed07muskktz2qmkuymf3ye3",
+	"okexchain120rxcq6w9y46qa2ewyzuxvx0t74y2ch506kl2h",
+	"okexchain1l94x89s6d65ffzzt2ns8lyr9d958u7dkm25zc0",
+	"okexchain1tpg9mmvqw4j97z0kgwuz4xum7swva9s8j5qzlc",
+	"okexchain1g82hlllygaf6rnnsaxqdl0xxmue2fwt2j9hdkf",
+	"okexchain189sq8hphj3kzp8a302kk48r7m4f2kq4z2vu0u7",
+	"okexchain1h4t9z7amss2tmy07efngjez3zrpe7zrg4k95kp",
+	"okexchain17rkgqreruk9wchyf4a62n32g82sngnp6sjc0dz",
+	"okexchain15v8k8gfp2paxrpaw98mnf9pfycgr4xard3u8yr",
+	"okexchain1ah6fu38g6nm9rmksa7uc6hn4qyu4nah8335900",
+	"okexchain146dh4fw7a9qycqhagd7zwkj2n833n0tx8gtwy9",
+	"okexchain19z2jzft3y8dlkeaxpnraccrdfxn0uz079kwfvy",
+	"okexchain157p3dta442g9cav3l0g5ws4rr79al3rpvls0ju",
+	"okexchain1hg5synr7qxqsyc0gj2r0hvtdf0kntfsl73xp23",
+	"okexchain1cv2vv36kk8adk2rve0766lwr6q50qsg7se2x03",
+	"okexchain1yw6qx8dudxpkeghdh7n8z300e4svxtzrk2qc6j",
+	"okexchain1rmpk5rmsyagakdxx7t8xny8eglu6lp5dvj8g4w",
 }
