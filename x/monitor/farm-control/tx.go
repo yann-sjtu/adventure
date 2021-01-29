@@ -43,13 +43,12 @@ func replenishLockedToken(cli *gosdk.Client, index int, addr string) error {
 		}
 		log.Printf("[%d] %s send add-liquidity msg: %+v\n", index, addr, addLiquidityMsg.Msgs[0])
 		fmt.Printf("%s is added in swap pool\n", toQuoteCoin)
-		time.Sleep(time.Duration(sleepTime) * time.Second)
+		defer time.Sleep(time.Hour * 5)
 	}
+	time.Sleep(time.Duration(sleepTime) * time.Second)
 
 	// 2. try to lock lpt in farm pool
 	if toLock {
-		defer time.Sleep(time.Hour * 5)
-
 		// 2.0 query account information
 		accInfo, err := cli.Auth().QueryAccount(addr)
 		if err != nil {
