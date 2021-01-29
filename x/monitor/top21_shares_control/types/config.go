@@ -7,4 +7,5 @@ type Config struct {
 	WorkersAccInfo    []string `toml:"workers_infos"`
 	PercentToDominate string   `toml:"domination_percentage"`
 	EnemyValAddrs     []string `toml:"enemy_validators_addresses"`
+	WorkersSchedule   []string `toml:"workers_schedule"`
 }
