@@ -10,6 +10,7 @@ import (
 	"github.com/okex/adventure/x/monitor/top21_shares_control/types"
 	"github.com/okex/adventure/x/monitor/top21_shares_control/utils"
 	"log"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -41,19 +42,23 @@ func (k *Keeper) InitRound() error {
 	}
 
 	k.data.Vals = vals
+	// sorts vals
+	sort.Sort(k.data.Vals)
+
 	enemyFilter, oursFilter := utils.BuildFilter(k.enemyValAddrs), utils.BuildFilter(k.targetValAddrs)
 	k.data.EnemyTotalShares, k.data.OurTotalShares = sdk.ZeroDec(), sdk.ZeroDec()
 	k.data.Top21SharesMap = make(map[string]sdk.Dec)
 	k.data.TargetValSharesMap = make(map[string]sdk.Dec)
 	var enemyCounter, oursCounter int
-	for _, val := range vals {
+	for i, val := range k.data.Vals {
 		valAddrStr := val.OperatorAddress.String()
 		// check whether target val
 		if _, ok := k.targetValsFilter[valAddrStr]; ok {
 			k.data.TargetValSharesMap[valAddrStr] = val.DelegatorShares
 		}
 
-		if val.Status.Equal(sdk.Bonded) {
+		// top 21 vals
+		if i < 21 {
 			k.data.Top21SharesMap[valAddrStr] = val.DelegatorShares
 			if _, ok := oursFilter[valAddrStr]; ok {
 				k.data.OurTotalShares = k.data.OurTotalShares.Add(val.DelegatorShares)
