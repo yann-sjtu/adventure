@@ -41,6 +41,7 @@ func runTop21SharesControlCmd(cmd *cobra.Command, args []string) error {
 
 	var round int
 	for {
+		time.Sleep(constant.RoundInterval)
 		round++
 		fmt.Printf("============================== Round %d ==============================\n", round)
 		// 0.round init
@@ -52,6 +53,10 @@ func runTop21SharesControlCmd(cmd *cobra.Command, args []string) error {
 
 		// 1.found the intruder(stranger in top21, neither target vals and enemies)
 		intruders := kp.CatchTheIntruders()
+		if len(intruders) == 0 {
+			log.Println("no intruders and everything goes well")
+			continue
+		}
 
 		// 2. get the highest shares of intruders
 		limitShares := kp.GetTheHighestShares(intruders)
@@ -60,7 +65,6 @@ func runTop21SharesControlCmd(cmd *cobra.Command, args []string) error {
 		valAddrsStrToPromote := kp.GetTargetValAddrsStrToPromote(limitShares)
 		if len(valAddrsStrToPromote) == 0 {
 			// no target val to promote
-			time.Sleep(constant.RoundInterval)
 			continue
 		}
 
@@ -70,8 +74,18 @@ func runTop21SharesControlCmd(cmd *cobra.Command, args []string) error {
 		// 5. pick a worker to promote vals
 		workers := kp.PickWorker(valAddrsStrToPromote)
 
-		_ = workers
-		_ = requiredShares
-		time.Sleep(constant.RoundInterval)
+		// 6. calculate tokens to deposit with the requiredShares
+		tokensToDeposit := kp.CalculateTokenToDeposit(requiredShares)
+
+		// 7. pre check for deposit
+		electedWorkers, err := kp.PrecheckWorker(workers, tokensToDeposit)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		_ = electedWorkers
+		// 8. info to broadcast
+		//err := kp.InfoToDeposit()
 	}
 }
