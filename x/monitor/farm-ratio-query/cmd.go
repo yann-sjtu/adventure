@@ -16,11 +16,11 @@ func FarmRatioQueryCmd() *cobra.Command {
 		Use:   "farm-ratio-query",
 		Short: "farm-ratio-query",
 		Args:  cobra.NoArgs,
-		RunE:  runFarmQueryCmd,
+		RunE:  runFarmRatioQueryCmd,
 	}
 
 	flags := farmUnlockCmd.Flags()
-	flags.IntVarP(&startIndex, "start_index", "i", 901, "")
+	flags.IntVarP(&startIndex, "start_index", "i", 0, "")
 	flags.StringVarP(&poolName, "pool_name", "p", "", "")
 	return farmUnlockCmd
 }
@@ -31,8 +31,8 @@ var (
 	poolName = ""
 )
 
-func runFarmQueryCmd(cmd *cobra.Command, args []string) error {
-	addrs := monitorcommon.AddrsBook[startIndex/100]
+func runFarmRatioQueryCmd(cmd *cobra.Command, args []string) error {
+	accounts := monitorcommon.AddrsBook[startIndex/100]
 	clientManager := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
 	cli := clientManager.GetClient()
 
@@ -44,18 +44,18 @@ func runFarmQueryCmd(cmd *cobra.Command, args []string) error {
 	lptName := totalLpt.Denom
 
 	ourTotalLpt := types.NewDecCoinFromDec(lptName, types.ZeroDec())
-	for i := 0; i < len(addrs); i++ {
-		lockInfo, err := cli.Farm().QueryLockInfo(poolName, addrs[i])
+	for _, acc := range accounts {
+		lockInfo, err := cli.Farm().QueryLockInfo(poolName, acc.Address)
 		if err != nil {
 			if strings.Contains(err.Error(), "hasn't locked") {
-				fmt.Printf("[%d] %s lock %s\n", startIndex+i, addrs[i], types.NewDecCoinFromDec(lptName, types.ZeroDec()))
+				fmt.Printf("[%d] %s lock %s\n", acc.Index, acc.Address, types.NewDecCoinFromDec(lptName, types.ZeroDec()))
 				continue
 			} else {
-				return fmt.Errorf("failed to query %s lock-info: %s", addrs[i], err.Error())
+				return fmt.Errorf("failed to query %s lock-info: %s", acc.Address, err.Error())
 			}
 		} else {
 			ourTotalLpt = ourTotalLpt.Add(lockInfo.Amount)
-			fmt.Printf("[%d] %s lock %s\n", startIndex+i, addrs[i], lockInfo.Amount)
+			fmt.Printf("[%d] %s lock %s\n", acc.Index, acc.Address, lockInfo.Amount)
 		}
 	}
 

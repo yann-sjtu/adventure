@@ -27,18 +27,17 @@ var (
 )
 
 func runFarmQueryCmd(cmd *cobra.Command, args []string) error {
-	addrs := monitorcommon.AddrsBook[startIndex/100]
+	accounts := monitorcommon.AddrsBook[startIndex/100]
 
 	clientManager := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
-
 	cli := clientManager.GetClient()
-	for i := 0; i < len(addrs); i++ {
-		acc, err := cli.Auth().QueryAccount(addrs[i])
+	for _, acc := range accounts {
+		accInfo, err := cli.Auth().QueryAccount(acc.Address)
 		if err != nil {
-			log.Printf("[%d]%s failed to query account info. err: %s", startIndex+i, addrs[i], err.Error())
+			log.Printf("[%d]%s failed to query account info. err: %s", acc.Index, acc.Address, err.Error())
 			continue
 		}
-		fmt.Println(startIndex+i, addrs[i], acc.GetCoins())
+		fmt.Println(acc.Index, acc.Address, accInfo.GetCoins())
 	}
 	return nil
 }

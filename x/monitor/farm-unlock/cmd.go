@@ -32,32 +32,32 @@ func FarmUnlockCmd() *cobra.Command {
 }
 
 func runFarmUnlocklCmd(cmd *cobra.Command, args []string) error {
-	addrs := monitorcommon.AddrsBook[startIndex/100]
+	accounts := monitorcommon.AddrsBook[startIndex/100]
 	clientManager := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
 
 	cli := clientManager.GetClient()
-	for i := 0; i < len(addrs); i++ {
-		index := i + startIndex
-		lockinfo, err := cli.Farm().QueryLockInfo(poolName, addrs[i])
+	for i, acc := range accounts {
+		index, addr := acc.Index, acc.Address
+		lockinfo, err := cli.Farm().QueryLockInfo(poolName, addr)
 		if err != nil {
-			log.Printf("[%d]%s failed to query lock info. err: %s", index, addrs[i], err.Error())
+			log.Printf("[%d]%s failed to query lock info. err: %s", index, addr, err.Error())
 			continue
 		}
 
 		if !lockinfo.Amount.IsZero() {
-			acc, err := cli.Auth().QueryAccount(addrs[i])
+			acc, err := cli.Auth().QueryAccount(addr)
 			if err != nil {
-				log.Printf("[%d]%s failed to query account info. err: %s", index, addrs[i], err.Error())
+				log.Printf("[%d]%s failed to query account info. err: %s", index, addr, err.Error())
 				continue
 			}
 
-			unlockMsg := farm_control.NewMsgUnLock(acc.GetAccountNumber(), acc.GetSequence(), lockinfo.Amount, addrs[i])
+			unlockMsg := farm_control.NewMsgUnLock(acc.GetAccountNumber(), acc.GetSequence(), lockinfo.Amount, addr)
 			err = monitorcommon.SendMsg(monitorcommon.Unfarmlp, unlockMsg, index)
 			if err != nil {
-				log.Printf("[%d] %s failed to unlock: %s\n", index, addrs[i], err)
+				log.Printf("[%d] %s failed to unlock: %s\n", index, addr, err)
 				continue
 			}
-			log.Printf("[%d] %s send unlock msg: %+v\n", index, addrs[i], unlockMsg.Msgs[0])
+			log.Printf("[%d] %s send unlock msg: %+v\n", index, addr, unlockMsg.Msgs[0])
 		}
 
 		if i%20 == 0 && i != 0 {
