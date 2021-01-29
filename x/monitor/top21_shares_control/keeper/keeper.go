@@ -6,6 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/adventure/common"
 	mntcmn "github.com/okex/adventure/x/monitor/common"
+	"github.com/okex/adventure/x/monitor/top21_shares_control/constant"
 	"github.com/okex/adventure/x/monitor/top21_shares_control/types"
 	"github.com/okex/adventure/x/monitor/top21_shares_control/utils"
 	"log"
@@ -216,6 +217,32 @@ func (k *Keeper) CatchTheIntruders() []string {
 		intruders = append(intruders, intruder)
 	}
 
-	log.Printf("WARNING! instrders %s are found\n", intruders)
+	if len(intruders) != 0 {
+		log.Printf("WARNING! instrders %s are found\n", intruders)
+	}
+
 	return intruders
+}
+
+func (k *Keeper) PrecheckWorker(workers []mntcmn.Worker, tokenToDeposit sdk.SysCoin) (selected []mntcmn.Worker, err error) {
+	// 1.check the balance
+	cli := k.cliManager.GetClient()
+	for _, worker := range workers {
+		workerAddr := worker.GetAccAddr().String()
+		accInfo, err := cli.Auth().QueryAccount(workerAddr)
+		if err != nil {
+			return nil, err
+		}
+
+		// tokenToDepositAmount <= balance - reservedFee
+		balance := accInfo.GetCoins().AmountOf(common.NativeToken)
+		if balance.Sub(constant.ReservedFee).LT(tokenToDeposit.Amount) {
+			log.Printf("insufficient balance of %s: %s < %s + %s. skip that.\n", workerAddr, balance.String(), tokenToDeposit.Amount.String(), constant.ReservedFee.String())
+			continue
+		}
+
+		selected = append(selected, worker)
+	}
+
+	return
 }

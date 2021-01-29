@@ -2,10 +2,12 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/okex/adventure/common"
 	mntcmn "github.com/okex/adventure/x/monitor/common"
 	"github.com/okex/adventure/x/monitor/top21_shares_control/constant"
 	utils "github.com/okex/adventure/x/monitor/top21_shares_control/utils"
 	"log"
+	"time"
 )
 
 func (k *Keeper) GetTheHighestShares(valAddrsStr []string) sdk.Dec {
@@ -33,7 +35,11 @@ func (k *Keeper) GetTargetValAddrsStrToPromote(limitShares sdk.Dec) []string {
 		}
 	}
 
-	log.Printf("%d target vals %s need to be promoted\n", len(targetValAddrsStrToPromote), targetValAddrsStrToPromote)
+	n := len(targetValAddrsStrToPromote)
+	if n != 0 {
+		log.Printf("%d target vals %s need to be promoted\n", n, targetValAddrsStrToPromote)
+	}
+
 	return targetValAddrsStrToPromote
 }
 
@@ -70,4 +76,14 @@ func (k *Keeper) PickWorker(valAddrsStrToPromote []string) []mntcmn.Worker {
 
 	log.Printf("%d worker %s is ready\n", len(workersList), workersList)
 	return workers
+}
+
+func (k *Keeper) CalculateTokenToDeposit(shares sdk.Dec) sdk.SysCoin {
+	token := sdk.SysCoin{
+		Denom:  common.NativeToken,
+		Amount: utils.ReverseSharesIntoToken(shares, time.Now().Unix()),
+	}
+
+	log.Printf("it's expected to deposit %d to promote the target validators\n", token.String())
+	return token
 }
