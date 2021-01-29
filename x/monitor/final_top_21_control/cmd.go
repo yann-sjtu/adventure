@@ -69,5 +69,10 @@ func runFinalTop21SharesControlCmd(cmd *cobra.Command, args []string) error {
 			continue
 		}
 
+		// 4. send msg
+		if 	err := kp.SendMsgs(worker, tokenToDeposit); err != nil {
+			log.Println(err.Error())
+			continue
+		}
 	}
 }

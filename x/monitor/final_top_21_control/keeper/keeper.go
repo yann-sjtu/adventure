@@ -3,16 +3,18 @@ package keeper
 import (
 	"errors"
 	"fmt"
+	"log"
+	"sort"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/BurntSushi/toml"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/adventure/common"
 	mntcmn "github.com/okex/adventure/x/monitor/common"
 	"github.com/okex/adventure/x/monitor/final_top_21_control/constant"
 	"github.com/okex/adventure/x/monitor/final_top_21_control/types"
-	"log"
-	"sort"
-	"strconv"
-	"strings"
 )
 
 type Keeper struct {
@@ -136,26 +138,17 @@ func (k *Keeper) CatchTheIntruders() []string {
 	return intruders
 }
 
-//
-//func (k *Keeper) PrecheckWorker(workers []mntcmn.Worker, tokenToDeposit sdk.SysCoin) (selected []mntcmn.Worker, err error) {
-//	// 1.check the balance
-//	cli := k.cliManager.GetClient()
-//	for _, worker := range workers {
-//		workerAddr := worker.GetAccAddr().String()
-//		accInfo, err := cli.Auth().QueryAccount(workerAddr)
-//		if err != nil {
-//			return nil, err
-//		}
-//
-//		// tokenToDepositAmount <= balance - reservedFee
-//		balance := accInfo.GetCoins().AmountOf(common.NativeToken)
-//		if balance.Sub(constant.ReservedFee).LT(tokenToDeposit.Amount) {
-//			log.Printf("insufficient balance of %s: %s < %s + %s. skip that.\n", workerAddr, balance.String(), tokenToDeposit.Amount.String(), constant.ReservedFee.String())
-//			continue
-//		}
-//
-//		selected = append(selected, worker)
-//	}
-//
-//	return
-//}
+func (k *Keeper) SendMsgs(worker mntcmn.Worker, coin sdk.DecCoin) error {
+	accInfo, err := k.cliManager.GetClient().Auth().QueryAccount(worker.GetAccAddr().String())
+	if err != nil {
+		return err
+	}
+
+	signMsg := mntcmn.NewMsgDeposit(accInfo.GetAccountNumber(), accInfo.GetSequence(), coin, worker.GetAccAddr())
+	err = mntcmn.SendMsg(mntcmn.Staking, signMsg, worker.GetIndex())
+	if err != nil {
+		return err
+	}
+	time.Sleep(constant.IntervalAfterTxBroadcast)
+	return nil
+}
