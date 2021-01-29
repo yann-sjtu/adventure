@@ -50,13 +50,13 @@ func runFinalTop21SharesControlCmd(cmd *cobra.Command, args []string) error {
 			log.Println(err)
 			continue
 		}
-		//
-		//	// 1.found the intruder(stranger in top21, neither target vals and enemies)
-		//	intruders := kp.CatchTheIntruders()
-		//	if len(intruders) == 0 {
-		//		log.Println("no intruders and everything goes well")
-		//		continue
-		//	}
+
+		// 1.found the intruder(stranger in top21, neither target vals and enemies)
+		intruders := kp.CatchTheIntruders()
+		if len(intruders) == 0 {
+			log.Println("no intruders and everything goes well")
+			continue
+		}
 		//
 		//	// 2. get the highest shares of intruders
 		//	limitShares := kp.GetTheHighestShares(intruders)

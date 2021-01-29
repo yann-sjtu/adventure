@@ -129,32 +129,29 @@ func (k *Keeper) parseConfig(config *types.Config) error {
 //	return k.enemyValAddrs
 //}
 //
-//func (k *Keeper) CatchTheIntruders() []string {
-//	// build top21Filter
-//	top21Filter := make(map[string]struct{})
-//	for valAddrStr := range k.data.Top21SharesMap {
-//		top21Filter[valAddrStr] = struct{}{}
-//	}
-//
-//	for _, targetValAddrStr := range k.targetValAddrs {
-//		delete(top21Filter, targetValAddrStr)
-//	}
-//
-//	for _, enemyValAddrStr := range k.enemyValAddrs {
-//		delete(top21Filter, enemyValAddrStr)
-//	}
-//
-//	var intruders []string
-//	for intruder := range top21Filter {
-//		intruders = append(intruders, intruder)
-//	}
-//
-//	if len(intruders) != 0 {
-//		log.Printf("WARNING! instrders %s are found\n", intruders)
-//	}
-//
-//	return intruders
-//}
+func (k *Keeper) CatchTheIntruders() []string {
+	// build top21Filter
+	top21Filter := make(map[string]struct{})
+	for i := 0; i < 21; i++ {
+		top21Filter[k.data.Vals[i].OperatorAddress.String()] = struct{}{}
+	}
+
+	for _, tarValAddrStr := range k.targetValAddrs {
+		delete(top21Filter, tarValAddrStr)
+	}
+
+	var intruders []string
+	for k := range top21Filter {
+		intruders = append(intruders, k)
+	}
+
+	if len(intruders) != 0 {
+		log.Printf("WARNING! instrders %s are found\n", intruders)
+	}
+
+	return intruders
+}
+
 //
 //func (k *Keeper) PrecheckWorker(workers []mntcmn.Worker, tokenToDeposit sdk.SysCoin) (selected []mntcmn.Worker, err error) {
 //	// 1.check the balance
