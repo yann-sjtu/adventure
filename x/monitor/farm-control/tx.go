@@ -42,7 +42,7 @@ func replenishLockedToken(cli *gosdk.Client, index int, addr string) error {
 			return fmt.Errorf("[%d] %s failed to add-liquidity: %s\n", index, addr, err)
 		}
 		log.Printf("[%d] %s send add-liquidity msg: %+v\n", index, addr, addLiquidityMsg.Msgs[0])
-		fmt.Printf("%s is added in swap pool\n", toQuoteCoin)
+		//fmt.Printf("%s is added in swap pool\n", toQuoteCoin)
 		defer time.Sleep(time.Hour * 5)
 	}
 	time.Sleep(time.Duration(sleepTime) * time.Second)
@@ -65,7 +65,7 @@ func replenishLockedToken(cli *gosdk.Client, index int, addr string) error {
 			return fmt.Errorf("[%d] %s failed to lock: %s\n", index, addr, err)
 		}
 		log.Printf("[%d] %s send lock msg: %+v\n", index, addr, lockMsg.Msgs[0])
-		fmt.Printf("%s is locked in farm pool\n", lptCoin)
+		//fmt.Printf("%s is locked in farm pool\n", lptCoin)
 	}
 
 	return nil
