@@ -29,8 +29,8 @@ import (
 var addrs = common.Addrs901To1000
 
 func TestDeposit(t *testing.T) {
-	addr := "okexchain1v9asy9x82lk7hfw27kq3pzeg2rgeeg6t5u27uv"
-	index := 801
+	addr := "okexchain1gln5srut8yr4da5czc6rrvwsa8t0nqr0j8py6j"
+	index := 803
 
 	cfg, err := gosdk.NewClientConfig("http://10.0.240.38:26657", "okexchain-66", gosdk.BroadcastBlock, "0.002okt", 200000, 0, "")
 	if err != nil {
@@ -43,7 +43,7 @@ func TestDeposit(t *testing.T) {
 		panic(err)
 	}
 
-	coins := sdk.NewDecCoinFromDec("okt", sdk.MustNewDecFromStr("100"))
+	coins := sdk.NewDecCoinFromDec("okt", sdk.MustNewDecFromStr("207"))
 
 	msg := newMsgDeposit(accInfo.GetAccountNumber(), accInfo.GetSequence(), coins, addr)
 	err = common.SendMsg(common.Staking, msg, index)
@@ -100,6 +100,10 @@ func TestAddShares(t *testing.T) {
 	}
 
 	valAddrs, err := utils.ParseValAddresses([]string{
+		//"okexchainvaloper1vlzgq74y6hm9crhkkhdjy77uvyqa0zdu3c6tmx",
+		//"okexchainvaloper1vsjcts3ga8dgf6nj2q7vmlrnu5en4cnedc8n76",
+		//"okexchainvaloper188dhgmaq8cka2yczzjfzsw0nely6y8ua3ad0du",
+
 		"okexchainvaloper18au05qx485u2qcw2gvqsrfh29evq77lm45mf4h", //1
 		"okexchainvaloper1s6nfs7mlj7ewsskkrmekqhpq2w234fczy53wqq", //2
 		"okexchainvaloper1zxthrcdcecfe5ss4tal0tq30hzel2lks2fp8v0", //3
