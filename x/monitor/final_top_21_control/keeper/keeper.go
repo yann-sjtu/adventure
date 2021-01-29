@@ -101,7 +101,7 @@ func (k *Keeper) parseConfig(config *types.Config) error {
 func (k *Keeper) PickEfficientWorker(tokenToDeposit sdk.SysCoin) (worker mntcmn.Worker, err error) {
 	for _, w := range k.workers {
 		cli := k.cliManager.GetClient()
-		fmt.Println(w.GetAccAddr().String())
+		fmt.Println(&cli, w.GetAccAddr().String())
 		accInfo, err := cli.Auth().QueryAccount(w.GetAccAddr().String())
 		if err != nil {
 			return worker, err
