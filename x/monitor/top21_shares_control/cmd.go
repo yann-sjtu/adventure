@@ -68,8 +68,9 @@ func runTop21SharesControlCmd(cmd *cobra.Command, args []string) error {
 		requiredShares := kp.GetSharesToPromote(valAddrsStrToPromote, limitShares)
 
 		// 5. pick a worker to promote vals
-		//workers, err := kp.PickWorker(valAddrsStrToPromote)
+		workers := kp.PickWorker(valAddrsStrToPromote)
 
+		_ = workers
 		_ = requiredShares
 		time.Sleep(constant.RoundInterval)
 	}

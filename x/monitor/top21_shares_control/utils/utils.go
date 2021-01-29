@@ -76,3 +76,17 @@ func GetValAddrsStrFromVals(vals []stakingtypes.Validator) []string {
 
 	return valAddrsStr
 }
+
+func RemoveDuplicate(list []string) []string {
+	filter := make(map[string]struct{})
+	for _, item := range list {
+		filter[item] = struct{}{}
+	}
+
+	var res []string
+	for key := range filter {
+		res = append(res, key)
+	}
+
+	return res
+}
