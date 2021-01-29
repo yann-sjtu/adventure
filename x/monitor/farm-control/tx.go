@@ -12,6 +12,10 @@ import (
 	gosdk "github.com/okex/okexchain-go-sdk"
 )
 
+var (
+	limitAmount = types.MustNewDecFromStr("2.0")
+)
+
 func replenishLockedToken(cli *gosdk.Client, index int, addr string) error {
 	// 1. try to add-liquidity in swap pool
 	if toAddLiquidity {
@@ -38,9 +42,10 @@ func replenishLockedToken(cli *gosdk.Client, index int, addr string) error {
 			return fmt.Errorf("[%d] %s failed to add-liquidity: %s\n", index, addr, err)
 		}
 		log.Printf("[%d] %s send add-liquidity msg: %+v\n", index, addr, addLiquidityMsg.Msgs[0])
-		fmt.Printf("%s is added in swap pool\n", toQuoteCoin)
-		time.Sleep(time.Duration(sleepTime) * time.Second)
+		//fmt.Printf("%s is added in swap pool\n", toQuoteCoin)
+		defer time.Sleep(time.Hour * 5)
 	}
+	time.Sleep(time.Duration(sleepTime) * time.Second)
 
 	// 2. try to lock lpt in farm pool
 	if toLock {
@@ -60,8 +65,7 @@ func replenishLockedToken(cli *gosdk.Client, index int, addr string) error {
 			return fmt.Errorf("[%d] %s failed to lock: %s\n", index, addr, err)
 		}
 		log.Printf("[%d] %s send lock msg: %+v\n", index, addr, lockMsg.Msgs[0])
-		fmt.Printf("%s is locked in farm pool\n", lptCoin)
-		time.Sleep(time.Hour*5)
+		//fmt.Printf("%s is locked in farm pool\n", lptCoin)
 	}
 
 	return nil
@@ -69,11 +73,11 @@ func replenishLockedToken(cli *gosdk.Client, index int, addr string) error {
 
 func getOwnBaseCoinAndQuoteCoin(coins types.DecCoins) (ownBaseAmount, ownQuoteAmount types.DecCoin, err error) {
 	ownBaseAmount = types.NewDecCoinFromDec(baseCoin, coins.AmountOf(baseCoin))
-	if ownBaseAmount.Amount.LTE(types.MustNewDecFromStr("2.0")) {
+	if ownBaseAmount.Amount.LTE(limitAmount) {
 		return ownBaseAmount, ownQuoteAmount, fmt.Errorf("has less than 2 %s, balance[%s]", baseCoin, coins.String())
 	}
 	ownQuoteAmount = types.NewDecCoinFromDec(quoteCoin, coins.AmountOf(quoteCoin))
-	if ownQuoteAmount.Amount.LTE(types.MustNewDecFromStr("2.0")) {
+	if ownQuoteAmount.Amount.LTE(limitAmount) {
 		return ownBaseAmount, ownQuoteAmount, fmt.Errorf("has less than 2 %s, balance[%s]", quoteCoin, coins.String())
 	}
 	return
@@ -85,6 +89,12 @@ func calculateBaseCoinAndQuoteCoin(cli *gosdk.Client, ownBaseAmount, ownQuoteAmo
 		return types.DecCoin{}, types.DecCoin{}, err
 	}
 	log.Printf("balance[%s, %s] perPrice:%s \n", ownBaseAmount, ownQuoteAmount, quotePerPrice)
+	if ownBaseAmount.Denom == "okt" {
+		ownBaseAmount.Amount = ownBaseAmount.Amount.Sub(limitAmount)
+	} else if ownQuoteAmount.Denom == "okt" {
+		ownQuoteAmount.Amount = ownQuoteAmount.Amount.Sub(limitAmount)
+	}
+
 	if ownBaseAmount.Amount.Mul(quotePerPrice).GT(ownQuoteAmount.Amount) {
 		// all in quote coin USDT
 		toBaseAmount := types.NewDecCoinFromDec(baseCoin, ownQuoteAmount.Amount.Quo(quotePerPrice).Mul(types.MustNewDecFromStr("1.01")))
