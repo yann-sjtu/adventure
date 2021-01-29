@@ -1,11 +1,13 @@
 package keeper
 
 import (
+	"errors"
 	"fmt"
 	"github.com/BurntSushi/toml"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/adventure/common"
 	mntcmn "github.com/okex/adventure/x/monitor/common"
+	"github.com/okex/adventure/x/monitor/final_top_21_control/constant"
 	"github.com/okex/adventure/x/monitor/final_top_21_control/types"
 	"log"
 	"sort"
@@ -94,41 +96,23 @@ func (k *Keeper) parseConfig(config *types.Config) error {
 	return nil
 }
 
-//
-//// get targetAddrs with enemyAddrs filtered in bonded vals
-//// addrType:   1-accAddr, 2-valAddr
-//func (k *Keeper) GetTargetValsAddr(enemyAddrs []string, addrType int) (targetAddrs []string, err error) {
-//	vals, err := k.cliManager.GetClient().Staking().QueryValidators()
-//	if err != nil {
-//		return
-//	}
-//
-//	filter := utils.BuildFilter(enemyAddrs)
-//	for _, val := range vals {
-//		if val.Status.Equal(sdk.Bonded) {
-//			var addr string
-//			switch addrType {
-//			case 1:
-//				addr = sdk.AccAddress(val.OperatorAddress).String()
-//			case 2:
-//				addr = val.OperatorAddress.String()
-//			default:
-//				return nil, fmt.Errorf("unsupported input addr type %d", addrType)
-//			}
-//
-//			if _, ok := filter[addr]; !ok {
-//				targetAddrs = append(targetAddrs, addr)
-//			}
-//		}
-//	}
-//
-//	return
-//}
-//
-//func (k *Keeper) GetEnemyValAddrs() []string {
-//	return k.enemyValAddrs
-//}
-//
+func (k *Keeper) PickEfficientWorker(tokenToDeposit sdk.SysCoin) (worker mntcmn.Worker, err error) {
+	for _, w := range k.workers {
+		accInfo, err := k.cliManager.GetClient().Auth().QueryAccount(w.GetAccAddr().String())
+		if err != nil {
+			return worker, err
+		}
+
+		balance := accInfo.GetCoins().AmountOf(common.NativeToken)
+		if balance.Sub(constant.ReservedFee).GTE(tokenToDeposit.Amount) {
+			return worker, nil
+		}
+	}
+
+	err = errors.New("no efficient worker already")
+	return
+}
+
 func (k *Keeper) CatchTheIntruders() []string {
 	// build top21Filter
 	top21Filter := make(map[string]struct{})

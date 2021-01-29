@@ -3,8 +3,9 @@ package utils
 import (
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	stakingtypes "github.com/okex/okexchain/x/staking/types"
+	"github.com/okex/adventure/common"
 	"math"
+	"math/rand"
 )
 
 const (
@@ -54,38 +55,10 @@ func BuildFilter(addrs []string) map[string]struct{} {
 	return filter
 }
 
-func ConvertValAddrsStr2AccAddrsStr(valAddrsStr []string) (accAddrsStr []string, err error) {
-	for _, valAddrStr := range valAddrsStr {
-		valAddr, err := sdk.ValAddressFromBech32(valAddrStr)
-		if err != nil {
-			return nil, err
-		}
-
-		accAddrsStr = append(accAddrsStr, sdk.AccAddress(valAddr).String())
+func GenerateRandomTokensToDeposit(lowerLimit, upperLimit int) sdk.SysCoin {
+	amount := rand.Intn(upperLimit-lowerLimit) + lowerLimit
+	return sdk.SysCoin{
+		Amount: sdk.NewDec(int64(amount)),
+		Denom:  common.NativeToken,
 	}
-
-	return
-}
-
-func GetValAddrsStrFromVals(vals []stakingtypes.Validator) []string {
-	var valAddrsStr []string
-	for _, val := range vals {
-		valAddrsStr = append(valAddrsStr, val.OperatorAddress.String())
-	}
-
-	return valAddrsStr
-}
-
-func RemoveDuplicate(list []string) []string {
-	filter := make(map[string]struct{})
-	for _, item := range list {
-		filter[item] = struct{}{}
-	}
-
-	var res []string
-	for key := range filter {
-		res = append(res, key)
-	}
-
-	return res
 }
