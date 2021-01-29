@@ -74,3 +74,7 @@ func (k *Keeper) GetSharesToPromote(valAddrsStrToPromote []string, limitShares s
 	log.Printf("lowest shares of target validator: [%s]     shares to promote: [%s]\n", lowestShares, sharesToPromte)
 	return sharesToPromte
 }
+
+func (k *Keeper) PickWorker(valAddrsStrToPromote []string) mntcmn.Worker {
+	return mntcmn.Worker{}
+}

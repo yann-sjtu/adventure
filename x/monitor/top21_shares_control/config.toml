@@ -65,3 +65,17 @@ workers_infos = [
     "okexchain1q6jen749qez0kwdyx3yv6yrrmnva9purkh2tty,839",
     "okexchain1cvf8ay2snns8tsjgv38l205thzpngzv2g4wjqs,840",
 ]
+
+# 1 worker serves 2 val
+# member: "worker addr, val1 addr, val2 addr"
+workers_schedule = [
+    "okexchain1zua7exxn2wpdam6rlgrcgapv7fsjrct6770cwe,okexchain1qva0ejf0t943x6rt824gwmvtjgec9cjrd84253,okexchain19wln93k3faq7vkqzlc9gljr3ey5fljt9q7gzhj",
+    "okexchain1p50urkew76a6nk0s6r0falwc0jzznpxw2clz6h,",
+    "okexchain1gs90zkfql6jzj3zer06d3zmsdj0fuxx83qtuyf,",
+    "okexchain1en33je7g67t0eh2yswyzcrwjjsfwdpa9uhedjn,",
+    "okexchain16xqmjn3z36ues8hmhtvnrve9gm3gp760rgceqw,",
+    "okexchain1fvrt05h0chp37lkyy6zq4mayd6mflaahgk6333,",
+    "okexchain19eyu8zxlhuwy9rjsz8c36m4luu0dlaryz2cv4u,",
+    "okexchain134qfmgn0p5dpffxq57zdycaepl2mtpjdmcexq9,",
+    "okexchain1e0mr4vfjhxz30z6nx97nsd3z0a69vld0us6lv0,"
+]

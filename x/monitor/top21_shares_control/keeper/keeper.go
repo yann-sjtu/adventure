@@ -141,6 +141,10 @@ func (k *Keeper) parseConfig(config *types.Config) error {
 		log.Panicf("different length with targetValAddrs and targetValsFilter\n")
 	}
 
+	// init worker schedule
+	// worker 811-819, one
+
+
 	return nil
 }
 
