@@ -8,75 +8,34 @@ import (
 	mntcmn "github.com/okex/adventure/x/monitor/common"
 	"github.com/okex/adventure/x/monitor/final_top_21_control/types"
 	"log"
+	"sort"
 	"strconv"
 	"strings"
 )
 
 type Keeper struct {
-	cliManager       *common.ClientManager
-	targetValAddrs   []string
-	targetValsFilter map[string]struct{}
-	workers          []mntcmn.Worker
-	dominationPct    sdk.Dec
-	data             types.Data
+	cliManager     *common.ClientManager
+	targetValAddrs []string
+	workers        []mntcmn.Worker
+	dominationPct  sdk.Dec
+	data           types.Data
 }
 
 func NewKeeper() Keeper {
-	return Keeper{
-		targetValsFilter: make(map[string]struct{}),
-	}
+	return Keeper{}
 }
 
-//func (k *Keeper) InitRound() error {
-//	vals, err := k.cliManager.GetClient().Staking().QueryValidators()
-//	if err != nil {
-//		return err
-//	}
-//
-//	k.data.Vals = vals
-//	// sorts vals
-//	sort.Sort(k.data.Vals)
-//
-//	enemyFilter, oursFilter := utils.BuildFilter(k.enemyValAddrs), utils.BuildFilter(k.targetValAddrs)
-//	k.data.EnemyTotalShares, k.data.OurTotalShares = sdk.ZeroDec(), sdk.ZeroDec()
-//	k.data.Top21SharesMap = make(map[string]sdk.Dec)
-//	k.data.TargetValSharesMap = make(map[string]sdk.Dec)
-//	var enemyCounter, oursCounter int
-//	for i, val := range k.data.Vals {
-//		valAddrStr := val.OperatorAddress.String()
-//		// check whether target val
-//		if _, ok := k.targetValsFilter[valAddrStr]; ok {
-//			k.data.TargetValSharesMap[valAddrStr] = val.DelegatorShares
-//		}
-//
-//		// top 21 vals
-//		if i < 21 {
-//			k.data.Top21SharesMap[valAddrStr] = val.DelegatorShares
-//			if _, ok := oursFilter[valAddrStr]; ok {
-//				k.data.OurTotalShares = k.data.OurTotalShares.Add(val.DelegatorShares)
-//				oursCounter++
-//				continue
-//			}
-//
-//			if _, ok := enemyFilter[valAddrStr]; ok {
-//				if enemyCounter == 0 {
-//					k.data.EnemyLowestShares = val.DelegatorShares
-//				} else if val.DelegatorShares.LT(k.data.EnemyLowestShares) {
-//					k.data.EnemyLowestShares = val.DelegatorShares
-//				}
-//
-//				k.data.EnemyTotalShares = k.data.EnemyTotalShares.Add(val.DelegatorShares)
-//				enemyCounter++
-//			}
-//		}
-//	}
-//
-//	if enemyCounter+oursCounter != 21 {
-//		log.Println("Warning! the sum of enemies and ours is not 21.")
-//	}
-//
-//	return nil
-//}
+func (k *Keeper) InitRound() error {
+	vals, err := k.cliManager.GetClient().Staking().QueryValidators()
+	if err != nil {
+		return err
+	}
+
+	k.data.Vals = vals
+	// sorts vals
+	sort.Sort(k.data.Vals)
+	return nil
+}
 
 func (k *Keeper) Init(configFilePath string) (err error) {
 	// cli
@@ -106,10 +65,6 @@ func (k *Keeper) parseConfig(config *types.Config) error {
 
 	// val addr
 	k.targetValAddrs = config.TargetValAddrs
-	for _, valAddrStr := range k.targetValAddrs {
-		// add to filter
-		k.targetValsFilter[valAddrStr] = struct{}{}
-	}
 
 	// worker info
 	for _, workerInfoStr := range config.WorkersAccInfo {
@@ -132,12 +87,13 @@ func (k *Keeper) parseConfig(config *types.Config) error {
 	}
 
 	// sanity check
-	if len(k.targetValAddrs) != len(k.targetValsFilter) {
-		log.Panicf("different length with targetValAddrs and targetValsFilter\n")
+	if len(k.targetValAddrs) != 21 {
+		log.Panicf("length of targetValAddrs is not 21\n")
 	}
 
 	return nil
 }
+
 //
 //// get targetAddrs with enemyAddrs filtered in bonded vals
 //// addrType:   1-accAddr, 2-valAddr
