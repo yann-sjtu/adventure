@@ -29,7 +29,7 @@ func NewMsgDeposit(accNum, seqNum uint64, amount sdk.SysCoin, accAddr sdk.AccAdd
 		Sequence:      seqNum,
 		Memo:          "",
 		Msgs:          []sdk.Msg{msg},
-		Fee:           authtypes.NewStdFee(200000, sdk.NewDecCoinsFromDec(common.NativeToken, sdk.NewDecWithPrec(2, 3))),
+		Fee:           authtypes.NewStdFee(1100000, sdk.NewDecCoinsFromDec(common.NativeToken, sdk.NewDecWithPrec(11, 3))),
 	}
 
 	return signMsg

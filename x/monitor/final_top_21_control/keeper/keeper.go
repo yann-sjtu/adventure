@@ -101,15 +101,16 @@ func (k *Keeper) parseConfig(config *types.Config) error {
 func (k *Keeper) PickEfficientWorker(tokenToDeposit sdk.SysCoin) (worker mntcmn.Worker, err error) {
 	cli := k.cliManager.GetClient()
 	for _, w := range k.workers {
-		accInfo, err := cli.Auth().QueryAccount(w.GetAccAddr().String())
+		workerAddr := w.GetAccAddr().String()
+		accInfo, err := cli.Auth().QueryAccount(workerAddr)
 		if err != nil {
-			return worker, err
+			return worker, fmt.Errorf("worker [%s] query account failed: %s", workerAddr, err.Error())
 		}
 
 		balance := accInfo.GetCoins().AmountOf(common.NativeToken)
 		if balance.Sub(constant.ReservedFee).GTE(tokenToDeposit.Amount) {
-			log.Printf("worker [%s] will deposit [%s] for all target validators\n", w.GetAccAddr().String(), tokenToDeposit.String())
-			return worker, nil
+			log.Printf("worker [%s] will deposit [%s] for all target validators\n", workerAddr, tokenToDeposit.String())
+			return w, nil
 		}
 		time.Sleep(time.Second * 3)
 	}
@@ -142,9 +143,10 @@ func (k *Keeper) CatchTheIntruders() []string {
 }
 
 func (k *Keeper) SendMsgs(worker mntcmn.Worker, coin sdk.DecCoin) error {
-	accInfo, err := k.cliManager.GetClient().Auth().QueryAccount(worker.GetAccAddr().String())
+	workerAddr := worker.GetAccAddr().String()
+	accInfo, err := k.cliManager.GetClient().Auth().QueryAccount(workerAddr)
 	if err != nil {
-		return err
+		return fmt.Errorf("worker [%s] query account failed: %s", workerAddr, err.Error())
 	}
 
 	signMsg := mntcmn.NewMsgDeposit(accInfo.GetAccountNumber(), accInfo.GetSequence(), coin, worker.GetAccAddr())
@@ -152,6 +154,7 @@ func (k *Keeper) SendMsgs(worker mntcmn.Worker, coin sdk.DecCoin) error {
 	if err != nil {
 		return err
 	}
+	fmt.Printf("worker %s has informed to depoist %s successfully!\n", workerAddr, coin.String())
 	time.Sleep(constant.IntervalAfterTxBroadcast)
 	return nil
 }
