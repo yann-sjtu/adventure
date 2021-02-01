@@ -16,16 +16,19 @@ import (
 )
 
 type Keeper struct {
-	cliManager       *common.ClientManager
-	ourValAddrs      []string
-	ourTop18ValAddrs []string
-	workers          []mntcmn.Worker
-	plunderedPct     sdk.Dec
-	data             types.Data
+	cliManager        *common.ClientManager
+	ourValAddrs       []string
+	ourValAddrsFilter map[string]struct{}
+	ourTop18ValAddrs  []string
+	workers           []mntcmn.Worker
+	plunderedPct      sdk.Dec
+	data              types.Data
 }
 
 func NewKeeper() Keeper {
-	return Keeper{}
+	return Keeper{
+		ourValAddrsFilter: make(map[string]struct{}),
+	}
 }
 
 func (k *Keeper) InitRound() error {
@@ -37,6 +40,16 @@ func (k *Keeper) InitRound() error {
 	k.data.Vals = vals
 	// sorts vals
 	sort.Sort(k.data.Vals)
+
+	// sum total shares of all our validators/ global validators' total shares
+	k.data.OurTotalShares, k.data.AllValsTotalShares = sdk.ZeroDec(), sdk.ZeroDec()
+	for _, val := range k.data.Vals {
+		k.data.AllValsTotalShares = k.data.AllValsTotalShares.Add(val.DelegatorShares)
+		if _, ok := k.ourValAddrsFilter[val.OperatorAddress.String()]; ok {
+			k.data.OurTotalShares = k.data.OurTotalShares.Add(val.DelegatorShares)
+		}
+	}
+
 	return nil
 }
 
@@ -73,8 +86,10 @@ func (k *Keeper) parseConfig(config *types.Config) error {
 		if err != nil {
 			return err
 		}
-
-		k.ourValAddrs = append(k.ourValAddrs, sdk.ValAddress(accAddr).String())
+		valAddrStr := sdk.ValAddress(accAddr).String()
+		k.ourValAddrs = append(k.ourValAddrs, valAddrStr)
+		// add filter
+		k.ourValAddrsFilter[valAddrStr] = struct{}{}
 	}
 
 	// worker info

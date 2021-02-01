@@ -1,8 +1,12 @@
 package reward_plunderer
 
 import (
+	"fmt"
+	"github.com/okex/adventure/x/monitor/reward_plunderer/constant"
 	"github.com/okex/adventure/x/monitor/reward_plunderer/keeper"
 	"github.com/spf13/cobra"
+	"log"
+	"time"
 )
 
 const (
@@ -35,5 +39,24 @@ func runRewardPlundererCmd(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	return nil
+	var round int
+	for {
+		time.Sleep(constant.RoundInterval)
+		round++
+		fmt.Printf("============================== Round %d ==============================\n", round)
+		// 0.round init
+		err := kp.InitRound()
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		// 1. check warning of current plundered pct
+		if !kp.CheckPlunderedPctWarning() {
+			log.Println("all rewards are under control")
+			continue
+		}
+
+		// 2.
+	}
 }

@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	RoundInterval            = 1 * time.Minute
+	RoundInterval            = 1 * time.Second
 	IntervalAfterTxBroadcast = 2 * time.Minute
 )
 
