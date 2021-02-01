@@ -57,6 +57,6 @@ func runRewardPlundererCmd(cmd *cobra.Command, args []string) error {
 			continue
 		}
 
-		// 2.
+		// 2. pick
 	}
 }
