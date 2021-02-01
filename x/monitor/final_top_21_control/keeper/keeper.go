@@ -107,6 +107,7 @@ func (k *Keeper) PickEfficientWorker(tokenToDeposit sdk.SysCoin) (worker mntcmn.
 
 		balance := accInfo.GetCoins().AmountOf(common.NativeToken)
 		if balance.Sub(constant.ReservedFee).GTE(tokenToDeposit.Amount) {
+			log.Printf("worker [%s] will deposit [%s] for all target validators\n", w.GetAccAddr().String(), tokenToDeposit.String())
 			return worker, nil
 		}
 	}
