@@ -6,6 +6,7 @@ import (
 	"github.com/okex/adventure/common"
 	"math"
 	"math/rand"
+	"time"
 )
 
 const (
@@ -56,6 +57,7 @@ func BuildFilter(addrs []string) map[string]struct{} {
 }
 
 func GenerateRandomTokensToDeposit(lowerLimit, upperLimit int) sdk.SysCoin {
+	rand.Seed(time.Now().UnixNano())
 	amount := rand.Intn(upperLimit-lowerLimit) + lowerLimit
 	return sdk.SysCoin{
 		Amount: sdk.NewDec(int64(amount)),

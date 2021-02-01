@@ -7,11 +7,13 @@ import (
 	"github.com/okex/adventure/x/monitor/final_top_21_control/utils"
 	"github.com/spf13/cobra"
 	"log"
+	"strings"
 	"time"
 )
 
 const (
 	flagTomlFilePath = "toml-path"
+	X_DUCK           = "okexchainvaloper1vsjcts3ga8dgf6nj2q7vmlrnu5en4cnedc8n76"
 )
 
 func FinalTop21SharesControlCmd() *cobra.Command {
@@ -59,6 +61,12 @@ func runFinalTop21SharesControlCmd(cmd *cobra.Command, args []string) error {
 			continue
 		}
 
+		// TODO: X-DUCK is allowed
+		if len(intruders) == 1 && strings.EqualFold(intruders[0], X_DUCK) {
+			log.Printf("intruder is X-DUCK [%s], skip that!\n", X_DUCK)
+			continue
+		}
+
 		// 2. generate tokens to deposit
 		tokenToDeposit := utils.GenerateRandomTokensToDeposit(500, 1000)
 
@@ -72,7 +80,6 @@ func runFinalTop21SharesControlCmd(cmd *cobra.Command, args []string) error {
 		// 4. send msg
 		if err := kp.SendMsgs(worker, tokenToDeposit); err != nil {
 			log.Println(err.Error())
-			continue
 		}
 	}
 }

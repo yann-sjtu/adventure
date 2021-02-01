@@ -6,15 +6,10 @@ import (
 )
 
 const (
-	RoundInterval            = 2 * time.Minute
+	RoundInterval            = 1 * time.Minute
 	IntervalAfterTxBroadcast = 2 * time.Minute
 )
 
 var (
-	RedundancySharesToPromote sdk.Dec
-	ReservedFee               = sdk.OneDec()
+	ReservedFee = sdk.OneDec()
 )
-
-func init() {
-	RedundancySharesToPromote, _ = sdk.NewDecFromStr("9876543210.123456789")
-}
