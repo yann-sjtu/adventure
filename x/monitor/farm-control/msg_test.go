@@ -2,6 +2,7 @@ package farm_control
 
 import (
 	"fmt"
+	"math"
 	"testing"
 	"time"
 
@@ -334,7 +335,7 @@ func TestTokenTransfer(t *testing.T) {
 		"okexchain1yw6qx8dudxpkeghdh7n8z300e4svxtzrk2qc6j",
 		"okexchain1rmpk5rmsyagakdxx7t8xny8eglu6lp5dvj8g4w",
 	}
-	for _,addr := range addrs {
+	for _, addr := range addrs {
 		cfg, err := gosdk.NewClientConfig("http://10.0.240.37:26657", "okexchain-66", gosdk.BroadcastBlock, "0.002okt", 200000, 0, "")
 		if err != nil {
 			panic(err)
@@ -346,7 +347,6 @@ func TestTokenTransfer(t *testing.T) {
 		}
 		fmt.Println(accInfo.GetCoins())
 	}
-
 
 	//index := 907
 	//addr := "okexchain1g82hlllygaf6rnnsaxqdl0xxmue2fwt2j9hdkf"
@@ -394,4 +394,26 @@ func newSendToken(accNum, seqNum uint64, from, to string, amount sdk.DecCoins) a
 	}
 
 	return signMsg
+}
+
+const (
+	// UTC Time: 2000/1/1 00:00:00
+	blockTimestampEpoch = int64(946684800)
+	secondsPerWeek      = int64(60 * 60 * 24 * 7)
+	weeksPerYear        = float64(52)
+)
+
+func TestCalShare(t *testing.T) {
+	totalDec, ourDec := sdk.MustNewDecFromStr("8132527269402"), sdk.MustNewDecFromStr("6686194179115")
+	shares := sdk.MustNewDecFromStr("0.9").Mul(totalDec).Sub(ourDec).Mul(sdk.MustNewDecFromStr("10.0"))
+	nowWeek := (time.Now().Unix() - blockTimestampEpoch) / secondsPerWeek
+	rate := float64(nowWeek) / weeksPerYear
+	weight := math.Pow(float64(2), rate)
+	precision := fmt.Sprintf("%d", sdk.Precision)
+
+	weightByDec, sdkErr := sdk.NewDecFromStr(fmt.Sprintf("%."+precision+"f", weight))
+	if sdkErr == nil {
+		token := shares.Quo(weightByDec)
+		fmt.Println(token)
+	}
 }

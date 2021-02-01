@@ -43,7 +43,7 @@ func replenishLockedToken(cli *gosdk.Client, index int, addr string) error {
 		}
 		log.Printf("[%d] %s send add-liquidity msg: %+v\n", index, addr, addLiquidityMsg.Msgs[0])
 		//fmt.Printf("%s is added in swap pool\n", toQuoteCoin)
-		defer time.Sleep(time.Hour * 5)
+		defer time.Sleep(time.Minute * 10)
 	}
 	time.Sleep(time.Duration(sleepTime) * time.Second)
 
