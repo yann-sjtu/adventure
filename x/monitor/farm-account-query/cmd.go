@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/adventure/common"
 	monitorcommon "github.com/okex/adventure/x/monitor/common"
 	"github.com/spf13/cobra"
@@ -28,7 +29,7 @@ var (
 
 func runFarmQueryCmd(cmd *cobra.Command, args []string) error {
 	accounts := monitorcommon.AddrsBook[startIndex/100]
-
+	totalCoins := sdk.DecCoins{}
 	clientManager := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
 	cli := clientManager.GetClient()
 	for _, acc := range accounts {
@@ -38,6 +39,8 @@ func runFarmQueryCmd(cmd *cobra.Command, args []string) error {
 			continue
 		}
 		fmt.Println(acc.Index, acc.Address, accInfo.GetCoins())
+		totalCoins = totalCoins.Add(accInfo.GetCoins()...)
 	}
+	fmt.Println("total coins:", totalCoins)
 	return nil
 }
