@@ -99,8 +99,9 @@ func (k *Keeper) parseConfig(config *types.Config) error {
 }
 
 func (k *Keeper) PickEfficientWorker(tokenToDeposit sdk.SysCoin) (worker mntcmn.Worker, err error) {
+	cli := k.cliManager.GetClient()
 	for _, w := range k.workers {
-		accInfo, err := k.cliManager.GetClient().Auth().QueryAccount(w.GetAccAddr().String())
+		accInfo, err := cli.Auth().QueryAccount(w.GetAccAddr().String())
 		if err != nil {
 			return worker, err
 		}
@@ -110,6 +111,7 @@ func (k *Keeper) PickEfficientWorker(tokenToDeposit sdk.SysCoin) (worker mntcmn.
 			log.Printf("worker [%s] will deposit [%s] for all target validators\n", w.GetAccAddr().String(), tokenToDeposit.String())
 			return worker, nil
 		}
+		time.Sleep(time.Second * 3)
 	}
 
 	err = errors.New("no efficient worker already")
