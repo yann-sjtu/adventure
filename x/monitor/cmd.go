@@ -6,6 +6,7 @@ import (
 	"github.com/okex/adventure/x/monitor/farm-control"
 	farm_ratio_query "github.com/okex/adventure/x/monitor/farm-ratio-query"
 	farmrmliquidity "github.com/okex/adventure/x/monitor/farm-rm-liquidity"
+	farm_statistics_reward "github.com/okex/adventure/x/monitor/farm-statistics-reward"
 	farm_unlock "github.com/okex/adventure/x/monitor/farm-unlock"
 	final_top_21 "github.com/okex/adventure/x/monitor/final_top_21_control"
 	"github.com/okex/adventure/x/monitor/reward_plunderer"
@@ -33,6 +34,7 @@ func MonitorCmd() *cobra.Command {
 		farm_query.FarmQueryCmd(),
 		farm_ratio_query.FarmRatioQueryCmd(),
 		tools.ToolsCmd(),
+		farm_statistics_reward.FarmRewardQueryCmd(),
 	)
 
 	return monitorCmd

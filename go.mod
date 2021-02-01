@@ -10,7 +10,7 @@ require (
 	github.com/ethereum/go-ethereum v1.9.25
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/okex/okexchain v0.16.0
-	github.com/okex/okexchain-go-sdk v0.16.0
+	github.com/okex/okexchain-go-sdk v0.16.1-0.20210201124342-565f7da202fa
 	github.com/spf13/cobra v1.1.1
 	github.com/tendermint/tendermint v0.33.9
 	go.uber.org/zap v1.15.0
