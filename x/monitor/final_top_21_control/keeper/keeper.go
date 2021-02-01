@@ -149,7 +149,7 @@ func (k *Keeper) SendMsgs(worker mntcmn.Worker, coin sdk.DecCoin) error {
 		return fmt.Errorf("worker [%s] query account failed: %s", workerAddr, err.Error())
 	}
 
-	signMsg := mntcmn.NewMsgDeposit(accInfo.GetAccountNumber(), accInfo.GetSequence(), coin, worker.GetAccAddr())
+	signMsg := mntcmn.NewMsgDeposit(accInfo.GetAccountNumber(), accInfo.GetSequence(), coin, worker.GetAccAddr(),1100000)
 	err = mntcmn.SendMsg(mntcmn.Staking, signMsg, worker.GetIndex())
 	if err != nil {
 		return err

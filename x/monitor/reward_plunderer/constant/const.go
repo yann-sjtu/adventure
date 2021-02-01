@@ -6,8 +6,9 @@ import (
 )
 
 const (
-	RoundInterval            = 1 * time.Second
-	IntervalAfterTxBroadcast = 2 * time.Minute
+	RoundInterval            = 30 * time.Second
+	IntervalAfterTxBroadcast = 1 * time.Minute
+	QueryInverval            = 1 * time.Second
 )
 
 var (

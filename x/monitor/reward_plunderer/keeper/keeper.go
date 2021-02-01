@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"errors"
 	"fmt"
 	"github.com/BurntSushi/toml"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -19,7 +20,7 @@ type Keeper struct {
 	cliManager        *common.ClientManager
 	ourValAddrs       []string
 	ourValAddrsFilter map[string]struct{}
-	ourTop18ValAddrs  []string
+	ourTop18ValAddrs  []sdk.ValAddress
 	workers           []mntcmn.Worker
 	plunderedPct      sdk.Dec
 	data              types.Data
@@ -79,7 +80,16 @@ func (k *Keeper) parseConfig(config *types.Config) error {
 	}
 	k.plunderedPct = percentToPlunder
 
-	k.ourTop18ValAddrs = config.OurTop18Addrs
+	// parse top 18 val addrs
+	for _, valAddrStr := range config.OurTop18Addrs {
+		valAddr, err := sdk.ValAddressFromBech32(valAddrStr)
+		if err != nil {
+			return err
+		}
+
+		k.ourTop18ValAddrs = append(k.ourTop18ValAddrs, valAddr)
+	}
+
 	// our val addr
 	for _, accAddrStr := range config.OurValAddrs {
 		accAddr, err := sdk.AccAddressFromBech32(accAddrStr)
@@ -124,19 +134,35 @@ func (k *Keeper) parseConfig(config *types.Config) error {
 	return nil
 }
 
-func (k *Keeper) SendMsgs(worker mntcmn.Worker, coin sdk.DecCoin) error {
-	workerAddr := worker.GetAccAddr().String()
-	accInfo, err := k.cliManager.GetClient().Auth().QueryAccount(workerAddr)
-	if err != nil {
-		return fmt.Errorf("worker [%s] query account failed: %s", workerAddr, err.Error())
+func (k *Keeper) PickEfficientWorker(tokenToDeposit sdk.SysCoin) (worker mntcmn.Worker, err error) {
+	cli := k.cliManager.GetClient()
+	for _, w := range k.workers {
+		workerAddr := w.GetAccAddr().String()
+		accInfo, err := cli.Auth().QueryAccount(workerAddr)
+		if err != nil {
+			return worker, fmt.Errorf("worker [%s] query account failed: %s", workerAddr, err.Error())
+		}
+
+		balance := accInfo.GetCoins().AmountOf(common.NativeToken)
+		if balance.Sub(constant.ReservedFee).GTE(tokenToDeposit.Amount) {
+			log.Printf("worker [%s] will deposit [%s] for our top 18 validators\n", workerAddr, tokenToDeposit.String())
+			return w, nil
+		}
+		time.Sleep(constant.QueryInverval)
 	}
 
-	signMsg := mntcmn.NewMsgDeposit(accInfo.GetAccountNumber(), accInfo.GetSequence(), coin, worker.GetAccAddr())
-	err = mntcmn.SendMsg(mntcmn.Staking, signMsg, worker.GetIndex())
-	if err != nil {
-		return err
-	}
-	fmt.Printf("worker %s has informed to depoist %s successfully!\n", workerAddr, coin.String())
-	time.Sleep(constant.IntervalAfterTxBroadcast)
-	return nil
+	err = errors.New("no efficient worker already")
+	return
+}
+
+func (k *Keeper) GetOurTop18ValAddrs() []sdk.ValAddress {
+	return k.ourTop18ValAddrs
+}
+
+func (k *Keeper) GetWorkers() []mntcmn.Worker {
+	return k.workers
+}
+
+func (k *Keeper) GetCliManager() *common.ClientManager {
+	return k.cliManager
 }

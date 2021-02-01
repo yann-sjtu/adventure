@@ -2,6 +2,7 @@ package reward_plunderer
 
 import (
 	"fmt"
+	"github.com/okex/adventure/x/monitor/final_top_21_control/utils"
 	"github.com/okex/adventure/x/monitor/reward_plunderer/constant"
 	"github.com/okex/adventure/x/monitor/reward_plunderer/keeper"
 	"github.com/spf13/cobra"
@@ -57,6 +58,19 @@ func runRewardPlundererCmd(cmd *cobra.Command, args []string) error {
 			continue
 		}
 
-		// 2. pick
+		// 2. generate tokens to deposit
+		tokenToDeposit := utils.GenerateRandomTokensToDeposit(1, 1000)
+
+		// 3. pick a worker that has enough balance for tokenToDeposit
+		worker, err := kp.PickEfficientWorker(tokenToDeposit)
+		if err != nil {
+			log.Println(err.Error())
+			continue
+		}
+
+		// 4. send msg
+		if err := kp.InfoToDeposit(worker, tokenToDeposit); err != nil {
+			log.Println(err.Error())
+		}
 	}
 }

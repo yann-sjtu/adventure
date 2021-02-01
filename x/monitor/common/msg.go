@@ -7,7 +7,13 @@ import (
 	stakingtypes "github.com/okex/okexchain/x/staking/types"
 )
 
-func NewMsgAddShares(accNum uint64, seqNum uint64, valAddrs []sdk.ValAddress, accAddr sdk.AccAddress) authtypes.StdSignMsg {
+var gasPrice sdk.Dec
+
+func init() {
+	gasPrice = sdk.NewDecWithPrec(1, 9)
+}
+
+func NewMsgAddShares(accNum uint64, seqNum uint64, valAddrs []sdk.ValAddress, accAddr sdk.AccAddress, gas uint64) authtypes.StdSignMsg {
 	msg := stakingtypes.NewMsgAddShares(accAddr, valAddrs)
 	signMsg := authtypes.StdSignMsg{
 		ChainID:       "okexchain-66",
@@ -15,13 +21,13 @@ func NewMsgAddShares(accNum uint64, seqNum uint64, valAddrs []sdk.ValAddress, ac
 		Sequence:      seqNum,
 		Memo:          "",
 		Msgs:          []sdk.Msg{msg},
-		Fee:           authtypes.NewStdFee(500000, sdk.NewDecCoinsFromDec(common.NativeToken, sdk.NewDecWithPrec(5, 3))),
+		Fee:           authtypes.NewStdFee(gas, sdk.NewDecCoinsFromDec(common.NativeToken, gasPrice.MulInt64(int64(gas)))),
 	}
 
 	return signMsg
 }
 
-func NewMsgDeposit(accNum, seqNum uint64, amount sdk.SysCoin, accAddr sdk.AccAddress) authtypes.StdSignMsg {
+func NewMsgDeposit(accNum, seqNum uint64, amount sdk.SysCoin, accAddr sdk.AccAddress, gas uint64) authtypes.StdSignMsg {
 	msg := stakingtypes.NewMsgDeposit(accAddr, amount)
 	signMsg := authtypes.StdSignMsg{
 		ChainID:       "okexchain-66",
@@ -29,7 +35,7 @@ func NewMsgDeposit(accNum, seqNum uint64, amount sdk.SysCoin, accAddr sdk.AccAdd
 		Sequence:      seqNum,
 		Memo:          "",
 		Msgs:          []sdk.Msg{msg},
-		Fee:           authtypes.NewStdFee(1100000, sdk.NewDecCoinsFromDec(common.NativeToken, sdk.NewDecWithPrec(11, 3))),
+		Fee:           authtypes.NewStdFee(gas, sdk.NewDecCoinsFromDec(common.NativeToken, gasPrice.MulInt64(int64(gas)))),
 	}
 
 	return signMsg

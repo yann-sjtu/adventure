@@ -14,7 +14,7 @@ func (k *Keeper) deposit(worker mntcmn.Worker, amount sdk.SysCoin) error {
 		return err
 	}
 
-	msg := mntcmn.NewMsgDeposit(accInfo.GetAccountNumber(), accInfo.GetSequence(), amount, worker.GetAccAddr())
+	msg := mntcmn.NewMsgDeposit(accInfo.GetAccountNumber(), accInfo.GetSequence(), amount, worker.GetAccAddr(),1050000)
 	if err := mntcmn.SendMsg(mntcmn.Staking, msg, worker.GetIndex()); err != nil {
 		return err
 	}
@@ -40,7 +40,7 @@ func (k *Keeper) addShares(worker mntcmn.Worker, targetValAddrsStr []string) err
 		return err
 	}
 
-	msg := mntcmn.NewMsgAddShares(accInfo.GetAccountNumber(), accInfo.GetSequence(), valAddrs, worker.GetAccAddr())
+	msg := mntcmn.NewMsgAddShares(accInfo.GetAccountNumber(), accInfo.GetSequence(), valAddrs, worker.GetAccAddr(),1000000)
 	if err := mntcmn.SendMsg(mntcmn.Staking, msg, worker.GetIndex()); err != nil {
 		return err
 	}
