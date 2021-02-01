@@ -5,11 +5,21 @@ import "fmt"
 func (k *Keeper) logInit() {
 	fmt.Printf(`
 ============================================================
-               %d target validators    	
+               our %d validators    	
 ============================================================
 
-`, len(k.targetValAddrs))
-	for i, valAddrStr := range k.targetValAddrs {
+`, len(k.ourValAddrs))
+	for i, valAddrStr := range k.ourValAddrs {
+		fmt.Println(i, valAddrStr)
+	}
+
+	fmt.Printf(`
+============================================================
+               our top %d validators    	
+============================================================
+
+`, len(k.ourTop18ValAddrs))
+	for i, valAddrStr := range k.ourTop18ValAddrs {
 		fmt.Println(i, valAddrStr)
 	}
 
@@ -28,8 +38,8 @@ func (k *Keeper) logInit() {
                      expected parameters   			      
 ============================================================
 
-percentage to dominate:
+percentage to plunder:
            %s
-`, k.dominationPct.String(),
+`, k.plunderedPct.String(),
 	)
 }

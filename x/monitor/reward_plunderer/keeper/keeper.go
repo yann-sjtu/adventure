@@ -1,14 +1,13 @@
 package keeper
 
 import (
-	"errors"
 	"fmt"
 	"github.com/BurntSushi/toml"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/adventure/common"
 	mntcmn "github.com/okex/adventure/x/monitor/common"
-	"github.com/okex/adventure/x/monitor/final_top_21_control/constant"
-	"github.com/okex/adventure/x/monitor/final_top_21_control/types"
+	"github.com/okex/adventure/x/monitor/reward_plunderer/constant"
+	"github.com/okex/adventure/x/monitor/reward_plunderer/types"
 	"log"
 	"sort"
 	"strconv"
@@ -17,11 +16,12 @@ import (
 )
 
 type Keeper struct {
-	cliManager     *common.ClientManager
-	targetValAddrs []string
-	workers        []mntcmn.Worker
-	dominationPct  sdk.Dec
-	data           types.Data
+	cliManager       *common.ClientManager
+	ourValAddrs      []string
+	ourTop18ValAddrs []string
+	workers          []mntcmn.Worker
+	plunderedPct     sdk.Dec
+	data             types.Data
 }
 
 func NewKeeper() Keeper {
@@ -60,14 +60,22 @@ func (k *Keeper) Init(configFilePath string) (err error) {
 
 func (k *Keeper) parseConfig(config *types.Config) error {
 	// decimal
-	percentToDominate, err := sdk.NewDecFromStr(config.PercentToDominate)
+	percentToPlunder, err := sdk.NewDecFromStr(config.PercentToPlunder)
 	if err != nil {
 		return err
 	}
-	k.dominationPct = percentToDominate
+	k.plunderedPct = percentToPlunder
 
-	// val addr
-	k.targetValAddrs = config.TargetValAddrs
+	k.ourTop18ValAddrs = config.OurTop18Addrs
+	// our val addr
+	for _, accAddrStr := range config.OurValAddrs {
+		accAddr, err := sdk.AccAddressFromBech32(accAddrStr)
+		if err != nil {
+			return err
+		}
+
+		k.ourValAddrs = append(k.ourValAddrs, sdk.ValAddress(accAddr).String())
+	}
 
 	// worker info
 	for _, workerInfoStr := range config.WorkersAccInfo {
@@ -90,55 +98,15 @@ func (k *Keeper) parseConfig(config *types.Config) error {
 	}
 
 	// sanity check
-	if len(k.targetValAddrs) != 21 {
-		log.Panicf("length of targetValAddrs is not 21\n")
+	if len(k.ourValAddrs) != 31 {
+		log.Panicf("length of ourValAddrs is not 31\n")
+	}
+
+	if len(k.ourTop18ValAddrs) != 18 {
+		log.Panicf("length of ourTop18ValAddrs is not 18\n")
 	}
 
 	return nil
-}
-
-func (k *Keeper) PickEfficientWorker(tokenToDeposit sdk.SysCoin) (worker mntcmn.Worker, err error) {
-	cli := k.cliManager.GetClient()
-	for _, w := range k.workers {
-		workerAddr := w.GetAccAddr().String()
-		accInfo, err := cli.Auth().QueryAccount(workerAddr)
-		if err != nil {
-			return worker, fmt.Errorf("worker [%s] query account failed: %s", workerAddr, err.Error())
-		}
-
-		balance := accInfo.GetCoins().AmountOf(common.NativeToken)
-		if balance.Sub(constant.ReservedFee).GTE(tokenToDeposit.Amount) {
-			log.Printf("worker [%s] will deposit [%s] for all target validators\n", workerAddr, tokenToDeposit.String())
-			return w, nil
-		}
-		time.Sleep(time.Second * 3)
-	}
-
-	err = errors.New("no efficient worker already")
-	return
-}
-
-func (k *Keeper) CatchTheIntruders() []string {
-	// build top21Filter
-	top21Filter := make(map[string]struct{})
-	for i := 0; i < 21; i++ {
-		top21Filter[k.data.Vals[i].OperatorAddress.String()] = struct{}{}
-	}
-
-	for _, tarValAddrStr := range k.targetValAddrs {
-		delete(top21Filter, tarValAddrStr)
-	}
-
-	var intruders []string
-	for k := range top21Filter {
-		intruders = append(intruders, k)
-	}
-
-	if len(intruders) != 0 {
-		log.Printf("WARNING! instruders %s are found\n", intruders)
-	}
-
-	return intruders
 }
 
 func (k *Keeper) SendMsgs(worker mntcmn.Worker, coin sdk.DecCoin) error {
