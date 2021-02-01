@@ -99,9 +99,8 @@ func (k *Keeper) parseConfig(config *types.Config) error {
 }
 
 func (k *Keeper) PickEfficientWorker(tokenToDeposit sdk.SysCoin) (worker mntcmn.Worker, err error) {
+	cli := k.cliManager.GetClient()
 	for _, w := range k.workers {
-		cli := k.cliManager.GetClient()
-		fmt.Println(&cli, w.GetAccAddr().String())
 		accInfo, err := cli.Auth().QueryAccount(w.GetAccAddr().String())
 		if err != nil {
 			return worker, err
@@ -109,6 +108,7 @@ func (k *Keeper) PickEfficientWorker(tokenToDeposit sdk.SysCoin) (worker mntcmn.
 
 		balance := accInfo.GetCoins().AmountOf(common.NativeToken)
 		if balance.Sub(constant.ReservedFee).GTE(tokenToDeposit.Amount) {
+			log.Printf("worker [%s] will deposit [%s] for all target validators\n", w.GetAccAddr().String(), tokenToDeposit.String())
 			return worker, nil
 		}
 		time.Sleep(time.Second * 3)
