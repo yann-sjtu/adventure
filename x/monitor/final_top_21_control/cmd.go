@@ -7,11 +7,13 @@ import (
 	"github.com/okex/adventure/x/monitor/final_top_21_control/utils"
 	"github.com/spf13/cobra"
 	"log"
+	"strings"
 	"time"
 )
 
 const (
 	flagTomlFilePath = "toml-path"
+	X_DUCK           = "okexchainvaloper1vsjcts3ga8dgf6nj2q7vmlrnu5en4cnedc8n76"
 )
 
 func FinalTop21SharesControlCmd() *cobra.Command {
@@ -56,6 +58,12 @@ func runFinalTop21SharesControlCmd(cmd *cobra.Command, args []string) error {
 		intruders := kp.CatchTheIntruders()
 		if len(intruders) == 0 {
 			log.Println("no intruders and everything goes well")
+			continue
+		}
+
+		// TODO: X-DUCK is allowed
+		if len(intruders) == 1 && strings.EqualFold(intruders[0], X_DUCK) {
+			log.Printf("intruder is X-DUCK [%s], skip that!\n", X_DUCK)
 			continue
 		}
 
