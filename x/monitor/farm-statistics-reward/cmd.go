@@ -47,7 +47,7 @@ func runFarmRatioQueryCmd(cmd *cobra.Command, args []string) error {
 			return err
 		}
 		rewards = rewards.Add(reward.AmountYielded...)
-		fmt.Printf("[%d] %s get reward %s", acc.Index, acc.Address, reward.AmountYielded)
+		fmt.Printf("[%d] %s get reward %s\n", acc.Index, acc.Address, reward.AmountYielded)
 	}
 	fmt.Println(rewards)
 	return nil
