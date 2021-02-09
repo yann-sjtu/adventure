@@ -18,8 +18,6 @@ import (
 )
 
 func deployErc20Cmd() *cobra.Command {
-	InitTemplate()
-
 	cmd := &cobra.Command{
 		Use:   "deploy-erc20-tokens",
 		Short: "arbitrage token from swap and orderdepthbook",
@@ -133,10 +131,4 @@ func getTmpClient() gosdk.Client {
 	cfg, _ := types.NewClientConfig("http://localhost:26657", common.Cfg.ChainId, types.BroadcastBlock, "", 20000000, 1.5, "0.00000001"+common.NativeToken)
 	cli := gosdk.NewClient(cfg)
 	return cli
-}
-
-func InitTemplate() {
-	UniswapV2.Init()
-	ERC721.Init()
-	USDT.Init()
 }
