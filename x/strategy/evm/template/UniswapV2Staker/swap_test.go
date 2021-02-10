@@ -5,6 +5,7 @@ import (
 	"log"
 	"math/big"
 	"testing"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ethcommon "github.com/ethereum/go-ethereum/common"
@@ -25,7 +26,7 @@ func TestBuilder(t *testing.T) {
 	UniswapV2.Init()
 	Init()
 	clients := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
-	info, _, err := utils.CreateAccountWithMnemo("nose lend select ball vocal box speed custom energy caution order hole", fmt.Sprintf("acc%d", 1), "12345678")
+	info, _, err := utils.CreateAccountWithMnemo("antenna clown reveal muffin swap extra tired believe bird protect mesh ring", fmt.Sprintf("acc%d", 1), "12345678")
 	if err != nil {
 		panic(err)
 	}
@@ -38,25 +39,39 @@ func TestBuilder(t *testing.T) {
 	}
 	accNum, seqNum := acc.GetAccountNumber(), acc.GetSequence()
 
-	//toEthAddress := utils.EthAddress(utils.GetEthAddressStrFromCosmosAddr(info.GetAddress()))
-	//payload, err := UniswapV2.RouterBuilder.Build("addLiquidityETH",
-	//	utils.EthAddress("0xffea71957a3101d14474a3c358ede310e17c2409"),
-	//	big.NewInt(6472400000000000000), big.NewInt(40000000000000000),
-	//	big.NewInt(900000000000000000),
-	//	utils.EthAddress(toEthAddress.String()), big.NewInt(1613002360),
-	//)
-	//payload := UniswapV2.BuildRemoveLiquidOKTPayload("0xffea71957a3101d14474a3c358ede310e17c2409", toEthAddress.String(),
-	//	10000,20000,4800,1613002360)
-	//payload := UniswapV2.BuildApprovePayload(oktUsdtPool,1000000000000000000)
-	payload := BuildStakePayload(1000000000000000000)
-	//payload := BuildWithdrawPayload(1000000000000000000)
-	//payload := BuildGetRewardPayload()
-	//payload := BuildExitPayload()
-	res, err := cli.Evm().SendTx(info, common.PassWord, oktUsdtPool, "", ethcommon.Bytes2Hex(payload), "", accNum, seqNum)
+	//payload, err := UniswapV2.PairBuilder.Build("approve", utils.EthAddress(routerAddr), sdk.NewDec(10000).Int)
+	//if err != nil {
+	//	panic(err)
+	//}
+	//res, err := cli.Evm().SendTx(info, common.PassWord, usdtAddr, "", ethcommon.Bytes2Hex(payload), "", accNum, seqNum)
+	//if err != nil {
+	//	panic(err)
+	//}
+	//log.Println(res.TxHash)
+
+	payload := UniswapV2.BuildAddLiquidOKTPayload(
+		usdtAddr, utils.GetEthAddressStrFromCosmosAddr(info.GetAddress()),
+		6000000000000000000,1,1,
+		int(time.Now().Add(time.Hour*24).Unix()),
+	)
+	res, err := cli.Evm().SendTx(info, common.PassWord, routerAddr, "1", ethcommon.Bytes2Hex(payload), "", accNum, seqNum)
 	if err != nil {
 		panic(err)
 	}
 	log.Println(res.TxHash)
+
+	//payload := UniswapV2.BuildRemoveLiquidOKTPayload("0xffea71957a3101d14474a3c358ede310e17c2409", toEthAddress.String(),
+	//	10000,20000,4800,1613002360)
+	//payload := UniswapV2.BuildApprovePayload(oktUsdtPool,1000000000000000000)
+	//payload := BuildStakePayload(1000000000000000000)
+	//payload := BuildWithdrawPayload(1000000000000000000)
+	//payload := BuildGetRewardPayload()
+	//payload := BuildExitPayload()
+	//res, err := cli.Evm().SendTx(info, common.PassWord, oktUsdtPool, "", ethcommon.Bytes2Hex(payload), "", accNum, seqNum)
+	//if err != nil {
+	//	panic(err)
+	//}
+	//log.Println(res.TxHash)
 }
 
 func Uint256(d sdk.Dec) *big.Int {

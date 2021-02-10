@@ -1,4 +1,4 @@
-package evm
+package deploy_contracts
 
 import (
 	"log"

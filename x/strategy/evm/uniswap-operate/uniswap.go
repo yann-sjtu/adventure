@@ -1,4 +1,4 @@
-package evm
+package uniswap_operate
 
 import (
 	"log"
@@ -7,14 +7,13 @@ import (
 
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/okex/adventure/common"
+	"github.com/okex/adventure/x/strategy/evm/deploy-contracts"
 	"github.com/okex/adventure/x/strategy/evm/template/UniswapV2"
 	"github.com/okex/okexchain-go-sdk/utils"
 	"github.com/spf13/cobra"
 )
 
-func uniswapTestCmd() *cobra.Command {
-	InitTemplate()
-
+func UniswapTestCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "uniswap-testnet-operate",
 		Short: "",
@@ -23,8 +22,8 @@ func uniswapTestCmd() *cobra.Command {
 	}
 
 	flags := cmd.Flags()
-	flags.IntVarP(&GoroutineNum, "goroutine-num", "g", 1, "set Goroutine Num of deploying contracts")
-	flags.StringVarP(&MnemonicPath, "mnemonic-path", "m", "", "set the MnemonicPath path")
+	flags.IntVarP(&deploy_contracts.GoroutineNum, "goroutine-num", "g", 1, "set Goroutine Num of deploying contracts")
+	flags.StringVarP(&deploy_contracts.MnemonicPath, "mnemonic-path", "m", "", "set the MnemonicPath path")
 
 	return cmd
 }
@@ -67,13 +66,13 @@ const (
 )
 
 func testLoop(cmd *cobra.Command, args []string) {
-	lpAddr, poolAddr, tokenAddr := LPAddrs[0], PoolAddrs[0], TokenAddrs[0]
+	//lpAddr, poolAddr, tokenAddr := LPAddrs[0], PoolAddrs[0], TokenAddrs[0]
 
-	infos := common.GetAccountManagerFromFile(MnemonicPath)
+	infos := common.GetAccountManagerFromFile(deploy_contracts.MnemonicPath)
 	clients := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
 
 	var wg sync.WaitGroup
-	for i := 0; i < GoroutineNum; i++ {
+	for i := 0; i < deploy_contracts.GoroutineNum; i++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -90,16 +89,28 @@ func testLoop(cmd *cobra.Command, args []string) {
 				}
 				accNum, seqNum := acc.GetAccountNumber(), acc.GetSequence()
 
+				// Let Us GO GO GO !!!!!!
+				// 1. add liquididy
 				payload := UniswapV2.BuildAddLiquidOKTPayload(
-					tokenAddr, utils.GetEthAddressStrFromCosmosAddr(info.GetAddress()),
-					0,1,1,
-					int(time.Now().Add(time.Hour).Unix()),
+					"tokenAddr", utils.GetEthAddressStrFromCosmosAddr(info.GetAddress()),
+					6000000000000000000,1,1,
+					int(time.Now().Add(time.Hour*24).Unix()),
 					)
 				res, err := cli.Evm().SendTx(info, common.PassWord, routerAddr, "1", ethcommon.Bytes2Hex(payload), "", accNum, seqNum)
 				if err != nil {
-					panic(err)
+					log.Println(err)
+				} else {
+					log.Printf("[%s] %s add liquidity in %s \n", res.TxHash, )
 				}
-				log.Println(res.TxHash)
+
+				time.Sleep(time.Second*5)
+				// get acc number again
+				acc, err = cli.Auth().QueryAccount(info.GetAddress().String())
+				if err != nil {
+					log.Println(err)
+					continue
+				}
+				accNum, seqNum = acc.GetAccountNumber(), acc.GetSequence()
 			}
 		}()
 	}

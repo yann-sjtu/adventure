@@ -143,20 +143,21 @@ func transferTokenScript1(cmd *cobra.Command, args []string) error {
 func SendCoins(cli *gosdk.Client, addrs []string, coinStr string, richMnemonic string) error {
 	sum := len(addrs)
 
+	n := 200
 	//create rpc client
-	group := sum / 1000
+	group := sum / n
 	for i := 0; i < group; i++ {
-		log.Printf("prepare to multi send %s to account[%d,%d]\n", coinStr, i*1000, (i+1)*1000-1)
-		err := topUp(addrs[i*1000:(i+1)*1000], coinStr, cli, richMnemonic)
+		log.Printf("prepare to multi send %s to account[%d,%d]\n", coinStr, i*n, (i+1)*n-1)
+		err := topUp(addrs[i*n:(i+1)*n], coinStr, cli, richMnemonic)
 		if err != nil {
 			return err
 		}
-		log.Printf("multi send %s to account[%d,%d] successfully\n", coinStr, i*1000, (i+1)*1000-1)
+		log.Printf("multi send %s to account[%d,%d] successfully\n", coinStr, i*n, (i+1)*n-1)
 		time.Sleep(2 * time.Second)
 	}
-	left := sum % 1000
+	left := sum % n
 	if left != 0 {
-		startIndex := sum / 1000 * 1000
+		startIndex := sum / n * n
 		log.Printf("prepare to multi send %s to account[%d,%d]\n", coinStr, startIndex, startIndex+left-1)
 		err := topUp(addrs[startIndex:startIndex+left], coinStr, cli, richMnemonic)
 		if err != nil {

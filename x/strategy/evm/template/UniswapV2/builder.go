@@ -1,6 +1,7 @@
 package UniswapV2
 
 import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/okex/okexchain-go-sdk/utils"
 )
@@ -113,8 +114,16 @@ func BuildRemoveLiquidPayload(tokenA, tokenB, to string, liquidity, amountAMin, 
 	return payload
 }
 
-func BuildApprovePayload(addr string, amount int) []byte {
-	payload, err := PairBuilder.Build("approve", utils.EthAddress(addr), utils.Uint256(amount))
+func BuildApprovePayload(addr string, amount int64) []byte {
+	payload, err := PairBuilder.Build("approve", utils.EthAddress(addr), sdk.NewDec(amount).Int)
+	if err != nil {
+		panic(err)
+	}
+	return payload
+}
+
+func BuildGetReversesPayload() []byte {
+	payload, err := PairBuilder.Build("getReserves")
 	if err != nil {
 		panic(err)
 	}

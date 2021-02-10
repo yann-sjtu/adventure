@@ -3,6 +3,7 @@ package USDT
 import (
 	"math/big"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/okexchain-go-sdk/utils"
 )
 
@@ -28,8 +29,8 @@ func BuildUSDTContractPayload(initalSupply, decimals *big.Int, name, symbol stri
 	return payload
 }
 
-func BuildUSDTTransferPayload(toAddr string, num int) []byte {
-	payload, err := USDTBuilder.Build("transfer", utils.EthAddress(toAddr), utils.Uint256(num))
+func BuildUSDTTransferPayload(toAddr string, num int64) []byte {
+	payload, err := USDTBuilder.Build("transfer", utils.EthAddress(toAddr), sdk.NewDec(num).Int)
 	if err != nil {
 		panic(err)
 	}

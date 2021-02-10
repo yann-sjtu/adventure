@@ -1,4 +1,4 @@
-package evm
+package deploy_contracts
 
 import (
 	"log"
@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func deployErc20Cmd() *cobra.Command {
+func DeployErc20Cmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "deploy-erc20-tokens",
 		Short: "arbitrage token from swap and orderdepthbook",
