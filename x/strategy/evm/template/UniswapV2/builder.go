@@ -9,6 +9,7 @@ var (
 	FactoryBuilder utils.PayloadBuilder
 	WethBuilder    utils.PayloadBuilder
 	RouterBuilder  utils.PayloadBuilder
+	PairBuilder    utils.PayloadBuilder
 )
 
 func Init() {
@@ -26,6 +27,11 @@ func Init() {
 	}
 
 	RouterBuilder, err = utils.NewPayloadBuilder(RouterBin, RouterABI)
+	if err != nil {
+		panic(err)
+	}
+
+	PairBuilder, err = utils.NewPayloadBuilder(PairBin, PairABI)
 	if err != nil {
 		panic(err)
 	}
@@ -107,10 +113,10 @@ func BuildRemoveLiquidPayload(tokenA, tokenB, to string, liquidity, amountAMin, 
 	return payload
 }
 
-//func BuildSwapTokenPayload(toAddr string, num int) []byte {
-//	payload, err := FactoryBuilder.Build("transfer", utils.EthAddress(toAddr), utils.Uint256(num))
-//	if err != nil {
-//		panic(err)
-//	}
-//	return payload
-//}
+func BuildApprovePayload(addr string, amount int) []byte {
+	payload, err := PairBuilder.Build("approve", utils.EthAddress(addr), utils.Uint256(amount))
+	if err != nil {
+		panic(err)
+	}
+	return payload
+}

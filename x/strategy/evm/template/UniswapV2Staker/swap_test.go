@@ -38,21 +38,21 @@ func TestBuilder(t *testing.T) {
 	}
 	accNum, seqNum := acc.GetAccountNumber(), acc.GetSequence()
 
-	toEthAddress := utils.EthAddress(utils.GetEthAddressStrFromCosmosAddr(info.GetAddress()))
-	payload, err := UniswapV2.RouterBuilder.Build("addLiquidityETH",
-		utils.EthAddress("0xffea71957a3101d14474a3c358ede310e17c2409"),
-		big.NewInt(6472400000000000000), big.NewInt(40000000000000000),
-		big.NewInt(900000000000000000),
-		utils.EthAddress(toEthAddress.String()), big.NewInt(1613002360),
-	)
+	//toEthAddress := utils.EthAddress(utils.GetEthAddressStrFromCosmosAddr(info.GetAddress()))
+	//payload, err := UniswapV2.RouterBuilder.Build("addLiquidityETH",
+	//	utils.EthAddress("0xffea71957a3101d14474a3c358ede310e17c2409"),
+	//	big.NewInt(6472400000000000000), big.NewInt(40000000000000000),
+	//	big.NewInt(900000000000000000),
+	//	utils.EthAddress(toEthAddress.String()), big.NewInt(1613002360),
+	//)
 	//payload := UniswapV2.BuildRemoveLiquidOKTPayload("0xffea71957a3101d14474a3c358ede310e17c2409", toEthAddress.String(),
 	//	10000,20000,4800,1613002360)
-	//payload := BuildApprovePayload(oktUsdtPool,1000000000000000000)
-	//payload := BuildStakePayload(1000000000000000000)
+	//payload := UniswapV2.BuildApprovePayload(oktUsdtPool,1000000000000000000)
+	payload := BuildStakePayload(1000000000000000000)
 	//payload := BuildWithdrawPayload(1000000000000000000)
 	//payload := BuildGetRewardPayload()
 	//payload := BuildExitPayload()
-	res, err := cli.Evm().SendTx(info, common.PassWord, routerAddr, "1", ethcommon.Bytes2Hex(payload), "", accNum, seqNum)
+	res, err := cli.Evm().SendTx(info, common.PassWord, oktUsdtPool, "", ethcommon.Bytes2Hex(payload), "", accNum, seqNum)
 	if err != nil {
 		panic(err)
 	}
