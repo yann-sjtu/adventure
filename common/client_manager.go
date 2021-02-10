@@ -52,12 +52,46 @@ func getAllInvariantClients(hosts []string, fee string, gas ...uint64) []*gosdk.
 
 func initClientConfig(fee string, host string, gas ...uint64) (cfg types.ClientConfig) {
 	if fee == AUTO {
-		cfg, _ = types.NewClientConfig(host, Cfg.ChainId, types.BroadcastSync, "", 350000, 1.5, "0.000000001"+NativeToken)
+		cfg, _ = types.NewClientConfig(host, Cfg.ChainId, types.BroadcastBlock, "", 350000, 1.5, "0.000000001"+NativeToken)
 	} else {
 		if len(gas) != 0 {
-			cfg, _ = types.NewClientConfig(host, Cfg.ChainId, types.BroadcastSync, fee, gas[0], 0, "")
+			cfg, _ = types.NewClientConfig(host, Cfg.ChainId, types.BroadcastBlock, fee, gas[0], 0, "")
 		} else {
 			cfg, _ = types.NewClientConfig(host, Cfg.ChainId, types.BroadcastBlock, fee, 200000, 0, "")
+		}
+	}
+	return
+}
+
+func NewClientManagerWithMode(hosts []string, fee string, mode string, gas ...uint64) *ClientManager {
+	clients := getAllInvariantClientsWithMode(hosts, fee, mode, gas...)
+	control := &ClientManager{
+		0,
+		clients,
+		len(clients),
+		new(sync.Mutex),
+	}
+	return control
+}
+
+func getAllInvariantClientsWithMode(hosts []string, fee string, mode string, gas ...uint64) []*gosdk.Client {
+	var clients []*gosdk.Client
+	for i := 0; i < len(hosts); i++ {
+		cfg := initClientConfigWithMode(fee, hosts[i], mode, gas...)
+		cli := gosdk.NewClient(cfg)
+		clients = append(clients, &cli)
+	}
+	return clients
+}
+
+func initClientConfigWithMode(fee string, host string, mode string, gas ...uint64) (cfg types.ClientConfig) {
+	if fee == AUTO {
+		cfg, _ = types.NewClientConfig(host, Cfg.ChainId, mode, "", 350000, 1.5, "0.000000001"+NativeToken)
+	} else {
+		if len(gas) != 0 {
+			cfg, _ = types.NewClientConfig(host, Cfg.ChainId, mode, fee, gas[0], 0, "")
+		} else {
+			cfg, _ = types.NewClientConfig(host, Cfg.ChainId, mode, fee, 200000, 0, "")
 		}
 	}
 	return

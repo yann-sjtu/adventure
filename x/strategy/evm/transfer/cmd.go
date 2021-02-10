@@ -8,6 +8,7 @@ import (
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/okex/adventure/common"
 	"github.com/okex/adventure/x/strategy/evm/template/USDT"
+	"github.com/okex/okexchain-go-sdk/types"
 	"github.com/okex/okexchain-go-sdk/utils"
 	"github.com/spf13/cobra"
 )
@@ -35,7 +36,7 @@ var (
 )
 
 func transferCoins(cmd *cobra.Command, args []string) error {
-	clis := common.NewClientManager(common.Cfg.Hosts, "0.003okt", 300000)
+	clis := common.NewClientManagerWithMode(common.Cfg.Hosts, "0.003okt", types.BroadcastSync, 300000)
 	cli := clis.GetClient()
 
 	ownerInfo, _, err := utils.CreateAccountWithMnemo(Owner, fmt.Sprintf("acc%d", 1), common.PassWord)
