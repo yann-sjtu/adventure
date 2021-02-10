@@ -45,7 +45,7 @@ func approveCoins(cmd *cobra.Command, args []string) error {
 		}
 		ethAddr := utils.GetEthAddressStrFromCosmosAddr(info.GetAddress())
 
-		payload := UniswapV2.BuildApprovePayload(PermittedAddr, 100000)
+		payload := UniswapV2.BuildApprovePayload(PermittedAddr, 10000000000000000)
 		res, err := cli.Evm().SendTx(info, common.PassWord, FromAddr, "", ethcommon.Bytes2Hex(payload), "", acc.GetAccountNumber(), acc.GetSequence())
 		if err != nil {
 			log.Printf("%s fail to approve 100000coin on %s from %s: %s \n", ethAddr, PermittedAddr, FromAddr, err)

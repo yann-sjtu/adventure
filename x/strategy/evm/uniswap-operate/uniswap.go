@@ -2,6 +2,7 @@ package uniswap_operate
 
 import (
 	"log"
+	"math/rand"
 	"sync"
 	"time"
 
@@ -9,6 +10,8 @@ import (
 	"github.com/okex/adventure/common"
 	"github.com/okex/adventure/x/strategy/evm/deploy-contracts"
 	"github.com/okex/adventure/x/strategy/evm/template/UniswapV2"
+	"github.com/okex/adventure/x/strategy/evm/template/UniswapV2Staker"
+	"github.com/okex/adventure/x/strategy/evm/tools"
 	"github.com/okex/okexchain-go-sdk/utils"
 	"github.com/spf13/cobra"
 )
@@ -66,11 +69,12 @@ const (
 )
 
 func testLoop(cmd *cobra.Command, args []string) {
-	//lpAddr, poolAddr, tokenAddr := LPAddrs[0], PoolAddrs[0], TokenAddrs[0]
+	_, poolAddr, tokenAddr := LPAddrs[0], PoolAddrs[0], TokenAddrs[0]
 
 	infos := common.GetAccountManagerFromFile(deploy_contracts.MnemonicPath)
 	clients := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
 
+	succ, fail := tools.NewCounter(-1), tools.NewCounter(-1)
 	var wg sync.WaitGroup
 	for i := 0; i < deploy_contracts.GoroutineNum; i++ {
 		wg.Add(1)
@@ -88,29 +92,81 @@ func testLoop(cmd *cobra.Command, args []string) {
 					continue
 				}
 				accNum, seqNum := acc.GetAccountNumber(), acc.GetSequence()
+				ethAddr := utils.GetEthAddressStrFromCosmosAddr(info.GetAddress())
 
 				// Let Us GO GO GO !!!!!!
 				// 1. add liquididy
 				payload := UniswapV2.BuildAddLiquidOKTPayload(
-					"tokenAddr", utils.GetEthAddressStrFromCosmosAddr(info.GetAddress()),
-					6000000000000000000,1,1,
+					tokenAddr, utils.GetEthAddressStrFromCosmosAddr(info.GetAddress()),
+					6000000000000000,1,1,
 					int(time.Now().Add(time.Hour*24).Unix()),
 					)
-				res, err := cli.Evm().SendTx(info, common.PassWord, routerAddr, "1", ethcommon.Bytes2Hex(payload), "", accNum, seqNum)
+				res, err := cli.Evm().SendTx(info, common.PassWord, routerAddr, "0.001", ethcommon.Bytes2Hex(payload), "", accNum, seqNum)
 				if err != nil {
-					log.Println(err)
+					log.Printf("(%d)[%s] %s failed to add liquidity in %s: %s\n", fail.Add(), res.TxHash, ethAddr, routerAddr, err)
 				} else {
-					log.Printf("[%s] %s add liquidity in %s \n", res.TxHash, )
+					log.Printf("(%d)[%s] %s add liquidity in %s \n", succ.Add(), res.TxHash, ethAddr, routerAddr)
 				}
 
-				time.Sleep(time.Second*5)
-				// get acc number again
+				// 2.0 get acc number again
+				time.Sleep(time.Second*4)
 				acc, err = cli.Auth().QueryAccount(info.GetAddress().String())
 				if err != nil {
-					log.Println(err)
 					continue
 				}
 				accNum, seqNum = acc.GetAccountNumber(), acc.GetSequence()
+				offset := uint64(0)
+
+				// 2.1 stake
+				payload = UniswapV2Staker.BuildStakePayload(1500000000000000)
+				res, err = cli.Evm().SendTx(info, common.PassWord, poolAddr, "", ethcommon.Bytes2Hex(payload), "", accNum, seqNum+offset)
+				if err != nil {
+					log.Printf("(%d)[%s] %s failed to stake lp in %s: %s\n", fail.Add(), res.TxHash, ethAddr, poolAddr, err)
+					continue
+				} else {
+					log.Printf("(%d)[%s] %s stake lp in %s \n", succ.Add(), res.TxHash, ethAddr, poolAddr)
+					offset++
+				}
+
+				// 2.2 withDraw randomly
+				payload = UniswapV2Staker.BuildWithdrawPayload(500000000)
+				res, err = cli.Evm().SendTx(info, common.PassWord, poolAddr, "", ethcommon.Bytes2Hex(payload), "", accNum, seqNum+offset)
+				if err != nil {
+					log.Printf("(%d)[%s] %s failed to withdraw lp from %s: %s\n", fail.Add(), res.TxHash, ethAddr, poolAddr, err)
+					continue
+				} else {
+					log.Printf("(%d)[%s] %s withdraw lp from %s \n", succ.Add(), res.TxHash, ethAddr, poolAddr)
+					offset++
+				}
+
+				// 2.3 get Reward randomly
+				rand.Seed(time.Now().Unix())
+				if rand.Intn(10) <= 3 {
+					payload = UniswapV2Staker.BuildGetRewardPayload()
+					res, err = cli.Evm().SendTx(info, common.PassWord, poolAddr, "", ethcommon.Bytes2Hex(payload), "", accNum, seqNum+offset)
+					if err != nil {
+						log.Printf("(%d)[%s] %s failed get reward from %s: %s\n", fail.Add(), res.TxHash, ethAddr, poolAddr, err)
+						continue
+					} else {
+						log.Printf("(%d)[%s] %s get reward from %s \n", succ.Add(), res.TxHash, ethAddr, poolAddr)
+						offset++
+					}
+				}
+
+				// 2.4 Exit randomly
+				rand.Seed(time.Now().Unix())
+				if rand.Intn(10) <= 2 {
+					payload = UniswapV2Staker.BuildExitPayload()
+					res, err = cli.Evm().SendTx(info, common.PassWord, poolAddr, "", ethcommon.Bytes2Hex(payload), "", accNum, seqNum+offset)
+					if err != nil {
+						log.Printf("(%d)[%s] %s failed to exit all lp from %s: %s\n", fail.Add(), res.TxHash, ethAddr, poolAddr, err)
+						continue
+					} else {
+						log.Printf("(%d)[%s] %s exit all lp from %s \n", succ.Add(), res.TxHash, ethAddr, poolAddr)
+						offset++
+					}
+				}
+
 			}
 		}()
 	}
