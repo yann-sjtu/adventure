@@ -82,7 +82,7 @@ func BuildAddLiquidPayload(tokenA, tokenB, to string, amountADesired, amountBDes
 }
 
 func BuildRemoveLiquidOKTPayload(token, to string, liquidity, amountTokenMin, amountOKTMin, deadline int) []byte {
-	payload, err := FactoryBuilder.Build("removeLiquidityETH",
+	payload, err := RouterBuilder.Build("removeLiquidityETH",
 		utils.EthAddress(token),
 		utils.Uint256(liquidity),
 		utils.Uint256(amountTokenMin), utils.Uint256(amountOKTMin),
@@ -95,7 +95,7 @@ func BuildRemoveLiquidOKTPayload(token, to string, liquidity, amountTokenMin, am
 }
 
 func BuildRemoveLiquidPayload(tokenA, tokenB, to string, liquidity, amountAMin, amountBMin, deadline int) []byte {
-	payload, err := FactoryBuilder.Build("removeLiquidity",
+	payload, err := RouterBuilder.Build("removeLiquidity",
 		utils.EthAddress(tokenA), utils.EthAddress(tokenB),
 		utils.Uint256(liquidity),
 		utils.Uint256(amountAMin), utils.Uint256(amountBMin),
