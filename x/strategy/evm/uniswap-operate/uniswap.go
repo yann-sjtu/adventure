@@ -12,6 +12,7 @@ import (
 	"github.com/okex/adventure/x/strategy/evm/template/UniswapV2"
 	"github.com/okex/adventure/x/strategy/evm/template/UniswapV2Staker"
 	"github.com/okex/adventure/x/strategy/evm/tools"
+	"github.com/okex/okexchain-go-sdk/types"
 	"github.com/okex/okexchain-go-sdk/utils"
 	"github.com/spf13/cobra"
 )
@@ -27,9 +28,14 @@ func UniswapTestCmd() *cobra.Command {
 	flags := cmd.Flags()
 	flags.IntVarP(&deploy_contracts.GoroutineNum, "goroutine-num", "g", 1, "set Goroutine Num of deploying contracts")
 	flags.StringVarP(&deploy_contracts.MnemonicPath, "mnemonic-path", "m", "", "set the MnemonicPath path")
+	flags.IntVarP(&sleepTime, "sleep-time", "t", 5, "set the sleep time")
 
 	return cmd
 }
+
+var (
+	sleepTime int
+)
 
 var (
 	LPAddrs    = [4]string{OktUsdtLPAddr, OktDotkLPAddr, OktBtckLPAddr, OktEthkLPAddr}
@@ -72,7 +78,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 	_, poolAddr, tokenAddr := LPAddrs[0], PoolAddrs[0], TokenAddrs[0]
 
 	infos := common.GetAccountManagerFromFile(deploy_contracts.MnemonicPath)
-	clients := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
+	clients := common.NewClientManagerWithMode(common.Cfg.Hosts, "0.05okt", types.BroadcastBlock,50000000)
 
 	succ, fail := tools.NewCounter(-1), tools.NewCounter(-1)
 	var wg sync.WaitGroup
@@ -92,6 +98,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 					continue
 				}
 				accNum, seqNum := acc.GetAccountNumber(), acc.GetSequence()
+				offset := uint64(0)
 				ethAddr := utils.GetEthAddressStrFromCosmosAddr(info.GetAddress())
 
 				// Let Us GO GO GO !!!!!!
@@ -104,18 +111,11 @@ func testLoop(cmd *cobra.Command, args []string) {
 				res, err := cli.Evm().SendTx(info, common.PassWord, routerAddr, "0.001", ethcommon.Bytes2Hex(payload), "", accNum, seqNum)
 				if err != nil {
 					log.Printf("(%d)[%s] %s failed to add liquidity in %s: %s\n", fail.Add(), res.TxHash, ethAddr, routerAddr, err)
+					continue
 				} else {
 					log.Printf("(%d)[%s] %s add liquidity in %s \n", succ.Add(), res.TxHash, ethAddr, routerAddr)
+					offset++
 				}
-
-				// 2.0 get acc number again
-				time.Sleep(time.Second*4)
-				acc, err = cli.Auth().QueryAccount(info.GetAddress().String())
-				if err != nil {
-					continue
-				}
-				accNum, seqNum = acc.GetAccountNumber(), acc.GetSequence()
-				offset := uint64(0)
 
 				// 2.1 stake
 				payload = UniswapV2Staker.BuildStakePayload(1500000000000000)
@@ -167,6 +167,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 					}
 				}
 
+				time.Sleep(time.Second*time.Duration(sleepTime))
 			}
 		}()
 	}
