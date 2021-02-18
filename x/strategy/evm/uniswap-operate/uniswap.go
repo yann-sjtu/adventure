@@ -12,7 +12,6 @@ import (
 	"github.com/okex/adventure/x/strategy/evm/template/UniswapV2"
 	"github.com/okex/adventure/x/strategy/evm/template/UniswapV2Staker"
 	"github.com/okex/adventure/x/strategy/evm/tools"
-	"github.com/okex/okexchain-go-sdk/types"
 	"github.com/okex/okexchain-go-sdk/utils"
 	"github.com/spf13/cobra"
 )
@@ -73,7 +72,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 	_, poolAddr, tokenAddr := LPAddrs[0], PoolAddrs[0], TokenAddrs[0]
 
 	infos := common.GetAccountManagerFromFile(deploy_contracts.MnemonicPath)
-	clients := common.NewClientManagerWithMode(common.Cfg.Hosts, "0.05okt", types.BroadcastBlock,50000000)
+	clients := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
 
 	succ, fail := tools.NewCounter(-1), tools.NewCounter(-1)
 	var wg sync.WaitGroup
@@ -101,7 +100,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 					tokenAddr, utils.GetEthAddressStrFromCosmosAddr(info.GetAddress()),
 					6000000000000000,1,1,
 					int(time.Now().Add(time.Hour*24).Unix()),
-					)
+				)
 				res, err := cli.Evm().SendTx(info, common.PassWord, routerAddr, "0.001", ethcommon.Bytes2Hex(payload), "", accNum, seqNum)
 				if err != nil {
 					log.Printf("(%d)[%s] %s failed to add liquidity in %s: %s\n", fail.Add(), res.TxHash, ethAddr, routerAddr, err)
@@ -110,6 +109,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 				}
 
 				// 2.0 get acc number again
+				time.Sleep(time.Second*4)
 				acc, err = cli.Auth().QueryAccount(info.GetAddress().String())
 				if err != nil {
 					continue
