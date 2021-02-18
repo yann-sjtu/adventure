@@ -110,7 +110,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 				}
 
 				// 2.0 get acc number again
-				time.Sleep(time.Second*4)
+				time.Sleep(time.Second*3)
 				acc, err = cli.Auth().QueryAccount(info.GetAddress().String())
 				if err != nil {
 					continue
@@ -127,6 +127,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 				} else {
 					log.Printf("(%d)[%s] %s stake lp in %s \n", succ.Add(), res.TxHash, ethAddr, poolAddr)
 					offset++
+					time.Sleep(time.Second*3)
 				}
 
 				// 2.2 withDraw randomly
@@ -138,6 +139,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 				} else {
 					log.Printf("(%d)[%s] %s withdraw lp from %s \n", succ.Add(), res.TxHash, ethAddr, poolAddr)
 					offset++
+					time.Sleep(time.Second*2)
 				}
 
 				// 2.3 get Reward randomly
@@ -151,6 +153,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 					} else {
 						log.Printf("(%d)[%s] %s get reward from %s \n", succ.Add(), res.TxHash, ethAddr, poolAddr)
 						offset++
+						time.Sleep(time.Second*1)
 					}
 				}
 
@@ -165,6 +168,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 					} else {
 						log.Printf("(%d)[%s] %s exit all lp from %s \n", succ.Add(), res.TxHash, ethAddr, poolAddr)
 						offset++
+						time.Sleep(time.Second*1)
 					}
 				}
 
