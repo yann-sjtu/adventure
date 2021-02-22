@@ -14,18 +14,18 @@ import (
 )
 
 const (
-	routerAddr = "0x0653a68B22b18663F69a7103621F7F3EB59191F1"
+	routerAddr = "0x2CA0E1278B9D7A967967d3C707b81C72FC180CaF"
 
-	oktUsdtPool = "0x0Bd475f8b27EA57158291372667aD1e7eeD5C174"
-	oktUsdtLP = "0x7068B191ff97e32D6Fbba3204408877A9007BBd1"
-	usdtAddr = "0xffea71957a3101d14474a3c358ede310e17c2409"
+	oktUsdtPool = "0x5aFC0E1ddDd7a5151d83a3385C01e6159539a37C"
+	oktUsdtLP = "0xe922FF7B02672bB59A64b90864FC5e511AD4d5fa"
+	usdtAddr = "0xee666e967293094007d7c3718044e07565b1f8a9"
 )
 
 func TestBuilder(t *testing.T) {
 	UniswapV2.Init()
 	Init()
 	clients := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
-	info, _, err := utils.CreateAccountWithMnemo("expand present amused regret normal gallery coconut brass speed survey giraffe couple", fmt.Sprintf("acc%d", 1), "12345678")
+	info, _, err := utils.CreateAccountWithMnemo("plunge silk glide glass curve cycle snack garbage obscure express decade dirt", fmt.Sprintf("acc%d", 1), "12345678")
 	if err != nil {
 		panic(err)
 	}
@@ -38,15 +38,15 @@ func TestBuilder(t *testing.T) {
 	}
 	accNum, seqNum := acc.GetAccountNumber(), acc.GetSequence()
 
-	//payload, err := UniswapV2.PairBuilder.Build("approve", utils.EthAddress(oktUsdtPool), sdk.NewDec(10000000000000000).Int)
-	//if err != nil {
-	//	panic(err)
-	//}
-	//res, err := cli.Evm().SendTx(info, common.PassWord, oktUsdtLP, "", ethcommon.Bytes2Hex(payload), "", accNum, seqNum)
-	//if err != nil {
-	//	panic(err)
-	//}
-	//log.Println(res.TxHash)
+	payload, err := UniswapV2.PairBuilder.Build("approve", utils.EthAddress(oktUsdtPool), sdk.NewDec(10000000000000000).Int)
+	if err != nil {
+		panic(err)
+	}
+	res, err := cli.Evm().SendTx(info, common.PassWord, oktUsdtLP, "", ethcommon.Bytes2Hex(payload), "", accNum, seqNum)
+	if err != nil {
+		panic(err)
+	}
+	log.Println(res.TxHash)
 
 	//payload := UniswapV2.BuildAddLiquidOKTPayload(
 	//	usdtAddr, utils.GetEthAddressStrFromCosmosAddr(info.GetAddress()),
@@ -62,12 +62,12 @@ func TestBuilder(t *testing.T) {
 	//payload := BuildStakePayload(512775580224501)
 	//payload := BuildWithdrawPayload(500000000)
 	//payload := BuildGetRewardPayload()
-	payload := BuildExitPayload()
-	res, err := cli.Evm().SendTx(info, common.PassWord, oktUsdtPool, "", ethcommon.Bytes2Hex(payload), "", accNum, seqNum)
-	if err != nil {
-		panic(err)
-	}
-	log.Println(res.TxHash)
+	//payload := BuildExitPayload()
+	//res, err := cli.Evm().SendTx(info, common.PassWord, oktUsdtPool, "", ethcommon.Bytes2Hex(payload), "", accNum, seqNum)
+	//if err != nil {
+	//	panic(err)
+	//}
+	//log.Println(res.TxHash)
 }
 
 func Uint256(d sdk.Dec) *big.Int {

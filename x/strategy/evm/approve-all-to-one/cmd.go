@@ -1,4 +1,4 @@
-package approve
+package approve_all_to_one
 
 import (
 	"log"

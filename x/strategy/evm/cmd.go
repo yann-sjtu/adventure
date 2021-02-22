@@ -1,7 +1,8 @@
 package evm
 
 import (
-	"github.com/okex/adventure/x/strategy/evm/approve"
+	"github.com/okex/adventure/x/strategy/evm/approve-all-to-one"
+	approve_one_to_all "github.com/okex/adventure/x/strategy/evm/approve-one-to-all"
 	"github.com/okex/adventure/x/strategy/evm/deploy-contracts"
 	"github.com/okex/adventure/x/strategy/evm/template/ERC721"
 	"github.com/okex/adventure/x/strategy/evm/template/USDT"
@@ -20,7 +21,8 @@ func EvmCmd() *cobra.Command {
 		Short: "evm cli of test strategy",
 	}
 
-	evmCmd.AddCommand(deploy_contracts.DeployErc20Cmd(), uniswap_operate.UniswapTestCmd(), transfer.TransferErc20Cmd(), approve.ApproveTokenCmd())
+	evmCmd.AddCommand(deploy_contracts.DeployErc20Cmd(), uniswap_operate.UniswapTestCmd(), transfer.TransferErc20Cmd(),
+		approve_all_to_one.ApproveTokenCmd(), approve_one_to_all.ApproveTokenCmd())
 	return evmCmd
 }
 
