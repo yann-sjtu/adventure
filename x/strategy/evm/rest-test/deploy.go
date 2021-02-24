@@ -43,7 +43,7 @@ func runDeployErc20TokensCmd(cmd *cobra.Command, args []string) error {
 	param[0]["from"] = fromAddr.Hex()
 	param[0]["data"] = erc20ContractDeployedByteCode
 
-	rpcRes, err := utils.CallWithError("eth_sendTransaction", param, "")
+	rpcRes, err := utils.CallWithError("eth_sendTransaction", param, HostUrl)
 
 	var hash ethcmn.Hash
 	if err := json.Unmarshal(rpcRes.Result, &hash); err != nil {
