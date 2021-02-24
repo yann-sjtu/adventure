@@ -60,5 +60,19 @@ func transfer() {
 }
 
 func estimateGas() {
+	param := make([]map[string]string, 1)
+	param[0] = make(map[string]string)
+	param[0]["from"] = fromAddrStr
+	param[0]["value"] = (*hexutil.Big)(big.NewInt(1)).String()
 
+	for {
+		receiverAddr := utils.GetReceiverAddrRandomly()
+		param[0]["to"] = receiverAddr
+		_, err := utils.CallWithError("eth_estimateGas", param, HostUrl)
+		if err != nil {
+			continue
+		}
+
+		log.Printf("%s estimate gas with transferring 1okt to %s successfully\n", fromAddrStr, receiverAddr)
+	}
 }
