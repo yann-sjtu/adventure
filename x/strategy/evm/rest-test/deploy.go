@@ -42,7 +42,7 @@ func runDeployErc20TokensCmd(cmd *cobra.Command, args []string) error {
 	param[0] = make(map[string]string)
 	param[0]["from"] = fromAddr.Hex()
 	param[0]["data"] = erc20ContractDeployedByteCode
-
+	fmt.Println(HostUrl)
 	rpcRes, err := utils.CallWithError("eth_sendTransaction", param, HostUrl)
 
 	var hash ethcmn.Hash
@@ -50,7 +50,7 @@ func runDeployErc20TokensCmd(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	receipt := utils.WaitForReceipt(hash)
+	receipt := utils.WaitForReceipt(hash, HostUrl)
 	fmt.Printf("%s has deployed a contract %s with tx hash %s successfully\n", fromAddr.Hex(), receipt["contractAddress"], hash.Hex())
 
 	return nil

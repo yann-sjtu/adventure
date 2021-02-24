@@ -38,9 +38,9 @@ func GetAddress(hostUrl string) (addr ethcmn.Address, err error) {
 	return res[0], nil
 }
 
-func WaitForReceipt(hash ethcmn.Hash) map[string]interface{} {
+func WaitForReceipt(hash ethcmn.Hash, hostUrl string) map[string]interface{} {
 	for i := 0; i < 12; i++ {
-		receipt, err := GetTransactionReceipt(hash)
+		receipt, err := GetTransactionReceipt(hash, hostUrl)
 		if err != nil {
 			log.Println(err)
 		}
@@ -55,9 +55,9 @@ func WaitForReceipt(hash ethcmn.Hash) map[string]interface{} {
 	return nil
 }
 
-func GetTransactionReceipt(hash ethcmn.Hash) (receipt map[string]interface{}, err error) {
+func GetTransactionReceipt(hash ethcmn.Hash, hostUrl string) (receipt map[string]interface{}, err error) {
 	param := []string{hash.Hex()}
-	rpcRes, err := CallWithError("eth_getTransactionReceipt", param, "")
+	rpcRes, err := CallWithError("eth_getTransactionReceipt", param, hostUrl)
 	if err != nil {
 		return
 	}
