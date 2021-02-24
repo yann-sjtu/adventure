@@ -21,13 +21,12 @@ func strategyCmd() *cobra.Command {
 		RunE:  runStrategyCmd,
 	}
 
-	cmd.Flags().StringVarP(&HostUrl, "url", "u", "http://10.0.240.22:26659", "host url")
+	cmd.Flags().StringVarP(&HostUrl, "url", "u", "http://localhost:8545", "host url")
 
 	return cmd
 }
 
 func runStrategyCmd(cmd *cobra.Command, args []string) error {
-	HostUrl = "http://10.0.240.22:26659"
 	fromAddr, err := utils.GetAddress(HostUrl)
 	if err != nil {
 		return err
