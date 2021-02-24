@@ -35,8 +35,10 @@ func runStrategyCmd(cmd *cobra.Command, args []string) error {
 	fromAddrStr = fromAddr.Hex()
 
 	go transfer()
-	estimateGas()
-	time.Sleep(time.Minute)
+	for {
+		go estimateGas()
+		time.Sleep(300 * time.Millisecond)
+	}
 	return nil
 }
 
@@ -55,7 +57,6 @@ func transfer() {
 		}
 
 		log.Printf("%s transfers 1okt to %s successfully\n", fromAddrStr, receiverAddr)
-		time.Sleep(500 * time.Millisecond)
 	}
 }
 
@@ -65,14 +66,12 @@ func estimateGas() {
 	param[0]["from"] = fromAddrStr
 	param[0]["value"] = (*hexutil.Big)(sdk.OneDec().BigInt()).String()
 
-	for {
-		receiverAddr := utils.GetReceiverAddrRandomly()
-		param[0]["to"] = receiverAddr
-		_, err := utils.CallWithError("eth_estimateGas", param, HostUrl)
-		if err != nil {
-			continue
-		}
-
-		log.Printf("%s estimate gas with transferring 1okt to %s successfully\n", fromAddrStr, receiverAddr)
+	receiverAddr := utils.GetReceiverAddrRandomly()
+	param[0]["to"] = receiverAddr
+	_, err := utils.CallWithError("eth_estimateGas", param, HostUrl)
+	if err != nil {
+		return
 	}
+	log.Printf("%s estimate gas with transferring 1okt to %s successfully\n", fromAddrStr, receiverAddr)
+
 }
