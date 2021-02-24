@@ -4,12 +4,24 @@ import (
 	"encoding/json"
 	ethcmn "github.com/ethereum/go-ethereum/common"
 	"log"
+	"math/rand"
 	"time"
 )
 
 const (
 	DefaultHostUrl = "http://localhost:8545"
+	receiverNum    = 10
 )
+
+var (
+	receiverAddrs [receiverNum]string
+)
+
+func init() {
+	for i := 0; i < receiverNum; i++ {
+		receiverAddrs[i] = ethcmn.BytesToAddress([]byte{byte(i)}).Hex()
+	}
+}
 
 func GetAddress(hostUrl string) (addr ethcmn.Address, err error) {
 	rpcRes, err := CallWithError("eth_accounts", []string{}, hostUrl)
@@ -56,4 +68,9 @@ func GetTransactionReceipt(hash ethcmn.Hash) (receipt map[string]interface{}, er
 	}
 
 	return
+}
+
+func GetReceiverAddrRandomly() string {
+	rand.Seed(time.Now().UnixNano())
+	return receiverAddrs[rand.Intn(receiverNum)]
 }
