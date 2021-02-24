@@ -1,11 +1,11 @@
 package rest_test
 
 import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/okex/adventure/x/strategy/evm/rest-test/utils"
 	"github.com/spf13/cobra"
 	"log"
-	"math/big"
 	"time"
 )
 
@@ -44,7 +44,7 @@ func transfer() {
 	param := make([]map[string]string, 1)
 	param[0] = make(map[string]string)
 	param[0]["from"] = fromAddrStr
-	param[0]["value"] = (*hexutil.Big)(big.NewInt(1)).String()
+	param[0]["value"] = (*hexutil.Big)(sdk.OneDec().BigInt()).String()
 
 	for {
 		receiverAddr := utils.GetReceiverAddrRandomly()
@@ -63,7 +63,7 @@ func estimateGas() {
 	param := make([]map[string]string, 1)
 	param[0] = make(map[string]string)
 	param[0]["from"] = fromAddrStr
-	param[0]["value"] = (*hexutil.Big)(big.NewInt(1)).String()
+	param[0]["value"] = (*hexutil.Big)(sdk.OneDec().BigInt()).String()
 
 	for {
 		receiverAddr := utils.GetReceiverAddrRandomly()
