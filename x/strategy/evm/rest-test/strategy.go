@@ -27,7 +27,8 @@ func strategyCmd() *cobra.Command {
 }
 
 func runStrategyCmd(cmd *cobra.Command, args []string) error {
-	fromAddr, err := utils.GetAddress("")
+	HostUrl = "http://10.0.240.22:26659"
+	fromAddr, err := utils.GetAddress(HostUrl)
 	if err != nil {
 		return err
 	}
