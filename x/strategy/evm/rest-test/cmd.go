@@ -12,7 +12,8 @@ func RestTestCmd() *cobra.Command {
 
 	restTestCmd.AddCommand(
 		deployErc20Cmd(),
-		strategyCmd(),
+		transferStrategyCmd(),
+		erc20TransferStrategyCmd(),
 	)
 	return restTestCmd
 }

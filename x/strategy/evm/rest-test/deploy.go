@@ -33,7 +33,7 @@ func deployErc20Cmd() *cobra.Command {
 }
 
 func runDeployErc20TokensCmd(cmd *cobra.Command, args []string) error {
-	fromAddr, err := utils.GetAddress("")
+	fromAddr, err := utils.GetAddress(HostUrl)
 	if err != nil {
 		return err
 	}

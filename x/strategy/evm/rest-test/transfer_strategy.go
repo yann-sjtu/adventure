@@ -13,12 +13,12 @@ var (
 	fromAddrStr string
 )
 
-func strategyCmd() *cobra.Command {
+func transferStrategyCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "run-test",
-		Short: "run rest test",
+		Use:   "run-transfer-test",
+		Short: "run rest transfer test",
 		Args:  cobra.NoArgs,
-		RunE:  runStrategyCmd,
+		RunE:  runTransferStrategyCmd,
 	}
 
 	cmd.Flags().StringVarP(&HostUrl, "url", "u", "http://localhost:8545", "host url")
@@ -26,7 +26,7 @@ func strategyCmd() *cobra.Command {
 	return cmd
 }
 
-func runStrategyCmd(cmd *cobra.Command, args []string) error {
+func runTransferStrategyCmd(cmd *cobra.Command, args []string) error {
 	fromAddr, err := utils.GetAddress(HostUrl)
 	if err != nil {
 		return err
