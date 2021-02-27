@@ -1,6 +1,10 @@
 package UniswapV2Staker
 
-import "github.com/okex/okexchain-go-sdk/utils"
+import (
+	"math/big"
+
+	"github.com/okex/okexchain-go-sdk/utils"
+)
 
 var (
 	StakingRewardsBuilder utils.PayloadBuilder
@@ -32,16 +36,16 @@ func BuildGetRewardPayload() []byte {
 	return payload
 }
 
-func BuildStakePayload(num int) []byte {
-	payload, err := StakingRewardsBuilder.Build("stake", utils.Uint256(num))
+func BuildStakePayload(num int64) []byte {
+	payload, err := StakingRewardsBuilder.Build("stake", big.NewInt(num))
 	if err != nil {
 		panic(err)
 	}
 	return payload
 }
 
-func BuildWithdrawPayload(num int) []byte {
-	payload, err := StakingRewardsBuilder.Build("withdraw", utils.Uint256(num))
+func BuildWithdrawPayload(num int64) []byte {
+	payload, err := StakingRewardsBuilder.Build("withdraw", big.NewInt(num))
 	if err != nil {
 		panic(err)
 	}

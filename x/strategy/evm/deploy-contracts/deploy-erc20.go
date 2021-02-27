@@ -2,9 +2,11 @@ package deploy_contracts
 
 import (
 	"log"
+	"math/big"
 	"sync"
 	"time"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/okex/adventure/common"
 	"github.com/okex/adventure/x/strategy/evm/template/ERC721"
@@ -108,7 +110,7 @@ func deployErc20Tokens(cmd *cobra.Command, args []string) {
 				log.Printf("[%d]erc721 contract addr: %s\n", counter.Add(), ERC721Address)
 
 				// 4.5 deploy erc20 usdt
-				USDTPayload := USDT.BuildUSDTContractPayload(utils.Uint256(12642013521397079), utils.Uint256(6), "OKEX USD", "TUSDT")
+				USDTPayload := USDT.BuildUSDTContractPayload(sdk.NewDec(1000000).Int, big.NewInt(6), "OKEX USD", "TUSDT")
 				_, USDTAddress, err := cli.Evm().CreateContract(info, common.PassWord, "", ethcommon.Bytes2Hex(USDTPayload), "", accNum, seqNum+4)
 				if err != nil {
 					log.Println(err)

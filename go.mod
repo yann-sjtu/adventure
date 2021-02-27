@@ -9,8 +9,8 @@ require (
 	github.com/cosmos/go-bip39 v0.0.0-20180819234021-555e2067c45d
 	github.com/ethereum/go-ethereum v1.9.25
 	github.com/mitchellh/mapstructure v1.1.2
-	github.com/okex/okexchain v0.16.0
-	github.com/okex/okexchain-go-sdk v0.16.1-0.20210201124342-565f7da202fa
+	github.com/okex/okexchain v0.16.4-0.20210201040102-7dcce65aa109
+	github.com/okex/okexchain-go-sdk v0.16.1-0.20210220032532-b0c8b5e3f7c1
 	github.com/spf13/cobra v1.1.1
 	github.com/tendermint/tendermint v0.33.9
 	go.uber.org/zap v1.15.0

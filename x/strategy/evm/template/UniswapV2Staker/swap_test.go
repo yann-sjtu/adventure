@@ -5,6 +5,7 @@ import (
 	"log"
 	"math/big"
 	"testing"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ethcommon "github.com/ethereum/go-ethereum/common"
@@ -38,26 +39,37 @@ func TestBuilder(t *testing.T) {
 	}
 	accNum, seqNum := acc.GetAccountNumber(), acc.GetSequence()
 
-	payload, err := UniswapV2.PairBuilder.Build("approve", utils.EthAddress(oktUsdtPool), sdk.NewDec(10000000000000000).Int)
-	if err != nil {
-		panic(err)
-	}
-	res, err := cli.Evm().SendTx(info, common.PassWord, oktUsdtLP, "", ethcommon.Bytes2Hex(payload), "", accNum, seqNum)
-	if err != nil {
-		panic(err)
-	}
-	log.Println(res.TxHash)
-
-	//payload := UniswapV2.BuildAddLiquidOKTPayload(
-	//	usdtAddr, utils.GetEthAddressStrFromCosmosAddr(info.GetAddress()),
-	//	6000000000000000,1,1,
-	//	int(time.Now().Add(time.Hour*24).Unix()),
-	//)
-	//res, err := cli.Evm().SendTx(info, common.PassWord, routerAddr, "0.001", ethcommon.Bytes2Hex(payload), "", accNum, seqNum)
+	//payload, err := UniswapV2.PairBuilder.Build("approve", utils.EthAddress(routerAddr), sdk.NewDec(10000000000000000).Int)
+	//if err != nil {
+	//	panic(err)
+	//}
+	//res, err := cli.Evm().SendTx(info, common.PassWord, oktUsdtLP, "", ethcommon.Bytes2Hex(payload), "", accNum, seqNum)
 	//if err != nil {
 	//	panic(err)
 	//}
 	//log.Println(res.TxHash)
+
+	//payload := UniswapV2.BuildAddLiquidOKTPayload(
+	//	usdtAddr, utils.GetEthAddressStrFromCosmosAddr(info.GetAddress()),
+	//	sdk.MustNewDecFromStr("1").Int, sdk.MustNewDecFromStr("0.0001").Int, sdk.MustNewDecFromStr("0.0001").Int,
+	//	time.Now().Add(time.Hour*24).Unix(),
+	//)
+	//res, err := cli.Evm().SendTx(info, common.PassWord, routerAddr, "0.1", ethcommon.Bytes2Hex(payload), "", accNum, seqNum)
+	//if err != nil {
+	//	panic(err)
+	//}
+	//log.Println(res.TxHash)
+
+	payload := UniswapV2.BuildRemoveLiquidOKTPayload(
+		usdtAddr, utils.GetEthAddressStrFromCosmosAddr(info.GetAddress()),
+		sdk.MustNewDecFromStr("900").Int, sdk.MustNewDecFromStr("8").Int, sdk.MustNewDecFromStr("0.109147").Int,
+		time.Now().Add(time.Hour*24).Unix(),
+	)
+	res, err := cli.Evm().SendTx(info, common.PassWord, routerAddr, "", ethcommon.Bytes2Hex(payload), "", accNum, seqNum)
+	log.Println(res.TxHash)
+	if err != nil {
+		panic(err)
+	}
 
 	//payload := BuildStakePayload(512775580224501)
 	//payload := BuildWithdrawPayload(500000000)

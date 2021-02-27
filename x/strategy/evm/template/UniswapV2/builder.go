@@ -1,6 +1,8 @@
 package UniswapV2
 
 import (
+	"math/big"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/okex/okexchain-go-sdk/utils"
@@ -62,12 +64,12 @@ func BuildRouterContractPayload(factoryAddress, wethAddress common.Address) []by
 	return payload
 }
 
-func BuildAddLiquidOKTPayload(token, to string, amountTokenDesired, amountTokenMin, amountOKTMin, deadline int) []byte {
+func BuildAddLiquidOKTPayload(token, to string, amountTokenDesired, amountTokenMin, amountOKTMin *big.Int, deadline int64) []byte {
 	payload, err := RouterBuilder.Build("addLiquidityETH",
 		utils.EthAddress(token),
 		utils.Uint256(amountTokenDesired), utils.Uint256(amountTokenMin),
 		utils.Uint256(amountOKTMin),
-		utils.EthAddress(to), utils.Uint256(deadline),
+		utils.EthAddress(to), big.NewInt(deadline),
 	)
 	if err != nil {
 		panic(err)
@@ -75,12 +77,12 @@ func BuildAddLiquidOKTPayload(token, to string, amountTokenDesired, amountTokenM
 	return payload
 }
 
-func BuildAddLiquidPayload(tokenA, tokenB, to string, amountADesired, amountBDesired, amountAMin, amountBMin, deadline int) []byte {
+func BuildAddLiquidPayload(tokenA, tokenB, to string, amountADesired, amountBDesired, amountAMin, amountBMin*big.Int, deadline int64) []byte {
 	payload, err := RouterBuilder.Build("addLiquidity",
 		utils.EthAddress(tokenA), utils.EthAddress(tokenB),
 		utils.Uint256(amountADesired), utils.Uint256(amountBDesired),
 		utils.Uint256(amountAMin), utils.Uint256(amountBMin),
-		utils.EthAddress(to), utils.Uint256(deadline),
+		utils.EthAddress(to), big.NewInt(deadline),
 	)
 	if err != nil {
 		panic(err)
@@ -88,12 +90,12 @@ func BuildAddLiquidPayload(tokenA, tokenB, to string, amountADesired, amountBDes
 	return payload
 }
 
-func BuildRemoveLiquidOKTPayload(token, to string, liquidity, amountTokenMin, amountOKTMin, deadline int) []byte {
+func BuildRemoveLiquidOKTPayload(token, to string, liquidity, amountTokenMin, amountOKTMin*big.Int, deadline int64) []byte {
 	payload, err := RouterBuilder.Build("removeLiquidityETH",
 		utils.EthAddress(token),
 		utils.Uint256(liquidity),
 		utils.Uint256(amountTokenMin), utils.Uint256(amountOKTMin),
-		utils.EthAddress(to), utils.Uint256(deadline),
+		utils.EthAddress(to), big.NewInt(deadline),
 	)
 	if err != nil {
 		panic(err)
@@ -101,12 +103,12 @@ func BuildRemoveLiquidOKTPayload(token, to string, liquidity, amountTokenMin, am
 	return payload
 }
 
-func BuildRemoveLiquidPayload(tokenA, tokenB, to string, liquidity, amountAMin, amountBMin, deadline int) []byte {
+func BuildRemoveLiquidPayload(tokenA, tokenB, to string, liquidity, amountAMin, amountBMin*big.Int, deadline int64) []byte {
 	payload, err := RouterBuilder.Build("removeLiquidity",
 		utils.EthAddress(tokenA), utils.EthAddress(tokenB),
 		utils.Uint256(liquidity),
 		utils.Uint256(amountAMin), utils.Uint256(amountBMin),
-		utils.EthAddress(to), utils.Uint256(deadline),
+		utils.EthAddress(to), big.NewInt(deadline),
 	)
 	if err != nil {
 		panic(err)

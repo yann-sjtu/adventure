@@ -6,6 +6,7 @@ import (
 	"sync"
 	"time"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/okex/adventure/common"
 	"github.com/okex/adventure/x/strategy/evm/deploy-contracts"
@@ -105,8 +106,8 @@ func testLoop(cmd *cobra.Command, args []string) {
 				// 1. add liquididy
 				payload := UniswapV2.BuildAddLiquidOKTPayload(
 					tokenAddr, utils.GetEthAddressStrFromCosmosAddr(info.GetAddress()),
-					6000000000000000,1,1,
-					int(time.Now().Add(time.Hour*24).Unix()),
+					sdk.MustNewDecFromStr("0.1").Int, sdk.MustNewDecFromStr("0.0001").Int, sdk.MustNewDecFromStr("0.0001").Int,
+					time.Now().Add(time.Hour*24).Unix(),
 				)
 				res, err := cli.Evm().SendTx(info, common.PassWord, routerAddr, "0.001", ethcommon.Bytes2Hex(payload), "", accNum, seqNum)
 				if err != nil {
