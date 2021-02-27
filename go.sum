@@ -510,8 +510,8 @@ github.com/okex/iavl v0.14.1-okexchain1 h1:aP9Rpxb1QU06WgTJ/xLyEQbZOiZzKy3once7w
 github.com/okex/iavl v0.14.1-okexchain1/go.mod h1:QmfViflFiXzxKLQE4tAUuWQHq+RSuQFxablW5oJZ6sE=
 github.com/okex/okexchain v0.16.4-0.20210201040102-7dcce65aa109 h1:L55XlVOurVgran2a8cI1J6j3L3kr91v2iSJ5FFhmnb4=
 github.com/okex/okexchain v0.16.4-0.20210201040102-7dcce65aa109/go.mod h1:10bnAr4BqlvcPAxhjxRLpq679PnTuNAMd67z/AdFNBY=
-github.com/okex/okexchain-go-sdk v0.16.1-0.20210220032532-b0c8b5e3f7c1 h1:2cxOR7fvT5aeg5uw00fwzzE9QiyDTHXiyejKkIHFo/U=
-github.com/okex/okexchain-go-sdk v0.16.1-0.20210220032532-b0c8b5e3f7c1/go.mod h1:DgG85pFp6lgKjkhpUYN8V4w8FPQT4kTh9Bu+rwVOlGM=
+github.com/okex/okexchain-go-sdk v0.16.1-0.20210227133232-bfe579bd7754 h1:702uZWpbQUYJE0l4FaFey522CW4AncQPTouK8Eqih/0=
+github.com/okex/okexchain-go-sdk v0.16.1-0.20210227133232-bfe579bd7754/go.mod h1:DgG85pFp6lgKjkhpUYN8V4w8FPQT4kTh9Bu+rwVOlGM=
 github.com/okex/tendermint v0.33.9-okexchain1 h1:D/ucsRdls+9fkfmvc9AdrFhSS8gtfzk3jyYt+PSzbEY=
 github.com/okex/tendermint v0.33.9-okexchain1/go.mod h1:0yUs9eIuuDq07nQql9BmI30FtYGcEC60Tu5JzB5IezM=
 github.com/oklog/oklog v0.3.2/go.mod h1:FCV+B7mhrz4o+ueLpx+KqkyXRGMWOYEvfiXtdGtbWGs=
