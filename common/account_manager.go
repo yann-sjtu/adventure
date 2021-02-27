@@ -95,6 +95,33 @@ func GetAccountAddressFromFile(path string) []string {
 	return addrs
 }
 
+func GetPrivKeyFromMnemoFile(path string) (privKeys []string) {
+	f, err := os.Open(path)
+	if err != nil {
+		log.Fatalln(err.Error())
+		return nil
+	}
+	defer f.Close()
+
+	fmt.Printf("loading mnemonics from path: %s, please wait\n", path)
+	rd := bufio.NewReader(f)
+	for {
+		mnemo, err := rd.ReadString('\n')
+		if err != nil || io.EOF == err {
+			break
+		}
+
+		privKey, err := utils.GeneratePrivateKeyFromMnemo(strings.TrimSpace(mnemo))
+		if err != nil {
+			panic(err)
+		}
+
+		privKeys = append(privKeys, privKey)
+	}
+
+	return
+}
+
 func GetAccountAddressFromMnemoFile(path string) (addrs []string) {
 	f, err := os.Open(path)
 	if err != nil {
