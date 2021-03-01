@@ -3,16 +3,11 @@ package mint
 import (
 	"log"
 	"sync"
-	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/okex/adventure/common"
-	deploy_contracts "github.com/okex/adventure/x/strategy/evm/deploy-contracts"
 	"github.com/okex/adventure/x/strategy/evm/template/TTotken"
-	"github.com/okex/adventure/x/strategy/evm/template/UniswapV2"
-	"github.com/okex/adventure/x/strategy/evm/template/UniswapV2Staker"
-	"github.com/okex/adventure/x/strategy/evm/tools"
 	"github.com/okex/okexchain-go-sdk/types"
 	"github.com/okex/okexchain-go-sdk/utils"
 	"github.com/spf13/cobra"
@@ -26,18 +21,28 @@ func MintCmd() *cobra.Command {
 		Run:   mint,
 	}
 
+	flags := cmd.Flags()
+	flags.IntVarP(&GoroutineNum, "goroutine-num", "g", 1, "set Goroutine Num of deploying contracts")
+	flags.StringVarP(&MnemonicPath, "mnemonic-path", "m", "", "set the MnemonicPath path")
+
 	return cmd
 }
 
-const TTokenAddr = "0x0d021d10ab9E155Fc1e8705d12b73f9bd3de0a36"
+var (
+	GoroutineNum  = 1
+
+	MnemonicPath = ""
+)
+
+const TTokenAddr = "0x1d29789a81aa381fE5830cd378Bb8F5c76E8C8a7"
 
 func mint(cmd *cobra.Command, args []string) {
-	infos := common.GetAccountManagerFromFile(deploy_contracts.MnemonicPath)
-	clients := common.NewClientManagerWithMode(common.Cfg.Hosts, "0.05okt", types.BroadcastBlock,50000000)
+	infos := common.GetAccountManagerFromFile(MnemonicPath)
+	clients := common.NewClientManagerWithMode(common.Cfg.Hosts, "0.05okt", types.BroadcastSync,50000000)
 
-	succ, fail := tools.NewCounter(-1), tools.NewCounter(-1)
+	//succ, fail := tools.NewCounter(-1), tools.NewCounter(-1)
 	var wg sync.WaitGroup
-	for i := 0; i < deploy_contracts.GoroutineNum; i++ {
+	for i := 0; i < GoroutineNum; i++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -54,19 +59,21 @@ func mint(cmd *cobra.Command, args []string) {
 				}
 				accNum, seqNum := acc.GetAccountNumber(), acc.GetSequence()
 				offset := uint64(0)
-				ethAddr := utils.GetEthAddressStrFromCosmosAddr(info.GetAddress())
+				ethAddr, _ := utils.ToHexAddress(info.GetAddress().String())
 
-				// Let Us GO GO GO !!!!!!
-				// 1. add liquididy
-				payload := TTotken.BuildTTokenMintPayload("", sdk.NewDec(1).Int)
-				//res, err :=
-				res, err := cli.Evm().SendTx(info, common.PassWord, TTokenAddr, "", ethcommon.Bytes2Hex(payload), "", accNum, seqNum)
-				if err != nil {
-					log.Printf("(%d)[%s] %s failed to add liquidity in %s: %s\n", fail.Add(), res.TxHash, ethAddr, routerAddr, err)
-					continue
-				} else {
-					log.Printf("(%d)[%s] %s add liquidity in %s \n", succ.Add(), res.TxHash, ethAddr, routerAddr)
-					offset++
+				for {
+					// Let Us GO GO GO !!!!!!
+					// 1. mint
+					payload := TTotken.BuildTTokenMintPayload(ethAddr.String(), sdk.NewDec(1).Int)
+					//res, err :=
+					res, err := cli.Evm().SendTx(info, common.PassWord, TTokenAddr, "", ethcommon.Bytes2Hex(payload), "", accNum, seqNum+offset)
+					if err != nil {
+						log.Printf("[%s] %s failed to mint in %s: %s\n", res.TxHash, ethAddr, TTokenAddr, err)
+						continue
+					} else {
+						log.Printf("[%s] %s mint in %s \n",  res.TxHash, ethAddr, TTokenAddr)
+						offset++
+					}
 				}
 			}
 		}()

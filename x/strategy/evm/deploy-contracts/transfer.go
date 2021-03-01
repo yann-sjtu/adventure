@@ -33,7 +33,7 @@ func transfer(clients *common.ClientManager, contractManager *tools.ContractMana
 				if err != nil {
 					panic(err)
 				}
-				fromEthAddr := utils.GetEthAddressStrFromCosmosAddr(addr)
+				fromEthAddr,_ := utils.ToHexAddress(addr.String())
 
 				cli := clients.GetClient()
 
@@ -70,8 +70,8 @@ func convertCosmosAddrsToEthAddrs(addrStrs []string) []string {
 			panic(err)
 		}
 
-		ethAddr := utils.GetEthAddressStrFromCosmosAddr(addr)
-		ethAddrs[i] = ethAddr
+		ethAddr, _ := utils.ToHexAddress(addr.String())
+		ethAddrs[i] = ethAddr.String()
 	}
 	return ethAddrs
 }

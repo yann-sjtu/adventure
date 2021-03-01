@@ -51,7 +51,7 @@ func transferCoins(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		panic(err)
 	}
-	ownerEthAddr := utils.GetEthAddressStrFromCosmosAddr(ownerAccAddress)
+	ownerEthAddr, _ := utils.ToHexAddress(ownerAccAddress.String())
 
 	addrs := common.GetAccountAddressFromFile(AccountsPath)
 	ethAddrs := convertCosmosAddrsToEthAddrs(addrs)
@@ -77,8 +77,8 @@ func convertCosmosAddrsToEthAddrs(addrStrs []string) []string {
 			panic(err)
 		}
 
-		ethAddr := utils.GetEthAddressStrFromCosmosAddr(addr)
-		ethAddrs[i] = ethAddr
+		ethAddr, _ := utils.ToHexAddress(addr.String())
+		ethAddrs[i] = ethAddr.String()
 	}
 	return ethAddrs
 }
