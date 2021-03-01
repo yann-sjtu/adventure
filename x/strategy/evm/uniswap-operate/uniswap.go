@@ -100,12 +100,13 @@ func testLoop(cmd *cobra.Command, args []string) {
 				}
 				accNum, seqNum := acc.GetAccountNumber(), acc.GetSequence()
 				offset := uint64(0)
-				ethAddr := utils.GetEthAddressStrFromCosmosAddr(info.GetAddress())
+				ethAddr, _ := utils.ToHexAddress(info.GetAddress().String())
 
 				// Let Us GO GO GO !!!!!!
 				// 1. add liquididy
+				toEthAddr, _ :=  utils.ToHexAddress(info.GetAddress().String())
 				payload := UniswapV2.BuildAddLiquidOKTPayload(
-					tokenAddr, utils.GetEthAddressStrFromCosmosAddr(info.GetAddress()),
+					tokenAddr, toEthAddr.String(),
 					sdk.MustNewDecFromStr("0.1").Int, sdk.MustNewDecFromStr("0.0001").Int, sdk.MustNewDecFromStr("0.0001").Int,
 					time.Now().Add(time.Hour*24).Unix(),
 				)

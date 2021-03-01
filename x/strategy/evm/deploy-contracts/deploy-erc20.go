@@ -73,7 +73,7 @@ func deployErc20Tokens(cmd *cobra.Command, args []string) {
 				accNum, seqNum := acc.GetAccountNumber(), acc.GetSequence()
 
 				// 4.1 deploy factory
-				ethAddress := utils.EthAddress(utils.GetEthAddressStrFromCosmosAddr(info.GetAddress()))
+				ethAddress, _ := utils.ToHexAddress(info.GetAddress().String())
 				facPayload := UniswapV2.BuildFactoryContractPayload(ethAddress)
 				_, facAddress, err := cli.Evm().CreateContract(info, common.PassWord, "", ethcommon.Bytes2Hex(facPayload), "", accNum, seqNum)
 				if err != nil {
