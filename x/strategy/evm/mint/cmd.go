@@ -34,7 +34,7 @@ var (
 	MnemonicPath = ""
 )
 
-const TTokenAddr = "0xaAEc7660B2efe02ff23082a2C5349127D51Bba71"
+const TTokenAddr = "0xF22048EBb4Dc8BFF2bD0063c5707C8dB93AaF960"
 
 func mint(cmd *cobra.Command, args []string) {
 	infos := common.GetAccountManagerFromFile(MnemonicPath)
