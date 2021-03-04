@@ -11,10 +11,12 @@ import (
 	"github.com/okex/adventure/common"
 	"github.com/okex/adventure/x/strategy/evm/template/USDT"
 	"github.com/okex/adventure/x/strategy/evm/tools"
+	"github.com/okex/okexchain-go-sdk/types"
 	"github.com/okex/okexchain-go-sdk/utils"
 )
 
 func transfer(clients *common.ClientManager, contractManager *tools.ContractManager) {
+	clients = common.NewClientManagerWithMode(common.Cfg.Hosts, "0.05okt", types.BroadcastSync,50000000)
 	contractManager.List()
 
 	s, f := tools.NewCounter(0), tools.NewCounter(0)
