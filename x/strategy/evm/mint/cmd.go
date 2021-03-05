@@ -34,11 +34,11 @@ var (
 	MnemonicPath = ""
 )
 
-const TTokenAddr = "0xF22048EBb4Dc8BFF2bD0063c5707C8dB93AaF960"
+const TTokenAddr = "0x7F7715DC893A7504D3a89c8784bC4cFa19db8cc0"
 
 func mint(cmd *cobra.Command, args []string) {
 	infos := common.GetAccountManagerFromFile(MnemonicPath)
-	clients := common.NewClientManagerWithMode(common.Cfg.Hosts, "0.05okt", types.BroadcastSync,50000000)
+	clients := common.NewClientManagerWithMode(common.Cfg.Hosts, "0.0005okt", types.BroadcastSync,50000000)
 
 	//succ, fail := tools.NewCounter(-1), tools.NewCounter(-1)
 	var wg sync.WaitGroup
