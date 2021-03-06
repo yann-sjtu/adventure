@@ -114,13 +114,14 @@ func testLoop(cmd *cobra.Command, args []string) {
 			withdrawPayload := hexutil.Encode(UniswapV2Staker.BuildWithdrawPayload(500000000))
 			exitPayload := hexutil.Encode(UniswapV2Staker.BuildExitPayload())
 
+
+			accInfo, err := cli.Auth().QueryAccount(info.GetAddress().String())
+			if err != nil {
+				panic(err)
+			}
+			seqNum := accInfo.GetSequence()
+			offset := uint64(0)
 			for {
-				accInfo, err := cli.Auth().QueryAccount(info.GetAddress().String())
-				if err != nil {
-					panic(err)
-				}
-				seqNum := accInfo.GetSequence()
-				offset := uint64(0)
 
 				// Let Us GO GO GO !!!!!!
 				// 1. add liquididy
@@ -144,7 +145,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 				}
 
 				// 2.2 withDraw randomly
-				rand.Seed(time.Now().Unix())
+				rand.Seed(time.Now().UnixNano())
 				if rand.Intn(10) <= 3 {
 					res, err = cli.Evm().SendTxEthereum(privkey, poolAddr, "", withdrawPayload, 500000, seqNum+offset)
 					if err != nil {
@@ -157,27 +158,27 @@ func testLoop(cmd *cobra.Command, args []string) {
 				}
 
 				// 2.3 get Reward randomly
-				rand.Seed(time.Now().Unix())
+				rand.Seed(time.Now().UnixNano())
 				if rand.Intn(10) <= 3 {
 					res, err = cli.Evm().SendTxEthereum(privkey, poolAddr, "", getRewardPayload, 500000, seqNum+offset)
 					if err != nil {
-						log.Printf("(%d)[%s] %s failed to withdraw lp from %s: %s\n", fail.Add(), res.TxHash, ethAddr, poolAddr, err)
+						log.Printf("(%d)[%s] %s failed to get reward from %s: %s\n", fail.Add(), res.TxHash, ethAddr, poolAddr, err)
 						continue
 					} else {
-						log.Printf("(%d)[%s] %s withdraw lp from %s \n", succ.Add(), res.TxHash, ethAddr, poolAddr)
+						log.Printf("(%d)[%s] %s get reward from %s \n", succ.Add(), res.TxHash, ethAddr, poolAddr)
 						offset++
 					}
 				}
 
 				// 2.4 Exit randomly
-				rand.Seed(time.Now().Unix())
-				if rand.Intn(10) <= 1 {
+				rand.Seed(time.Now().UnixNano())
+				if rand.Intn(10) <= 3 {
 					res, err = cli.Evm().SendTxEthereum(privkey, poolAddr, "", exitPayload, 500000, seqNum+offset)
 					if err != nil {
-						log.Printf("(%d)[%s] %s failed to withdraw lp from %s: %s\n", fail.Add(), res.TxHash, ethAddr, poolAddr, err)
+						log.Printf("(%d)[%s] %s failed to exit from %s: %s\n", fail.Add(), res.TxHash, ethAddr, poolAddr, err)
 						continue
 					} else {
-						log.Printf("(%d)[%s] %s withdraw lp from %s \n", succ.Add(), res.TxHash, ethAddr, poolAddr)
+						log.Printf("(%d)[%s] %s exit from %s \n", succ.Add(), res.TxHash, ethAddr, poolAddr)
 						offset++
 					}
 				}
