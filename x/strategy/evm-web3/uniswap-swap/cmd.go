@@ -5,6 +5,7 @@ import (
 	"log"
 	"math/big"
 	"sync"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -117,7 +118,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 			swapPayloadStr := hexutil.Encode(UniswapV2.BuildSwapExactTokensForTokensPayload(
 				big.NewInt(1000), big.NewInt(0),
 				[]string{WethAddr,UsdtAddr}, "0x2B5Cf24AeBcE90f0B8f80Bc42603157b27cFbf47",
-				1715013284,
+				time.Now().Add(time.Hour*8640).Unix(),
 			))
 
 			// deposit weth
@@ -147,6 +148,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 				}
 				log.Printf("(%d)[TxHash: %s] %s swap 1000*10^-18 weth %s for usdt %s\n", succ.Add(), res.TxHash, ethAddr, WethAddr, UsdtAddr)
 				offset++
+				time.Sleep(time.Duration(sleepTime))
 			}
 
 		}(i)
