@@ -75,7 +75,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 				} else {
 					log.Printf("(%d)[%s] %s excute dyf successfull in %s \n", succ.Add(), res.TxHash, ethAddr, dyfAddr)
 				}
-				time.Sleep(time.Duration(sleepTime))
+				time.Sleep(time.Second*time.Duration(sleepTime))
 			}
 		}(i)
 	}
