@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/okex/adventure/x/monitor"
+	evm_web3 "github.com/okex/adventure/x/strategy/evm-web3"
 	"github.com/okex/adventure/x/strategy/farm/client"
 	"log"
 	"os"
@@ -62,6 +63,7 @@ adventure is a very powerful cli tool for OKChain. It supports JSON-file and Sub
 		token.TokenCmd(),
 		farm.FarmCmd(),
 		evm.EvmCmd(),
+		evm_web3.EvmCmd(),
 		version.Cmd,
 	)
 

@@ -108,7 +108,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 				payload := UniswapV2.BuildAddLiquidOKTPayload(
 					tokenAddr, toEthAddr.String(),
 					sdk.MustNewDecFromStr("0.1").Int, sdk.MustNewDecFromStr("0.0001").Int, sdk.MustNewDecFromStr("0.0001").Int,
-					time.Now().Add(time.Hour*24).Unix(),
+					time.Now().Add(time.Hour*8640).Unix(),
 				)
 				res, err := cli.Evm().SendTx(info, common.PassWord, routerAddr, "0.001", ethcommon.Bytes2Hex(payload), "", accNum, seqNum)
 				if err != nil {
