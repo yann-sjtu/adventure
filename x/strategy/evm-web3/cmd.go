@@ -1,7 +1,9 @@
 package evm_web3
 
 import (
-	"github.com/okex/adventure/x/strategy/evm-web3/uniswap"
+	"github.com/okex/adventure/x/strategy/evm-web3/dyf"
+	"github.com/okex/adventure/x/strategy/evm-web3/uniswap-mining"
+	"github.com/okex/adventure/x/strategy/evm-web3/uniswap-swap"
 	"github.com/spf13/cobra"
 )
 
@@ -12,7 +14,9 @@ func EvmCmd() *cobra.Command {
 	}
 
 	evmCmd.AddCommand(
-		uniswap.Cmd(),
+		uniswap_mining.Cmd(),
+		uniswap_swap.Cmd(),
+		dyf.Cmd(),
 	)
 	return evmCmd
 }
