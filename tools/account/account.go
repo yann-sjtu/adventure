@@ -23,6 +23,6 @@ func Cmd() *cobra.Command {
 	accountCmd.AddCommand(getMnemonicCmd())
 	accountCmd.AddCommand(getAddressCmd())
 	accountCmd.AddCommand(transferTokenCmd())
-	//accountCmd.AddCommand(addressCmd())
+	accountCmd.AddCommand(createAccInfoCmd())
 	return accountCmd
 }
