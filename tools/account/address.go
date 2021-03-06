@@ -12,6 +12,8 @@ import (
 )
 
 const (
+	flagAccountNum      = "num"
+	flagOutputFolder      = "output-folder"
 	flagAddressFilePath = "file"
 	addressCmdName      = "address"
 	workerNum           = 100
