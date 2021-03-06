@@ -55,13 +55,6 @@ func testLoop(cmd *cobra.Command, args []string) {
 				panic(err)
 			}
 
-			accInfo, err := cli.Auth().QueryAccount(info.GetAddress().String())
-			if err != nil {
-				panic(err)
-			}
-			seqNum := accInfo.GetSequence()
-			offset := uint64(0)
-
 			ethAddr, err  := utils.ToHexAddress(info.GetAddress().String())
 			if err != nil {
 				panic(err)
@@ -69,16 +62,18 @@ func testLoop(cmd *cobra.Command, args []string) {
 
 			goPayloadStr := hexutil.Encode(DYF.BuildExcutePayload())
 			for {
-
+				accInfo, err := cli.Auth().QueryAccount(info.GetAddress().String())
+				if err != nil {
+					panic(err)
+				}
 				// Let Us GO GO GO !!!!!!
 				// 1. add liquididy
-				res, err := cli.Evm().SendTxEthereum(privkey, dyfAddr, "", goPayloadStr, 1500000, seqNum+offset)
+				res, err := cli.Evm().SendTxEthereum(privkey, dyfAddr, "", goPayloadStr, 1500000, accInfo.GetSequence())
 				if err != nil {
 					log.Printf("(%d)[%s] %s failed to excute dyf in %s: %s\n", fail.Add(), res.TxHash, ethAddr, dyfAddr, err)
 					continue
 				} else {
-					log.Printf("(%d)[%s] %s excute dyf  in %s \n", succ.Add(), res.TxHash, ethAddr, dyfAddr)
-					offset++
+					log.Printf("(%d)[%s] %s excute dyf successfull in %s \n", succ.Add(), res.TxHash, ethAddr, dyfAddr)
 				}
 				time.Sleep(time.Duration(sleepTime))
 			}
