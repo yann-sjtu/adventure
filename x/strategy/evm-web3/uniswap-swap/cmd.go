@@ -79,7 +79,7 @@ const (
 
 func testLoop(cmd *cobra.Command, args []string) {
 	privkeys := common.GetPrivKeyFromPrivKeyFile(privkeyPath)
-	clients := common.NewClientManagerWithMode(common.Cfg.Hosts, "0.005okt", types.BroadcastBlock, 500000)
+	clients := common.NewClientManagerWithMode(common.Cfg.Hosts, "0.005okt", types.BroadcastSync, 500000)
 	succ, fail := tools.NewCounter(-1), tools.NewCounter(-1)
 
 	var wg sync.WaitGroup
