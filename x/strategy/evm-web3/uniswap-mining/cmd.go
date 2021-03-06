@@ -1,4 +1,4 @@
-package uniswap
+package uniswap_mining
 
 import (
 	"log"
