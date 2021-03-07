@@ -64,7 +64,8 @@ func testLoop(cmd *cobra.Command, args []string) {
 			for {
 				accInfo, err := cli.Auth().QueryAccount(info.GetAddress().String())
 				if err != nil {
-					panic(err)
+					time.Sleep(time.Second*15)
+					continue
 				}
 				// Let Us GO GO GO !!!!!!
 				// 1. add liquididy
