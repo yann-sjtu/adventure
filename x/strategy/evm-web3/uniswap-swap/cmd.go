@@ -12,7 +12,6 @@ import (
 	"github.com/okex/adventure/common"
 	"github.com/okex/adventure/x/strategy/evm/template/UniswapV2"
 	"github.com/okex/adventure/x/strategy/evm/tools"
-	"github.com/okex/okexchain-go-sdk/types"
 	"github.com/okex/okexchain-go-sdk/utils"
 	"github.com/spf13/cobra"
 )
@@ -22,6 +21,7 @@ var (
 	privkeyPath  string
 	sleepTime    int
 	deposit      bool
+	mode         string
 )
 
 func Cmd() *cobra.Command {
@@ -37,6 +37,7 @@ func Cmd() *cobra.Command {
 	flags.StringVarP(&privkeyPath, "private-path", "p", "", "set the Priv Key path")
 	flags.IntVarP(&sleepTime, "sleep-time", "t", 0, "set the sleep time")
 	flags.BoolVarP(&deposit, "deposit", "d", true, "deposit okt or not")
+	flags.StringVarP(&mode, "mode", "s", "sync", "set the mode of sync or block")
 	return cmd
 }
 
@@ -80,7 +81,7 @@ const (
 
 func testLoop(cmd *cobra.Command, args []string) {
 	privkeys := common.GetPrivKeyFromPrivKeyFile(privkeyPath)
-	clients := common.NewClientManagerWithMode(common.Cfg.Hosts, "0.005okt", types.BroadcastSync, 500000)
+	clients := common.NewClientManagerWithMode(common.Cfg.Hosts, "0.005okt", mode, 500000)
 	succ, fail := tools.NewCounter(-1), tools.NewCounter(-1)
 
 	var wg sync.WaitGroup

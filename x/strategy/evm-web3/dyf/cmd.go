@@ -9,7 +9,6 @@ import (
 	"github.com/okex/adventure/common"
 	"github.com/okex/adventure/x/strategy/evm/template/DYF"
 	"github.com/okex/adventure/x/strategy/evm/tools"
-	"github.com/okex/okexchain-go-sdk/types"
 	"github.com/okex/okexchain-go-sdk/utils"
 	"github.com/spf13/cobra"
 )
@@ -18,6 +17,7 @@ var (
 	goroutineNum int
 	privkeyPath  string
 	sleepTime    int
+	mode         string
 )
 
 func Cmd() *cobra.Command {
@@ -32,7 +32,7 @@ func Cmd() *cobra.Command {
 	flags.IntVarP(&goroutineNum, "goroutine-num", "g", 1, "set Goroutine Num")
 	flags.StringVarP(&privkeyPath, "private-path", "p", "", "set the Priv Key path")
 	flags.IntVarP(&sleepTime, "sleep-time", "t", 0, "set the sleep time")
-
+	flags.StringVarP(&mode, "mode", "s", "sync", "set the mode of sync or block")
 	return cmd
 }
 
@@ -40,7 +40,7 @@ const dyfAddr = "0xd78e1680e93bF57580F299d75B364e591873a8d3"
 
 func testLoop(cmd *cobra.Command, args []string) {
 	privkeys := common.GetPrivKeyFromPrivKeyFile(privkeyPath)
-	clients := common.NewClientManagerWithMode(common.Cfg.Hosts, "0.015okt", types.BroadcastBlock, 1500000)
+	clients := common.NewClientManagerWithMode(common.Cfg.Hosts, "0.015okt", mode, 1500000)
 	succ, fail := tools.NewCounter(-1), tools.NewCounter(-1)
 
 	var wg sync.WaitGroup
