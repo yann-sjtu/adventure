@@ -61,20 +61,21 @@ func testLoop(cmd *cobra.Command, args []string) {
 			}
 
 			goPayloadStr := hexutil.Encode(DYF.BuildExcutePayload())
+			accInfo, err := cli.Auth().QueryAccount(info.GetAddress().String())
+			if err != nil {
+				panic(err)
+			}
+			offset := uint64(0)
 			for {
-				accInfo, err := cli.Auth().QueryAccount(info.GetAddress().String())
-				if err != nil {
-					time.Sleep(time.Second*15)
-					continue
-				}
 				// Let Us GO GO GO !!!!!!
 				// 1. add liquididy
-				res, err := cli.Evm().SendTxEthereum(privkey, dyfAddr, "", goPayloadStr, 1500000, accInfo.GetSequence())
+				res, err := cli.Evm().SendTxEthereum(privkey, dyfAddr, "", goPayloadStr, 1500000, accInfo.GetSequence()+offset)
 				if err != nil {
 					log.Printf("(%d)[%s] %s failed to excute dyf in %s: %s\n", fail.Add(), res.TxHash, ethAddr, dyfAddr, err)
 					continue
 				} else {
 					log.Printf("(%d)[%s] %s excute dyf successfull in %s \n", succ.Add(), res.TxHash, ethAddr, dyfAddr)
+					offset++
 				}
 				time.Sleep(time.Second*time.Duration(sleepTime))
 			}
