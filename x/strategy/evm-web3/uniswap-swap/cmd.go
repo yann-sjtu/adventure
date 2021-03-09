@@ -148,7 +148,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 				}
 				log.Printf("(%d)[TxHash: %s] %s swap 1000*10^-18 weth %s for usdt %s\n", succ.Add(), res.TxHash, ethAddr, WethAddr, UsdtAddr)
 				offset++
-				time.Sleep(time.Duration(sleepTime))
+				time.Sleep(time.Duration(sleepTime)*time.Second)
 			}
 
 		}(i)
