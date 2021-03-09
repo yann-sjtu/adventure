@@ -40,7 +40,7 @@ const dyfAddr = "0xd78e1680e93bF57580F299d75B364e591873a8d3"
 
 func testLoop(cmd *cobra.Command, args []string) {
 	privkeys := common.GetPrivKeyFromPrivKeyFile(privkeyPath)
-	clients := common.NewClientManagerWithMode(common.Cfg.Hosts, "0.015okt", types.BroadcastSync, 1500000)
+	clients := common.NewClientManagerWithMode(common.Cfg.Hosts, "0.015okt", types.BroadcastBlock, 1500000)
 	succ, fail := tools.NewCounter(-1), tools.NewCounter(-1)
 
 	var wg sync.WaitGroup
