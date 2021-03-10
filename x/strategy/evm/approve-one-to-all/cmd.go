@@ -47,8 +47,12 @@ func approveCoins(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	accNum, seqNum := acc.GetAccountNumber(), acc.GetSequence()
+	seqNum := acc.GetSequence()
 
+	privkey,err := utils.GeneratePrivateKeyFromMnemo(strings.TrimSpace(Mnemonic))
+	if err != nil {
+		return err
+	}
 
 	addrs := common.GetAccountAddressFromFile(ToAddrPath)
 	for i, addr := range addrs {
@@ -60,7 +64,7 @@ func approveCoins(cmd *cobra.Command, args []string) error {
 		ethAddr, _ := utils.ToHexAddress(cosmosaddr.String())
 
 		payload := UniswapV2.BuildApprovePayload(addr, 10000000000000000)
-		res, err := cli.Evm().SendTx(info, common.PassWord, FromContract, "", ethcommon.Bytes2Hex(payload), "", accNum, seqNum+uint64(i))
+		res, err := cli.Evm().SendTxEthereum(privkey, FromContract, "", ethcommon.Bytes2Hex(payload), 300000, seqNum+uint64(i))
 		if err != nil {
 			log.Printf("%s fail to approve sending 100000coin to %s from contract %s: %s \n", acc.GetAddress().String(), ethAddr, FromContract, err)
 			return err

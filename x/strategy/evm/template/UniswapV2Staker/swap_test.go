@@ -61,7 +61,7 @@ func TestBuilder(t *testing.T) {
 	//log.Println(res.TxHash)
 
 	payload := UniswapV2.BuildRemoveLiquidOKTPayload(
-		usdtAddr, utils.GetEthAddressStrFromCosmosAddr(info.GetAddress()),
+		usdtAddr, "utils.ToHexAddress(info.GetAddress())",
 		sdk.MustNewDecFromStr("900").Int, sdk.MustNewDecFromStr("8").Int, sdk.MustNewDecFromStr("0.109147").Int,
 		time.Now().Add(time.Hour*24).Unix(),
 	)

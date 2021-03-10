@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/okex/adventure/query"
 	"github.com/okex/adventure/x/monitor"
 	evm_web3 "github.com/okex/adventure/x/strategy/evm-web3"
 	"github.com/okex/adventure/x/strategy/farm/client"
@@ -65,6 +66,7 @@ adventure is a very powerful cli tool for OKChain. It supports JSON-file and Sub
 		evm.EvmCmd(),
 		evm_web3.EvmCmd(),
 		version.Cmd,
+		query.BenchQueryCmd(),
 	)
 
 	if err := mainCmd.Execute(); err != nil {
