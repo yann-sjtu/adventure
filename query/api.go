@@ -18,6 +18,12 @@ const (
 	ethGetTransactionReceipt = "eth_getTransactionReceipt"
 )
 
+var (
+	persistentBlockNumberRequest = EthBlockNumber()
+	persistentGasPriceRequest    = EthGasPrice()
+	persistentGetCodeReuqest     = EthGetCode()
+)
+
 func EthBlockNumber() Request {
 	return CreateRequest(ethBlockNumber, nil)
 }
