@@ -31,7 +31,7 @@ func BenchQueryCmd() *cobra.Command {
 	flags := cmd.Flags()
 	flags.IntSliceVarP(&concurrency, "concurrency", "c", []int{1,1,1,1,1,1,1}, "set the number of query concurrent number per second")
 	flags.IntVarP(&sleepTime, "sleeptime", "t",1, "set the number of query num")
-	flags.StringVarP(&host, "host", "n","", "set the number of query num")
+	flags.StringVarP(&host, "host", "n","https://exchaintest.okexcn.com", "set the number of query num")
 	return cmd
 }
 
@@ -42,7 +42,14 @@ func benchQuery(cmd *cobra.Command, args []string) {
 
 	ips := QueryProxyIpList()
 
-	for {
+	for r := 0; ; r++ {
+		if r % 300 == 0 && r != 0{
+			newIps := QueryProxyIpList()
+			if len(newIps) > 1 {
+				ips = newIps
+			}
+		}
+
 		for n := 0; n < 7; n++ {
 			reqType := n
 			req := generateRequest(reqType)
@@ -105,7 +112,10 @@ func QueryProxyIpList() []string {
 		panic(err)
 	}
 	urls := string(conent)
-	fmt.Println(urls)
 	list := strings.Split(urls, "\r\n")
+	if len(list) == 1 {
+		fmt.Println(list)
+		return nil
+	}
 	return list[:2000]
 }

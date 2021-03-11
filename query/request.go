@@ -69,17 +69,16 @@ func CallWithProxy(postBody []byte, reqType int,proxyIP string) (*Response, erro
 	if reqErr != nil {
 		log.Println(reqType, elapsed, fail, reqErr)
 		return nil, reqErr
-	} else {
-		log.Println(reqType, elapsed, success)
 	}
 	//返回内容
-	//var rpcRes *Response
-	//decoder := json.NewDecoder(resp.Body)
-	//rpcRes = new(Response)
-	//err = decoder.Decode(&rpcRes)
-	//if err != nil {
-	//	panic(err)
-	//}
+	var rpcRes *Response
+	decoder := json.NewDecoder(resp.Body)
+	rpcRes = new(Response)
+	err = decoder.Decode(&rpcRes)
+	if err != nil {
+		panic(err)
+	}
+	log.Println(reqType, elapsed, success, string(rpcRes.Result[:8]))
 	err = resp.Body.Close()
 	if err != nil {
 		return nil, err
