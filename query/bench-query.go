@@ -58,7 +58,9 @@ func benchQuery(cmd *cobra.Command, args []string) {
 	for r := 1; ; r++ {
 		if r % 15 == 0 {
 			newIps := QueryProxyIpList()
-			ips = newIps
+			if len(newIps) > 1{
+				ips = newIps
+			}
 		}
 		for n := 0; n < 7; n++ {
 			reqType := n
@@ -116,7 +118,7 @@ func generateRequest(index int) []byte {
 func QueryProxyIpList() []string {
 	resp, err := http.Get(proxyFetchIp)
 	if err != nil {
-		panic(err)
+		return nil
 	}
 	defer resp.Body.Close()
 	conent, err := ioutil.ReadAll(resp.Body)
