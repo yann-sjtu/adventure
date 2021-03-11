@@ -54,7 +54,11 @@ func benchQuery(cmd *cobra.Command, args []string) {
 	}
 
 	ips := QueryProxyIpList()
-	for r := 0; ; r++ {
+	for r := 1; ; r++ {
+		if r % 180 == 0 {
+			newIps := QueryProxyIpList()
+			ips = newIps
+		}
 		for n := 0; n < 7; n++ {
 			reqType := n
 			req := generateRequest(reqType)
