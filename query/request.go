@@ -3,8 +3,15 @@ package query
 import (
 	"bytes"
 	"encoding/json"
+	"log"
 	"net/http"
 	"net/url"
+	"time"
+)
+
+const (
+	success = "sucess"
+	fail    = "failed"
 )
 
 type Request struct {
@@ -35,13 +42,8 @@ func CreateRequest(method string, params interface{}) Request {
 	}
 }
 
-func CallWithProxy(request Request, proxyIP string) (*Response, error) {
+func CallWithProxy(postBody []byte, reqType int,proxyIP string) (*Response, error) {
 	client := &http.Client{}
-	//转换成postBody
-	postBody, err := json.Marshal(request)
-	if err != nil {
-		panic(err)
-	}
 
 	//是否使用代理IP
 	if proxyIP != "" {
@@ -57,27 +59,34 @@ func CallWithProxy(request Request, proxyIP string) (*Response, error) {
 	//post请求
 	req, err := http.NewRequest("POST", host, bytes.NewBuffer(postBody))
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	resp, err := client.Do(req)
-	if err != nil {
-		panic(err)
+
+	startTime := time.Now()
+	resp, reqErr := client.Do(req)
+	elapsed := time.Since(startTime)
+	if reqErr != nil {
+		log.Println(reqType, elapsed, fail, reqErr)
+		return nil, reqErr
+	} else {
+		log.Println(reqType, elapsed, success)
 	}
 	//返回内容
-	var rpcRes *Response
-	decoder := json.NewDecoder(resp.Body)
-	rpcRes = new(Response)
-	err = decoder.Decode(&rpcRes)
-	if err != nil {
-		panic(err)
-	}
+	//var rpcRes *Response
+	//decoder := json.NewDecoder(resp.Body)
+	//rpcRes = new(Response)
+	//err = decoder.Decode(&rpcRes)
+	//if err != nil {
+	//	panic(err)
+	//}
 	err = resp.Body.Close()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	return rpcRes, nil
+	//return rpcRes, nil
+	return &Response{}, nil
 }
 
 func Call(request Request) (*Response, error) {

@@ -1,9 +1,9 @@
 package query
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"math/rand"
 	"net/http"
 	"strings"
@@ -44,20 +44,21 @@ func benchQuery(cmd *cobra.Command, args []string) {
 
 	for {
 		for n := 0; n < 7; n++ {
-			index := n
-			req := generateRequest(index)
-			for i := 0; i < concurrency[index]; i++ {
+			reqType := n
+			req := generateRequest(reqType)
+			for i := 0; i < concurrency[reqType]; i++ {
 				go func(num int) {
-					res, err := CallWithProxy(req, "http://"+ips[rand.Intn(len(ips))])
-					if err != nil {
-						log.Println("query failed:", err)
-						return
-					}
-					if res.Error != nil {
-						log.Println("query result is wrong:", res.Error)
-					} else {
-						log.Println("query success:", string(res.Result))
-					}
+					CallWithProxy(req, reqType, "http://"+ips[rand.Intn(len(ips))])
+					//res, err := CallWithProxy(req, reqType, "http://"+ips[rand.Intn(len(ips))])
+					//if err != nil {
+					//	log.Println("query failed:", err)
+					//	return
+					//}
+					//if res.Error != nil {
+					//	log.Println("query result is wrong:", res.Error)
+					//} else {
+					//	log.Println("query success:", string(res.Result))
+					//}
 				}(i)
 			}
 		}
@@ -65,25 +66,32 @@ func benchQuery(cmd *cobra.Command, args []string) {
 	}
 }
 
-func generateRequest(index int) Request {
+func generateRequest(index int) []byte {
+	var req Request
 	switch index {
 	case 0:
-		return persistentBlockNumberRequest
+		req = persistentBlockNumberRequest
 	case 1:
-		return EthGetBalance()
+		req = EthGetBalance()
 	case 2:
-		return EthGetBlockByNumber()
+		req = EthGetBlockByNumber()
 	case 3:
-		return persistentGasPriceRequest
+		req =  persistentGasPriceRequest
 	case 4:
-		return persistentGetCodeReuqest
+		req =  persistentGetCodeReuqest
 	case 5:
-		return EthGetTransactionCount()
+		req =  EthGetTransactionCount()
 	case 6:
-		return EthGetTransactionReceipt()
+		req =  EthGetTransactionReceipt()
 	default:
+		req = persistentBlockNumberRequest
 	}
-	return Request{}
+
+	postBody, err := json.Marshal(req)
+	if err != nil {
+		panic(err)
+	}
+	return postBody
 }
 
 func QueryProxyIpList() []string {
@@ -97,6 +105,7 @@ func QueryProxyIpList() []string {
 		panic(err)
 	}
 	urls := string(conent)
+	fmt.Println(urls)
 	list := strings.Split(urls, "\r\n")
 	return list[:2000]
 }
