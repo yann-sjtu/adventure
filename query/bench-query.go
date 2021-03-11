@@ -45,13 +45,13 @@ func benchQuery(cmd *cobra.Command, args []string) {
 	}
 
 	ips := QueryProxyIpList()
-	for r := 0; ; r++ {
+	for r := 1; ; r++ {
 		for n := 0; n < 7; n++ {
 			reqType := n
 			req := generateRequest(reqType)
 			for i := 0; i < concurrency[reqType]; i++ {
-				go func(num int) {
-					curIndex := startList[reqType] + num
+				go func(round int, num int) {
+					curIndex := (startList[reqType] + num)*round
 					//fmt.Println(curIndex)
 					CallWithProxy(req, reqType, "http://"+ips[curIndex%len(ips)])
 					//res, err := CallWithProxy(req, reqType, "http://"+ips[rand.Intn(len(ips))])
@@ -64,7 +64,7 @@ func benchQuery(cmd *cobra.Command, args []string) {
 					//} else {
 					//	log.Println("query success:", string(res.Result))
 					//}
-				}(i)
+				}(r,i)
 			}
 		}
 		time.Sleep(time.Duration(sleepTime) * time.Second)
