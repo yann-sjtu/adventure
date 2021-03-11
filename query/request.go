@@ -68,7 +68,7 @@ func CallWithProxy(postBody []byte, reqType int,proxyIP string) (*Response, erro
 	resp, reqErr := client.Do(req)
 	elapsed := time.Since(startTime)
 	if reqErr != nil {
-		log.Println(reqType, elapsed, fail, reqErr)
+		log.Println(reqType, elapsed, fail, reqErr, proxyIP)
 		return nil, reqErr
 	}
 	//返回内容
