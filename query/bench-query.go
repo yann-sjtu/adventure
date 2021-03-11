@@ -18,7 +18,8 @@ var (
 	test        bool
 
 	proxyTestFetchIp = "http://webapi.http.zhimacangku.com/getip?num=10&type=1&pro=&city=0&yys=0&port=1&time=1&ts=0&ys=0&cs=0&lb=1&sb=0&pb=4&mr=1&regions="
-	proxyFetchIp     = "http://webapi.http.zhimacangku.com/getip?num=400&type=1&pro=&city=0&yys=0&port=1&pack=138919&ts=0&ys=0&cs=0&lb=1&sb=0&pb=4&mr=1&regions=&big_num=2000"
+	//proxyFetchIp     = "http://webapi.http.zhimacangku.com/getip?num=400&type=1&pro=&city=0&yys=0&port=1&pack=138919&ts=0&ys=0&cs=0&lb=1&sb=0&pb=4&mr=1&regions=&big_num=2000"
+	proxyFetchIp  = "http://webapi.http.zhimacangku.com/getallip?&big_num=1000&type=1&pro=&city=0&yys=0&port=1&pack=138919&ts=0&ys=0&cs=0&lb=1&sb=0&pb=4&mr=3&regions=&username=chukou01&spec=1"
 )
 
 func BenchQueryCmd() *cobra.Command {
@@ -55,7 +56,7 @@ func benchQuery(cmd *cobra.Command, args []string) {
 
 	ips := QueryProxyIpList()
 	for r := 1; ; r++ {
-		if r % 180 == 0 {
+		if r % 15 == 0 {
 			newIps := QueryProxyIpList()
 			ips = newIps
 		}
