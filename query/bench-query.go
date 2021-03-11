@@ -117,5 +117,5 @@ func QueryProxyIpList() []string {
 		fmt.Println(list)
 		return nil
 	}
-	return list[:2000]
+	return list[:len(list)-1]
 }
