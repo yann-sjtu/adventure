@@ -85,7 +85,7 @@ func CallWithProxy(postBody []byte, reqType int,proxyIP string) (*Response, erro
 	} else {
 		resStr = string(rpcRes.Result[:6])
 	}
-	log.Println(reqType, elapsed, success, resStr)
+	log.Println(reqType, elapsed, success, resStr, proxyIP)
 	err = resp.Body.Close()
 	if err != nil {
 		return nil, err
