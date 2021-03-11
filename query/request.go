@@ -77,7 +77,7 @@ func CallWithProxy(postBody []byte, reqType int,proxyIP string) (*Response, erro
 	rpcRes = new(Response)
 	err = decoder.Decode(&rpcRes)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	var resStr string
 	if len(rpcRes.Result) < 8 {
