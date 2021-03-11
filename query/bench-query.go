@@ -45,7 +45,6 @@ func benchQuery(cmd *cobra.Command, args []string) {
 	}
 
 	ips := QueryProxyIpList()
-	fmt.Println(len(ips))
 	for r := 0; ; r++ {
 		for n := 0; n < 7; n++ {
 			reqType := n
@@ -111,9 +110,9 @@ func QueryProxyIpList() []string {
 		panic(err)
 	}
 	urls := string(conent)
+	fmt.Println(urls)
 	list := strings.Split(urls, "\r\n")
 	if len(list) == 1 {
-		fmt.Println(list)
 		return nil
 	}
 	return list[:len(list)-1]
