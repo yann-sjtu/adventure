@@ -12,6 +12,7 @@ import (
 const (
 	success = "sucess"
 	fail    = "failed"
+
 )
 
 type Request struct {
@@ -78,7 +79,13 @@ func CallWithProxy(postBody []byte, reqType int,proxyIP string) (*Response, erro
 	if err != nil {
 		panic(err)
 	}
-	log.Println(reqType, elapsed, success, string(rpcRes.Result[:8]))
+	var resStr string
+	if len(rpcRes.Result) < 8 {
+		resStr = string(rpcRes.Result[:len(rpcRes.Result)])
+	} else {
+		resStr = string(rpcRes.Result[:6])
+	}
+	log.Println(reqType, elapsed, success, resStr)
 	err = resp.Body.Close()
 	if err != nil {
 		return nil, err
