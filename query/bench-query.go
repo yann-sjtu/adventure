@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"math/rand"
 	"net/http"
 	"strings"
 	"time"
@@ -35,27 +34,27 @@ func BenchQueryCmd() *cobra.Command {
 	return cmd
 }
 
+var startList = []int{0,0,0,0,0,0,0}
+
 func benchQuery(cmd *cobra.Command, args []string) {
 	if len(concurrency) != 7 {
 		panic(fmt.Errorf("concurrent config length should be 7, acutal len: %d", len(concurrency)))
 	}
+	for i := 1; i < 7; i++{
+		startList[i] = startList[i-1] + concurrency[i-1]
+	}
 
 	ips := QueryProxyIpList()
-
+	fmt.Println(len(ips))
 	for r := 0; ; r++ {
-		if r % 240 == 0 && r != 0{
-			newIps := QueryProxyIpList()
-			if len(newIps) > 1 {
-				ips = newIps
-			}
-		}
-
 		for n := 0; n < 7; n++ {
 			reqType := n
 			req := generateRequest(reqType)
 			for i := 0; i < concurrency[reqType]; i++ {
 				go func(num int) {
-					CallWithProxy(req, reqType, "http://"+ips[rand.Intn(len(ips))])
+					curIndex := startList[reqType] + num
+					//fmt.Println(curIndex)
+					CallWithProxy(req, reqType, "http://"+ips[curIndex%len(ips)])
 					//res, err := CallWithProxy(req, reqType, "http://"+ips[rand.Intn(len(ips))])
 					//if err != nil {
 					//	log.Println("query failed:", err)
