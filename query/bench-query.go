@@ -43,7 +43,7 @@ func benchQuery(cmd *cobra.Command, args []string) {
 	ips := QueryProxyIpList()
 
 	for r := 0; ; r++ {
-		if r % 300 == 0 && r != 0{
+		if r % 240 == 0 && r != 0{
 			newIps := QueryProxyIpList()
 			if len(newIps) > 1 {
 				ips = newIps
