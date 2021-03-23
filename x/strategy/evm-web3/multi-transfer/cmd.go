@@ -20,7 +20,7 @@ var (
 
 func Cmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "dyf",
+		Use:   "test-gas",
 		Short: "",
 		Args:  cobra.NoArgs,
 		Run:   testLoop,
