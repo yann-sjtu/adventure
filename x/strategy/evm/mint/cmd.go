@@ -23,32 +23,39 @@ func MintCmd() *cobra.Command {
 
 	flags := cmd.Flags()
 	flags.IntVarP(&GoroutineNum, "goroutine-num", "g", 1, "set Goroutine Num of deploying contracts")
-	flags.StringVarP(&MnemonicPath, "mnemonic-path", "m", "", "set the MnemonicPath path")
+	flags.StringVarP(&PrivKeysPath, "privkeys-path", "p", "", "set the PrivKeysPath path")
+	flags.StringVarP(&TTokenAddr, "token-contract", "c", "", "set the ttoken contract addr")
 
 	return cmd
 }
 
 var (
-	GoroutineNum  = 1
-
-	MnemonicPath = ""
+	GoroutineNum = 1
+	PrivKeysPath = ""
+	TTokenAddr   = ""
 )
 
-const TTokenAddr = "0x7F7715DC893A7504D3a89c8784bC4cFa19db8cc0"
-
 func mint(cmd *cobra.Command, args []string) {
-	infos := common.GetAccountManagerFromFile(MnemonicPath)
-	clients := common.NewClientManagerWithMode(common.Cfg.Hosts, "0.0005okt", types.BroadcastSync,500000)
+	privkeys := common.GetPrivKeyFromPrivKeyFile(PrivKeysPath)
+	clients := common.NewClientManagerWithMode(common.Cfg.Hosts, "0.0005okt", types.BroadcastSync, 500000)
 
 	//succ, fail := tools.NewCounter(-1), tools.NewCounter(-1)
 	var wg sync.WaitGroup
 	for i := 0; i < GoroutineNum; i++ {
 		wg.Add(1)
-		go func() {
+		go func(index int) {
 			defer wg.Done()
 			for {
 				// 1. get one of the eth private key
-				info := infos.GetInfo()
+				privkey := privkeys[index]
+				info, err := utils.CreateAccountWithPrivateKey(privkey, "acc", common.PassWord)
+				if err != nil {
+					panic(err)
+				}
+				ethAddr, err := utils.ToHexAddress(info.GetAddress().String())
+				if err != nil {
+					panic(err)
+				}
 				// 2. get cli
 				cli := clients.GetClient()
 				// 3. get acc number
@@ -57,26 +64,24 @@ func mint(cmd *cobra.Command, args []string) {
 					log.Println(err)
 					continue
 				}
-				accNum, seqNum := acc.GetAccountNumber(), acc.GetSequence()
-				offset := uint64(0)
-				ethAddr, _ := utils.ToHexAddress(info.GetAddress().String())
+				seqNum, offset := acc.GetSequence(), uint64(0)
 
+				// Let Us GO GO GO !!!!!!
+				// 1. mint
+				payload := TTotken.BuildTTokenMintPayload(ethAddr.String(), sdk.NewDec(1).Int)
 				for {
-					// Let Us GO GO GO !!!!!!
-					// 1. mint
-					payload := TTotken.BuildTTokenMintPayload(ethAddr.String(), sdk.NewDec(1).Int)
 					//res, err :=
-					res, err := cli.Evm().SendTx(info, common.PassWord, TTokenAddr, "", ethcommon.Bytes2Hex(payload), "", accNum, seqNum+offset)
+					res, err := cli.Evm().SendTxEthereum(privkey, TTokenAddr, "", ethcommon.Bytes2Hex(payload), 500000, seqNum+offset)
 					if err != nil {
 						log.Printf("[%s] %s failed to mint in %s: %s\n", res.TxHash, ethAddr, TTokenAddr, err)
 						continue
 					} else {
-						log.Printf("[%s] %s mint in %s \n",  res.TxHash, ethAddr, TTokenAddr)
+						log.Printf("[%s] %s mint in %s \n", res.TxHash, ethAddr, TTokenAddr)
 						offset++
 					}
 				}
 			}
-		}()
+		}(i)
 	}
 	wg.Wait()
 }

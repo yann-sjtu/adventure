@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -137,6 +138,7 @@ type validator struct {
 }
 
 func (val *validator) String() string {
+	return fmt.Sprintf(`%s: %s`, val.name, val.shares)
 	return fmt.Sprintf(`Validator
   Name:                       %s
   Jailed:                     %v
@@ -181,8 +183,8 @@ func (vals validators) Swap(i, j int) {
 
 func (vals validators) String() (out string) {
 	out = ""
-	for _, val := range vals {
-		out += val.String() + "\n"
+	for i, val := range vals {
+		out += strconv.Itoa(i+1)+"  "+val.String() + "\n"
 	}
 	return strings.TrimSpace(out)
 }
