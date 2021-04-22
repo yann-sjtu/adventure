@@ -6,10 +6,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/okex/okexchain/x/ammswap"
-	farmtypes "github.com/okex/okexchain/x/farm/types"
-	"github.com/okex/okexchain/x/staking"
-	"github.com/okex/okexchain/x/token"
+	"github.com/okex/exchain/x/ammswap"
+	farmtypes "github.com/okex/exchain/x/farm/types"
+	"github.com/okex/exchain/x/staking"
+	"github.com/okex/exchain/x/token"
 )
 
 type MsgWithIndex struct {

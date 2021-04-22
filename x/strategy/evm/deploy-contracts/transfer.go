@@ -11,8 +11,8 @@ import (
 	"github.com/okex/adventure/common"
 	"github.com/okex/adventure/x/strategy/evm/template/USDT"
 	"github.com/okex/adventure/x/strategy/evm/tools"
-	"github.com/okex/okexchain-go-sdk/types"
-	"github.com/okex/okexchain-go-sdk/utils"
+	"github.com/okex/exchain-go-sdk/types"
+	"github.com/okex/exchain-go-sdk/utils"
 )
 
 func transfer(clients *common.ClientManager, contractManager *tools.ContractManager) {

@@ -3,7 +3,7 @@ package val
 import (
 	"sync"
 
-	"github.com/okex/okexchain-go-sdk"
+	"github.com/okex/exchain-go-sdk"
 )
 
 type Validator interface {

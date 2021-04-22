@@ -2,7 +2,7 @@ package keeper
 
 import (
 	"github.com/okex/adventure/x/monitor/shares-control/strategy"
-	gosdk "github.com/okex/okexchain-go-sdk"
+	gosdk "github.com/okex/exchain-go-sdk"
 )
 
 // case 1

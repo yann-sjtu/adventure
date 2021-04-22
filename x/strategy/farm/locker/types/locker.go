@@ -10,7 +10,7 @@ import (
 	"github.com/okex/adventure/common"
 	"github.com/okex/adventure/x/strategy/farm/client"
 	"github.com/okex/adventure/x/strategy/farm/constants"
-	gosdk "github.com/okex/okexchain-go-sdk"
+	gosdk "github.com/okex/exchain-go-sdk"
 )
 
 type Locker struct {

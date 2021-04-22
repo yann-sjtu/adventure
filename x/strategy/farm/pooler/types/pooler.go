@@ -13,7 +13,7 @@ import (
 	"github.com/okex/adventure/x/strategy/farm/client"
 	"github.com/okex/adventure/x/strategy/farm/constants"
 	"github.com/okex/adventure/x/strategy/farm/utils"
-	"github.com/okex/okexchain-go-sdk"
+	"github.com/okex/exchain-go-sdk"
 )
 
 type Pooler struct {

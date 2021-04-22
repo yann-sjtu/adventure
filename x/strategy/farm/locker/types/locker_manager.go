@@ -6,7 +6,7 @@ import (
 	"sync"
 
 	"github.com/okex/adventure/x/strategy/farm/utils"
-	gosdk "github.com/okex/okexchain-go-sdk"
+	gosdk "github.com/okex/exchain-go-sdk"
 )
 
 var (

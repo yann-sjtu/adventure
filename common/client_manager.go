@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
-	gosdk "github.com/okex/okexchain-go-sdk"
-	"github.com/okex/okexchain-go-sdk/types"
+	gosdk "github.com/okex/exchain-go-sdk"
+	"github.com/okex/exchain-go-sdk/types"
 )
 
 type ClientManager struct {

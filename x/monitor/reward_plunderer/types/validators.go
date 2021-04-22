@@ -1,7 +1,7 @@
 package types
 
 import (
-	stakingtypes "github.com/okex/okexchain/x/staking/types"
+	stakingtypes "github.com/okex/exchain/x/staking/types"
 )
 
 type Validators []stakingtypes.Validator

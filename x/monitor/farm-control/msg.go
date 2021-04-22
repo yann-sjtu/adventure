@@ -8,9 +8,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/okex/adventure/common"
-	"github.com/okex/okexchain-go-sdk/utils"
-	ammswaptypes "github.com/okex/okexchain/x/ammswap/types"
-	farmtypes "github.com/okex/okexchain/x/farm/types"
+	"github.com/okex/exchain-go-sdk/utils"
+	ammswaptypes "github.com/okex/exchain/x/ammswap/types"
+	farmtypes "github.com/okex/exchain/x/farm/types"
 )
 
 func newMsgLock(accNum, seqNum uint64, poolName string, amount sdk.SysCoin, addr string) authtypes.StdSignMsg {

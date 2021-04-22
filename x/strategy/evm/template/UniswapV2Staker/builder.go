@@ -3,7 +3,7 @@ package UniswapV2Staker
 import (
 	"math/big"
 
-	"github.com/okex/okexchain-go-sdk/utils"
+	"github.com/okex/exchain-go-sdk/utils"
 )
 
 var (

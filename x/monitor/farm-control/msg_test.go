@@ -7,14 +7,14 @@ import (
 	"time"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/okex/okexchain-go-sdk/utils"
-	"github.com/okex/okexchain/app/types"
-	stakingtypes "github.com/okex/okexchain/x/staking/types"
-	tokentypes "github.com/okex/okexchain/x/token/types"
+	"github.com/okex/exchain-go-sdk/utils"
+	"github.com/okex/exchain/app/types"
+	stakingtypes "github.com/okex/exchain/x/staking/types"
+	tokentypes "github.com/okex/exchain/x/token/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/adventure/x/monitor/common"
-	gosdk "github.com/okex/okexchain-go-sdk"
+	gosdk "github.com/okex/exchain-go-sdk"
 )
 
 //Vote       = 1 //投票

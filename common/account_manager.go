@@ -10,7 +10,7 @@ import (
 	"sync"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
-	"github.com/okex/okexchain-go-sdk/utils"
+	"github.com/okex/exchain-go-sdk/utils"
 )
 
 type AccountManager struct {

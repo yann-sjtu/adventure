@@ -8,7 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/adventure/common"
 	monitorcommon "github.com/okex/adventure/x/monitor/common"
-	gosdk "github.com/okex/okexchain-go-sdk"
+	gosdk "github.com/okex/exchain-go-sdk"
 	"github.com/spf13/cobra"
 )
 

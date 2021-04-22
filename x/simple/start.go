@@ -13,7 +13,7 @@ import (
 	"github.com/okex/adventure/x/simple/distribution"
 	"github.com/okex/adventure/x/simple/staking"
 	"github.com/okex/adventure/x/simple/token"
-	gosdk "github.com/okex/okexchain-go-sdk"
+	gosdk "github.com/okex/exchain-go-sdk"
 	"github.com/spf13/cobra"
 )
 

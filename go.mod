@@ -9,8 +9,8 @@ require (
 	github.com/cosmos/go-bip39 v0.0.0-20180819234021-555e2067c45d
 	github.com/ethereum/go-ethereum v1.9.25
 	github.com/mitchellh/mapstructure v1.1.2
-	github.com/okex/okexchain v0.17.1-0.20210401094912-26b97faafece
-	github.com/okex/okexchain-go-sdk v0.16.2-0.20210401065418-cffc85ccc9bc
+	github.com/okex/exchain v0.17.5-0.20210422073932-a732f21d7264
+	github.com/okex/exchain-go-sdk v0.17.1
 	github.com/spf13/cobra v1.1.1
 	github.com/tendermint/tendermint v0.33.9
 	go.uber.org/zap v1.15.0
@@ -18,7 +18,7 @@ require (
 )
 
 replace (
-	github.com/cosmos/cosmos-sdk => github.com/okex/cosmos-sdk v0.39.3-0.20210329104904-f341de66a7d0
-	github.com/tendermint/iavl => github.com/okex/iavl v0.14.1-okexchain2
-	github.com/tendermint/tendermint => github.com/okex/tendermint v0.33.9-okexchain6
+	github.com/cosmos/cosmos-sdk => github.com/okex/cosmos-sdk v0.0.0-20210418004230-26125dd4b59d
+	github.com/tendermint/iavl => github.com/okex/iavl v0.14.3-exchain
+	github.com/tendermint/tendermint => github.com/okex/tendermint v0.33.9-okexchain6.0.20210422060127-5c29d4d529c3
 )

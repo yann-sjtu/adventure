@@ -12,8 +12,8 @@ import (
 	"github.com/okex/adventure/common"
 	"github.com/okex/adventure/tools/account"
 	"github.com/okex/adventure/x/strategy/token"
-	gosdk "github.com/okex/okexchain-go-sdk"
-	"github.com/okex/okexchain-go-sdk/utils"
+	gosdk "github.com/okex/exchain-go-sdk"
+	"github.com/okex/exchain-go-sdk/utils"
 	"github.com/spf13/cobra"
 )
 

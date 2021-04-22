@@ -13,9 +13,9 @@ import (
 	"github.com/okex/adventure/x/strategy/evm/template/USDT"
 	"github.com/okex/adventure/x/strategy/evm/template/UniswapV2"
 	"github.com/okex/adventure/x/strategy/evm/tools"
-	gosdk "github.com/okex/okexchain-go-sdk"
-	"github.com/okex/okexchain-go-sdk/types"
-	"github.com/okex/okexchain-go-sdk/utils"
+	gosdk "github.com/okex/exchain-go-sdk"
+	"github.com/okex/exchain-go-sdk/types"
+	"github.com/okex/exchain-go-sdk/utils"
 	"github.com/spf13/cobra"
 )
 

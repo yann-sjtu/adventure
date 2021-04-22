@@ -2,7 +2,7 @@ package gov
 
 import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
-	gosdk "github.com/okex/okexchain-go-sdk"
+	gosdk "github.com/okex/exchain-go-sdk"
 )
 
 const deposit = "deposit"

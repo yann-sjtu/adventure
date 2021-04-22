@@ -1,6 +1,6 @@
 package DYF
 
-import "github.com/okex/okexchain-go-sdk/utils"
+import "github.com/okex/exchain-go-sdk/utils"
 
 var (
 	DYFBuilder utils.PayloadBuilder

@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
-	gosdk "github.com/okex/okexchain-go-sdk"
-	"github.com/okex/okexchain-go-sdk/utils"
+	gosdk "github.com/okex/exchain-go-sdk"
+	"github.com/okex/exchain-go-sdk/utils"
 )
 
 type Order struct {

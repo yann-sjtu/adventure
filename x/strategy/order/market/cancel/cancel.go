@@ -5,7 +5,7 @@ import (
 
 	"github.com/okex/adventure/common"
 	"github.com/okex/adventure/x/strategy/order/market/types"
-	"github.com/okex/okexchain-go-sdk/utils"
+	"github.com/okex/exchain-go-sdk/utils"
 	"github.com/spf13/cobra"
 )
 

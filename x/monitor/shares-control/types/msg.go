@@ -4,7 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/okex/adventure/common"
-	stakingtypes "github.com/okex/okexchain/x/staking/types"
+	stakingtypes "github.com/okex/exchain/x/staking/types"
 )
 
 func NewMsgAddShares(accNum uint64, seqNum uint64, valAddrs []sdk.ValAddress, accAddr sdk.AccAddress) authtypes.StdSignMsg {

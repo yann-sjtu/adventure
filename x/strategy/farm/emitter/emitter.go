@@ -12,7 +12,7 @@ import (
 	lockertypes "github.com/okex/adventure/x/strategy/farm/locker/types"
 	poolertypes "github.com/okex/adventure/x/strategy/farm/pooler/types"
 	"github.com/okex/adventure/x/strategy/farm/utils"
-	"github.com/okex/okexchain-go-sdk"
+	"github.com/okex/exchain-go-sdk"
 )
 
 type Emitter struct {

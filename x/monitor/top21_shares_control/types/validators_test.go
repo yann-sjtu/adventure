@@ -2,7 +2,7 @@ package types
 
 import (
 	"fmt"
-	gosdk "github.com/okex/okexchain-go-sdk"
+	gosdk "github.com/okex/exchain-go-sdk"
 	"sort"
 	"testing"
 )

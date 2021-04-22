@@ -7,9 +7,9 @@ import (
 	"testing"
 
 	"github.com/okex/adventure/common"
-	"github.com/okex/okexchain-go-sdk"
-	"github.com/okex/okexchain-go-sdk/types"
-	"github.com/okex/okexchain-go-sdk/utils"
+	"github.com/okex/exchain-go-sdk"
+	"github.com/okex/exchain-go-sdk/types"
+	"github.com/okex/exchain-go-sdk/utils"
 )
 
 const password = "12345678"

@@ -9,7 +9,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	"github.com/okex/adventure/x/strategy/farm/utils"
-	"github.com/okex/okexchain-go-sdk"
+	"github.com/okex/exchain-go-sdk"
 )
 
 var (

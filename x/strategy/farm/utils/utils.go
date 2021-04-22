@@ -19,9 +19,9 @@ import (
 	"github.com/okex/adventure/common"
 	"github.com/okex/adventure/x/strategy/farm/client"
 	"github.com/okex/adventure/x/strategy/farm/constants"
-	"github.com/okex/okexchain-go-sdk"
-	"github.com/okex/okexchain-go-sdk/utils"
-	tokentypes "github.com/okex/okexchain/x/token/types"
+	gosdk "github.com/okex/exchain-go-sdk"
+	tokentypes "github.com/okex/exchain/x/token/types"
+	"github.com/okex/exchain-go-sdk/utils"
 )
 
 const (

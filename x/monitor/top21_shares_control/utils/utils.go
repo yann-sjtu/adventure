@@ -2,7 +2,7 @@ package utils
 
 import (
 	"fmt"
-	stakingtypes "github.com/okex/okexchain/x/staking/types"
+	stakingtypes "github.com/okex/exchain/x/staking/types"
 	"math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"

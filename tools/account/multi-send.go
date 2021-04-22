@@ -7,9 +7,9 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/adventure/common"
-	gosdk "github.com/okex/okexchain-go-sdk"
-	tokenTypes "github.com/okex/okexchain-go-sdk/module/token/types"
-	"github.com/okex/okexchain-go-sdk/utils"
+	gosdk "github.com/okex/exchain-go-sdk"
+	tokenTypes "github.com/okex/exchain-go-sdk/module/token/types"
+	"github.com/okex/exchain-go-sdk/utils"
 	"github.com/spf13/cobra"
 )
 

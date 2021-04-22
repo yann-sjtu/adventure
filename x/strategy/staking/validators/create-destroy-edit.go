@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/okex/adventure/x/strategy/staking/validators/types"
-	gotypes "github.com/okex/okexchain-go-sdk/module/staking/types"
+	gotypes "github.com/okex/exchain-go-sdk/module/staking/types"
 	"github.com/spf13/cobra"
 )
 

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/adventure/x/monitor/shares-control/utils"
-	gosdk "github.com/okex/okexchain-go-sdk"
+	gosdk "github.com/okex/exchain-go-sdk"
 )
 
 func (k *Keeper) checkValNumInTop21(vals []gosdk.Validator) (warning bool, valAddrsToPromote []string) {

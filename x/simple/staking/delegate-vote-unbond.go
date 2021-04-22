@@ -6,9 +6,9 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	"github.com/okex/adventure/common"
-	gosdk "github.com/okex/okexchain-go-sdk"
-	"github.com/okex/okexchain-go-sdk/module/auth/types"
-	stakingTypes "github.com/okex/okexchain-go-sdk/module/staking/types"
+	gosdk "github.com/okex/exchain-go-sdk"
+	"github.com/okex/exchain-go-sdk/module/auth/types"
+	stakingTypes "github.com/okex/exchain-go-sdk/module/staking/types"
 )
 
 const (

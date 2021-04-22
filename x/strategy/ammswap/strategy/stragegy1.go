@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	"github.com/okex/adventure/common"
-	"github.com/okex/okexchain-go-sdk/utils"
-	orderkeeper "github.com/okex/okexchain/x/order/keeper"
+	"github.com/okex/exchain-go-sdk/utils"
+	orderkeeper "github.com/okex/exchain/x/order/keeper"
 	"github.com/spf13/cobra"
 )
 

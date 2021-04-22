@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	ethcmn "github.com/ethereum/go-ethereum/common"
-	"github.com/okex/okexchain-go-sdk/utils"
+	"github.com/okex/exchain-go-sdk/utils"
 	"github.com/spf13/cobra"
 	"os"
 	"path/filepath"
