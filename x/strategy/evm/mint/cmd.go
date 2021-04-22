@@ -3,6 +3,7 @@ package mint
 import (
 	"log"
 	"sync"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ethcommon "github.com/ethereum/go-ethereum/common"
@@ -79,6 +80,7 @@ func mint(cmd *cobra.Command, args []string) {
 						log.Printf("[%s] %s mint in %s \n", res.TxHash, ethAddr, TTokenAddr)
 						offset++
 					}
+					time.Sleep(time.Second*2)
 				}
 			}
 		}(i)
