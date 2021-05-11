@@ -79,7 +79,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 	_, poolAddr, tokenAddr := LPAddrs[0], PoolAddrs[0], TokenAddrs[0]
 
 	infos := common.GetAccountManagerFromFile(deploy_contracts.MnemonicPath)
-	clients := common.NewClientManagerWithMode(common.Cfg.Hosts, "0.005okt", types.BroadcastBlock,5000000)
+	clients := common.NewClientManagerWithMode(common.GlobalConfig.Networks[""].Hosts, "0.005okt", types.BroadcastBlock,5000000)
 
 	succ, fail := tools.NewCounter(-1), tools.NewCounter(-1)
 	var wg sync.WaitGroup

@@ -25,7 +25,7 @@ const (
 func TestBuilder(t *testing.T) {
 	UniswapV2.Init()
 	Init()
-	clients := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
+	clients := common.NewClientManager(common.GlobalConfig.Networks[""].Hosts, common.AUTO)
 	info, _, err := utils.CreateAccountWithMnemo("plunge silk glide glass curve cycle snack garbage obscure express decade dirt", fmt.Sprintf("acc%d", 1), "12345678")
 	if err != nil {
 		panic(err)

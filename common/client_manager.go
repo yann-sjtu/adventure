@@ -12,7 +12,6 @@ import (
 type ClientManager struct {
 	i       int
 	clients []*gosdk.Client
-	sum     int
 	lock    *sync.Mutex
 }
 
@@ -20,13 +19,13 @@ func (r *ClientManager) GetClient() *gosdk.Client {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 	k := r.i
-	r.i = (r.i + 1) % r.sum
+	r.i = (r.i + 1) % len(r.clients)
 	return r.clients[k]
 }
 
 func (r *ClientManager) GetRandomClient() *gosdk.Client {
 	rand.Seed(time.Now().UnixNano())
-	return r.clients[rand.Intn(r.sum)]
+	return r.clients[rand.Intn(len(r.clients))]
 }
 
 func NewClientManager(hosts []string, fee string, gas ...uint64) *ClientManager {
@@ -34,7 +33,6 @@ func NewClientManager(hosts []string, fee string, gas ...uint64) *ClientManager 
 	control := &ClientManager{
 		0,
 		clients,
-		len(clients),
 		new(sync.Mutex),
 	}
 	return control
@@ -52,12 +50,12 @@ func getAllInvariantClients(hosts []string, fee string, gas ...uint64) []*gosdk.
 
 func initClientConfig(fee string, host string, gas ...uint64) (cfg types.ClientConfig) {
 	if fee == AUTO {
-		cfg, _ = types.NewClientConfig(host, Cfg.ChainId, types.BroadcastBlock, "", 350000, 1.5, "0.000000001"+NativeToken)
+		cfg, _ = types.NewClientConfig(host, GlobalConfig.Networks[""].ChainId, types.BroadcastBlock, "", 350000, 1.5, "0.000000001"+NativeToken)
 	} else {
 		if len(gas) != 0 {
-			cfg, _ = types.NewClientConfig(host, Cfg.ChainId, types.BroadcastBlock, fee, gas[0], 0, "")
+			cfg, _ = types.NewClientConfig(host, GlobalConfig.Networks[""].ChainId, types.BroadcastBlock, fee, gas[0], 0, "")
 		} else {
-			cfg, _ = types.NewClientConfig(host, Cfg.ChainId, types.BroadcastBlock, fee, 200000, 0, "")
+			cfg, _ = types.NewClientConfig(host, GlobalConfig.Networks[""].ChainId, types.BroadcastBlock, fee, 200000, 0, "")
 		}
 	}
 	return
@@ -68,7 +66,6 @@ func NewClientManagerWithMode(hosts []string, fee string, mode string, gas ...ui
 	control := &ClientManager{
 		0,
 		clients,
-		len(clients),
 		new(sync.Mutex),
 	}
 	return control
@@ -86,12 +83,12 @@ func getAllInvariantClientsWithMode(hosts []string, fee string, mode string, gas
 
 func initClientConfigWithMode(fee string, host string, mode string, gas ...uint64) (cfg types.ClientConfig) {
 	if fee == AUTO {
-		cfg, _ = types.NewClientConfig(host, Cfg.ChainId, mode, "", 350000, 1.5, "0.000000001"+NativeToken)
+		cfg, _ = types.NewClientConfig(host, GlobalConfig.Networks[""].ChainId, mode, "", 350000, 1.5, "0.000000001"+NativeToken)
 	} else {
 		if len(gas) != 0 {
-			cfg, _ = types.NewClientConfig(host, Cfg.ChainId, mode, fee, gas[0], 0, "")
+			cfg, _ = types.NewClientConfig(host, GlobalConfig.Networks[""].ChainId, mode, fee, gas[0], 0, "")
 		} else {
-			cfg, _ = types.NewClientConfig(host, Cfg.ChainId, mode, fee, 200000, 0, "")
+			cfg, _ = types.NewClientConfig(host, GlobalConfig.Networks[""].ChainId, mode, fee, 200000, 0, "")
 		}
 	}
 	return

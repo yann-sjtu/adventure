@@ -12,6 +12,7 @@ require (
 	github.com/okex/exchain v0.17.5-0.20210422073932-a732f21d7264
 	github.com/okex/exchain-go-sdk v0.17.1
 	github.com/spf13/cobra v1.1.1
+	github.com/spf13/viper v1.7.1
 	github.com/tendermint/tendermint v0.33.9
 	go.uber.org/zap v1.15.0
 	gopkg.in/yaml.v2 v2.3.0

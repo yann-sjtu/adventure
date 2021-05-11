@@ -2,7 +2,6 @@ package common
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/BurntSushi/toml"
 )
@@ -14,45 +13,37 @@ const (
 	Localnet   = "local"
 )
 
-type TomlConfig struct {
+var GlobalConfig Config
+
+type Config struct {
 	Networks map[string]Network `toml:"networks"`
 }
 
 type Network struct {
+	TestCaesPath string
 	Hosts        []string `toml:"hosts"`
 	ChainId      string   `toml:"chain-id"`
 }
 
-func InitConfigs(path string) (cfg TomlConfig) {
+func InitConfig(path string) {
+	if _, err := toml.DecodeFile(path, &GlobalConfig); err != nil {
+		panic(err)
+	}
+	return
+}
+
+func GetConfig() Config {
+	return GlobalConfig
+}
+
+func DecodeConfig(path string) (cfg Config) {
 	if _, err := toml.DecodeFile(path, &cfg); err != nil {
 		panic(err)
 	}
 	return
 }
 
-var (
-	GlobalConfigPath = "" //TODO
-)
-
-var Cfg *Config
-
-type Config struct {
-	TestCaesPath string
-	Hosts        []string `toml:"hosts"`
-	ChainId      string   `toml:"chain-id"`
-}
-
-func init() {
-	if _, err := toml.DecodeFile(GlobalConfigPath, &Cfg); err != nil {
-		log.Fatal(err)
-	}
-}
-
-func GetConfig() *Config {
-	return Cfg
-}
-
-func (c *Config) String() string {
+func (c *Network) String() string {
 	var hosts string
 	for i, host := range c.Hosts {
 		hosts += host + " "

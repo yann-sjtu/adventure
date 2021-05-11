@@ -36,7 +36,7 @@ var (
 )
 
 func transferCoins(cmd *cobra.Command, args []string) error {
-	clis := common.NewClientManagerWithMode(common.Cfg.Hosts, "0.003okt", types.BroadcastSync, 300000)
+	clis := common.NewClientManagerWithMode(common.GlobalConfig.Networks[""].Hosts, "0.003okt", types.BroadcastSync, 300000)
 	cli := clis.GetClient()
 
 	ownerInfo, _, err := utils.CreateAccountWithMnemo(Owner, fmt.Sprintf("acc%d", 1), common.PassWord)

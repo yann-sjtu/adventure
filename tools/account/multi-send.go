@@ -52,7 +52,7 @@ func transferTokenScript(cmd *cobra.Command, args []string) error {
 	sum := len(addrs)
 
 	//create rpc client
-	clients := common.NewClientManager(common.Cfg.Hosts, "0.08"+common.NativeToken, 7952591)
+	clients := common.NewClientManager(common.GlobalConfig.Networks[""].Hosts, "0.08"+common.NativeToken, 7952591)
 
 	// query acc
 	cli := clients.GetClient()
@@ -131,7 +131,7 @@ func transferTokenScript1(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	clients := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
+	clients := common.NewClientManager(common.GlobalConfig.Networks[""].Hosts, common.AUTO)
 	cli := clients.GetRandomClient()
 	err = SendCoins(cli, addrs, coinStr, richMnemonic)
 	if err != nil {

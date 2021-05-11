@@ -38,7 +38,7 @@ func Cmd() *cobra.Command {
 
 func testLoop(cmd *cobra.Command, args []string) {
 	Init()
-	clients := common.NewClientManagerWithMode(common.Cfg.Hosts, "0.015okt", types.BroadcastSync, 1500000)
+	clients := common.NewClientManagerWithMode(common.GlobalConfig.Networks[""].Hosts, "0.015okt", types.BroadcastSync, 1500000)
 	cli := clients.GetClient()
 	info, err := utils.CreateAccountWithPrivateKey(privkey, "acc", common.PassWord)
 	if err != nil {

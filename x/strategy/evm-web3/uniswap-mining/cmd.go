@@ -80,7 +80,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 	_, poolAddr, tokenAddr := LPAddrs[0], PoolAddrs[0], TokenAddrs[0]
 
 	privkeys := common.GetPrivKeyFromPrivKeyFile(privkeyPath)
-	clients := common.NewClientManagerWithMode(common.Cfg.Hosts, "0.005okt", types.BroadcastSync, 500000)
+	clients := common.NewClientManagerWithMode(common.GlobalConfig.Networks[""].Hosts, "0.005okt", types.BroadcastSync, 500000)
 	succ, fail := tools.NewCounter(-1), tools.NewCounter(-1)
 
 	var wg sync.WaitGroup

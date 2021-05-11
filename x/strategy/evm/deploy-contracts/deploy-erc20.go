@@ -46,7 +46,7 @@ var (
 
 func deployErc20Tokens(cmd *cobra.Command, args []string) {
 	infos := common.GetAccountManagerFromFile(MnemonicPath)
-	clients := common.NewClientManagerWithMode(common.Cfg.Hosts, "0.05okt", types.BroadcastBlock,50000000)
+	clients := common.NewClientManagerWithMode(common.GlobalConfig.Networks[""].Hosts, "0.05okt", types.BroadcastBlock,50000000)
 
 	contractManager := tools.NewContractManager()
 	counter := tools.NewCounter(Num)
@@ -130,7 +130,7 @@ func deployErc20Tokens(cmd *cobra.Command, args []string) {
 }
 
 func getTmpClient() gosdk.Client {
-	cfg, _ := types.NewClientConfig("http://localhost:26657", common.Cfg.ChainId, types.BroadcastBlock, "", 20000000, 1.5, "0.00000001"+common.NativeToken)
+	cfg, _ := types.NewClientConfig("http://localhost:26657", common.GlobalConfig.Networks[""].ChainId, types.BroadcastBlock, "", 20000000, 1.5, "0.00000001"+common.NativeToken)
 	cli := gosdk.NewClient(cfg)
 	return cli
 }

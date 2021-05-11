@@ -47,7 +47,7 @@ func runCreateValidators(cmd *cobra.Command, args []string) error {
 	}
 	accManager := common.GetAccountManagerFromFile(path, valNumber)
 
-	clientManager := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
+	clientManager := common.NewClientManager(common.GlobalConfig.Networks[""].Hosts, common.AUTO)
 	for i := 0; i < valNumber; i++ {
 		privKey := ed25519.GenPrivKey()
 		fakeValidator := &fakeValidator{

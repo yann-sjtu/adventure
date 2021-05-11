@@ -36,7 +36,7 @@ var (
 )
 
 func approveCoins(cmd *cobra.Command, args []string) error {
-	clis := common.NewClientManagerWithMode(common.Cfg.Hosts, "0.003okt", types.BroadcastSync, 300000)
+	clis := common.NewClientManagerWithMode(common.GlobalConfig.Networks[""].Hosts, "0.003okt", types.BroadcastSync, 300000)
 	cli := clis.GetClient()
 
 	info, _, err := utils.CreateAccountWithMnemo(strings.TrimSpace(Mnemonic), fmt.Sprintf("acc%d", 1), "12345678")

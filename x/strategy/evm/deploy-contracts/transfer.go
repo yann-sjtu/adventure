@@ -16,7 +16,7 @@ import (
 )
 
 func transfer(clients *common.ClientManager, contractManager *tools.ContractManager) {
-	clients = common.NewClientManagerWithMode(common.Cfg.Hosts, "0.05okt", types.BroadcastSync,50000000)
+	clients = common.NewClientManagerWithMode(common.GlobalConfig.Networks[""].Hosts, "0.05okt", types.BroadcastSync,50000000)
 	contractManager.List()
 
 	s, f := tools.NewCounter(0), tools.NewCounter(0)

@@ -38,7 +38,7 @@ var (
 
 func mint(cmd *cobra.Command, args []string) {
 	privkeys := common.GetPrivKeyFromPrivKeyFile(PrivKeysPath)
-	clients := common.NewClientManagerWithMode(common.Cfg.Hosts, "0.0005okt", types.BroadcastSync, 500000)
+	clients := common.NewClientManagerWithMode(common.GlobalConfig.Networks[""].Hosts, "0.0005okt", types.BroadcastSync, 500000)
 
 	//succ, fail := tools.NewCounter(-1), tools.NewCounter(-1)
 	var wg sync.WaitGroup
