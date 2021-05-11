@@ -54,15 +54,18 @@ adventure is a very powerful cli tool for OKChain. It supports JSON-file and Sub
 	}
 
 	mainCmd.AddCommand(
+		evm.EvmCmd(),
+		evmweb3.EvmCmd(),
+		query.BenchQueryCmd(),
+
+		version.Cmd,
+
 		monitor.MonitorCmd(),
 		account.Cmd(),
 		validators.StakingCmd(),
 		token.TokenCmd(),
-		evm.EvmCmd(),
-		evmweb3.EvmCmd(),
-		version.Cmd,
-		query.BenchQueryCmd(),
-
+		account.Cmd(),
+		validators.StakingCmd(),
 		//TODO:
 		simple.TxCmd(),
 	)
