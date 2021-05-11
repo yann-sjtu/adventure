@@ -16,7 +16,6 @@ import (
 	"github.com/okex/adventure/x/strategy/staking/validators"
 	"github.com/okex/adventure/x/strategy/token"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 const (
@@ -48,8 +47,10 @@ adventure is a very powerful cli tool for OKChain. It supports JSON-file and Sub
 		Run: func(cmd *cobra.Command, args []string) {
 			_ = cmd.Help()
 
-			common.InitConfig(viper.GetString(ConfigFlag))
 			return
+		},
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			common.InitConfig(common.ConfigPath)
 		},
 	}
 
@@ -70,8 +71,8 @@ adventure is a very powerful cli tool for OKChain. It supports JSON-file and Sub
 		simple.TxCmd(),
 	)
 
-	mainCmd.PersistentFlags().StringP(ConfigFlag, "c", path.Join(os.ExpandEnv("$HOME/.adventure"), "config.toml"),"setting of config path")
-	mainCmd.PersistentFlags().StringP(NetworkFlag, "n", "","setting of network type")
+	mainCmd.PersistentFlags().StringVarP(&common.ConfigPath, ConfigFlag, "c", path.Join(os.ExpandEnv("$HOME/.adventure"), "config.toml"),"setting of config path")
+	mainCmd.PersistentFlags().StringVarP(&common.NetworkType, NetworkFlag, "n", "","setting of network type")
 
 	if err := mainCmd.Execute(); err != nil {
 		log.Println(err)
