@@ -7,6 +7,29 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
+const (
+	MainnetAli = "mainnet-ali"
+	TestnetAli = "testnet-ali"
+	TestnetAws = "testnet-aws"
+	Localnet   = "local"
+)
+
+type TomlConfig struct {
+	Networks map[string]Network `toml:"networks"`
+}
+
+type Network struct {
+	Hosts        []string `toml:"hosts"`
+	ChainId      string   `toml:"chain-id"`
+}
+
+func InitConfigs(path string) (cfg TomlConfig) {
+	if _, err := toml.DecodeFile(path, &cfg); err != nil {
+		panic(err)
+	}
+	return
+}
+
 var (
 	GlobalConfigPath = "" //TODO
 )
