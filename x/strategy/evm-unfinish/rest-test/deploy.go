@@ -3,8 +3,9 @@ package rest_test
 import (
 	"encoding/json"
 	"fmt"
+
 	ethcmn "github.com/ethereum/go-ethereum/common"
-	"github.com/okex/adventure/x/strategy/evm/rest-test/utils"
+	"github.com/okex/adventure/x/strategy/evm-unfinish/rest-test/utils"
 	"github.com/spf13/cobra"
 )
 

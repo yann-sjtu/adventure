@@ -2,10 +2,11 @@ package utils
 
 import (
 	"encoding/json"
-	ethcmn "github.com/ethereum/go-ethereum/common"
 	"log"
 	"math/rand"
 	"time"
+
+	ethcmn "github.com/ethereum/go-ethereum/common"
 )
 
 const (
