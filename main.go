@@ -1,28 +1,28 @@
 package main
 
 import (
-	"github.com/okex/adventure/x/monitor"
-	"github.com/okex/adventure/x/strategy/farm/client"
 	"log"
 	"os"
+	"path"
 
+	"github.com/okex/adventure/common"
+	"github.com/okex/adventure/query"
 	"github.com/okex/adventure/tools/account"
 	"github.com/okex/adventure/tools/version"
+	"github.com/okex/adventure/x/monitor"
 	"github.com/okex/adventure/x/simple"
-	"github.com/okex/adventure/x/strategy/ammswap/strategy"
 	"github.com/okex/adventure/x/strategy/evm"
-	"github.com/okex/adventure/x/strategy/farm"
-	"github.com/okex/adventure/x/strategy/order/market"
+	evmweb3 "github.com/okex/adventure/x/strategy/evm-web3"
 	"github.com/okex/adventure/x/strategy/staking/validators"
 	"github.com/okex/adventure/x/strategy/token"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
-func init() {
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
-}
+const (
+	ConfigFlag  = "config"
+	NetworkFlag = "network"
+)
 
 func main() {
 	cobra.EnableCommandSorting = false
@@ -47,23 +47,28 @@ adventure is a very powerful cli tool for OKChain. It supports JSON-file and Sub
 `,
 		Run: func(cmd *cobra.Command, args []string) {
 			_ = cmd.Help()
+
+			common.InitConfig(viper.GetString(ConfigFlag))
 			return
 		},
 	}
 
 	mainCmd.AddCommand(
 		monitor.MonitorCmd(),
-		client.LineBreak,
 		account.Cmd(),
-		simple.TxCmd(),
 		validators.StakingCmd(),
-		market.OrderMarketCmd(),
-		strategy.SwapCmd(),
 		token.TokenCmd(),
-		farm.FarmCmd(),
 		evm.EvmCmd(),
+		evmweb3.EvmCmd(),
 		version.Cmd,
+		query.BenchQueryCmd(),
+
+		//TODO:
+		simple.TxCmd(),
 	)
+
+	mainCmd.PersistentFlags().StringP(ConfigFlag, "c", path.Join(os.ExpandEnv("$HOME/.adventure"), "config.toml"),"setting of config path")
+	mainCmd.PersistentFlags().StringP(NetworkFlag, "n", "","setting of network type")
 
 	if err := mainCmd.Execute(); err != nil {
 		log.Println(err)

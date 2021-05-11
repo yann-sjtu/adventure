@@ -13,7 +13,7 @@ import (
 	"github.com/okex/adventure/x/simple/distribution"
 	"github.com/okex/adventure/x/simple/staking"
 	"github.com/okex/adventure/x/simple/token"
-	gosdk "github.com/okex/okexchain-go-sdk"
+	gosdk "github.com/okex/exchain-go-sdk"
 	"github.com/spf13/cobra"
 )
 
@@ -36,7 +36,8 @@ func TxCmd() *cobra.Command {
 func RunStart(cmd *cobra.Command, args []string) error {
 	//init config
 	cfg := common.GetConfig()
-	cfg.TestCaesPath = txConfigPath
+	network := cfg.Networks[""]
+	network.TestCaesPath = txConfigPath
 	fmt.Println(cfg)
 
 	//init test cases
@@ -54,7 +55,7 @@ func RunStart(cmd *cobra.Command, args []string) error {
 			defer wg.Done()
 			switch c.RunTxMode {
 			case "", common.Parallel:
-				excuteTxsInParallel(c, cfg.Hosts)
+				excuteTxsInParallel(c, network.Hosts)
 			case common.Serial:
 				log.Fatalln("the serial mode is still in developing")
 			default:

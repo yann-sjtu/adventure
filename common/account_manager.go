@@ -10,7 +10,7 @@ import (
 	"sync"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
-	"github.com/okex/okexchain-go-sdk/utils"
+	"github.com/okex/exchain-go-sdk/utils"
 )
 
 type AccountManager struct {
@@ -95,7 +95,7 @@ func GetAccountAddressFromFile(path string) []string {
 	return addrs
 }
 
-func GetPrivKeyFromMnemoFile(path string) (privKeys []string) {
+func GetPrivKeyFromMnemoFile(path string, limit ...int) (privKeys []string) {
 	f, err := os.Open(path)
 	if err != nil {
 		log.Fatalln(err.Error())
@@ -103,9 +103,15 @@ func GetPrivKeyFromMnemoFile(path string) (privKeys []string) {
 	}
 	defer f.Close()
 
+	num := 9999999999 // BIG NUMBER
+	if len(limit) != 0 {
+		num = limit[0]
+	}
+
+
 	fmt.Printf("loading mnemonics from path: %s, please wait\n", path)
 	rd := bufio.NewReader(f)
-	for {
+	for index := 0; index < num; index++ {
 		mnemo, err := rd.ReadString('\n')
 		if err != nil || io.EOF == err {
 			break
@@ -115,10 +121,37 @@ func GetPrivKeyFromMnemoFile(path string) (privKeys []string) {
 		if err != nil {
 			panic(err)
 		}
+		fmt.Println(privKey)
 
 		privKeys = append(privKeys, privKey)
 	}
 
+	return
+}
+
+func GetPrivKeyFromPrivKeyFile(path string, limit ...int) (privKeys []string) {
+	f, err := os.Open(path)
+	if err != nil {
+		log.Fatalln(err.Error())
+		return nil
+	}
+	defer f.Close()
+
+	num := 9999999999 // BIG NUMBER
+	if len(limit) != 0 {
+		num = limit[0]
+	}
+
+	fmt.Printf("loading privkey from path: %s, please wait\n", path)
+	rd := bufio.NewReader(f)
+	for index := 0; index < num; index++ {
+		privKey, err := rd.ReadString('\n')
+		if err != nil || io.EOF == err {
+			break
+		}
+
+		privKeys = append(privKeys, strings.TrimSpace(privKey))
+	}
 	return
 }
 

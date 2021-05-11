@@ -7,14 +7,14 @@ import (
 	"time"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/okex/okexchain-go-sdk/utils"
-	"github.com/okex/okexchain/app/types"
-	stakingtypes "github.com/okex/okexchain/x/staking/types"
-	tokentypes "github.com/okex/okexchain/x/token/types"
+	"github.com/okex/exchain-go-sdk/utils"
+	"github.com/okex/exchain/app/types"
+	stakingtypes "github.com/okex/exchain/x/staking/types"
+	tokentypes "github.com/okex/exchain/x/token/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/adventure/x/monitor/common"
-	gosdk "github.com/okex/okexchain-go-sdk"
+	gosdk "github.com/okex/exchain-go-sdk"
 )
 
 //Vote       = 1 //投票
@@ -86,8 +86,8 @@ func TestAddShares(t *testing.T) {
 	//okexchain1gln5srut8yr4da5czc6rrvwsa8t0nqr0j8py6j 803
 	//okexchain1p4fk4kehstehj9k4r0qgqmnpukcxx20c9txvg3 804
 	//okexchain1vy0d5a4rh5l42dhs39e8zhjyjapa6ym32g4f6z 805
-	addr := "okexchain1p4fk4kehstehj9k4r0qgqmnpukcxx20c9txvg3"
-	index := 804
+	addr := "okexchain1v9asy9x82lk7hfw27kq3pzeg2rgeeg6t5u27uv"
+	index := 801
 
 	cfg, err := gosdk.NewClientConfig("http://10.0.240.38:26657", "okexchain-66", gosdk.BroadcastBlock, "0.002okt", 200000, 0, "")
 	if err != nil {
@@ -122,21 +122,21 @@ func TestAddShares(t *testing.T) {
 		"okexchainvaloper1xkl5agjzqnjnptyat2dng2asmx8g5kllckhxqc", //15
 		"okexchainvaloper1tkwxgcpvptua0q0h5tn0at58ufnjdue7kf5fvp", //16
 		"okexchainvaloper1508d7eq592kg2lh9d46xvv3r4sm7gm8wlmjzfz", //17
-		"okexchainvaloper18v23ln9ycrtg0mrwsm004sh4tdknudtddffjr5", //18
-		"okexchainvaloper1ucmx6vvtrwam9pg20fnwmy9z80uhchyxsmt945", //19
-		"okexchainvaloper1g3a6vtau2k93n4tqgqnrggeu3qa4x20rccyawy", //20
-		"okexchainvaloper19e6edpu97d6w2t5dlp7lph2fkdja0lvlz0zndm", //21
+		"okexchainvaloper18v23ln9ycrtg0mrwsm004sh4tdknudtddffjr5", //18   val1
+		"okexchainvaloper1ucmx6vvtrwam9pg20fnwmy9z80uhchyxsmt945", //19   val2
+		"okexchainvaloper1g3a6vtau2k93n4tqgqnrggeu3qa4x20rccyawy", //20   val3
+		"okexchainvaloper19e6edpu97d6w2t5dlp7lph2fkdja0lvlz0zndm", //21   val4
 
-		//"okexchainvaloper1tat4lam8wjqmeax9mv4s584vu2mp7c0ccywxft", //22
-		//"okexchainvaloper1mlmwvdprn8dj6g45vdxkjsjgu4ntu9j7amrdl7", //23
-		//"okexchainvaloper1rz7frqz9ky52qqjwlpawfe5hz6plcrmm3lv56j", //24
-		//"okexchainvaloper1w3ptfgekjgdvwkqmdepdeyvuxqmcplfsjhn2f0", //25
-		//"okexchainvaloper1v4kagglr3vq82vqywqd8quhsuarkm4kf6mnu0h", //26
-		//"okexchainvaloper1rmrx7wp60almzvghx2820aamjfd4kgwlgw9w34", //27
-		//"okexchainvaloper13mayrjzsrp976y0ae0qw8sjan3qg2xfdfgkhqr", //28
-		//"okexchainvaloper104y8sy0r6fke4a9qr8u05j6v5y68gkh4uedk7l", //29
-		//"okexchainvaloper14zgafe7cynlpuhpfpqpxu2gntzhq6tteagj8px", //30
-		//"okexchainvaloper1rv8tjxp8d8ucuak8c7svewwugzfdjwf9dtr80x", //31
+		//"okexchainvaloper1tat4lam8wjqmeax9mv4s584vu2mp7c0ccywxft", //22  Best bp
+		//"okexchainvaloper1mlmwvdprn8dj6g45vdxkjsjgu4ntu9j7amrdl7", //23  OKvibe
+		//"okexchainvaloper1rz7frqz9ky52qqjwlpawfe5hz6plcrmm3lv56j", //24  Taurus
+		//"okexchainvaloper1w3ptfgekjgdvwkqmdepdeyvuxqmcplfsjhn2f0", //25  Junglefly
+		//"okexchainvaloper1v4kagglr3vq82vqywqd8quhsuarkm4kf6mnu0h", //26  Deeworld
+		//"okexchainvaloper1rmrx7wp60almzvghx2820aamjfd4kgwlgw9w34", //27  Pialote
+		//"okexchainvaloper13mayrjzsrp976y0ae0qw8sjan3qg2xfdfgkhqr", //28  Wulix
+		//"okexchainvaloper104y8sy0r6fke4a9qr8u05j6v5y68gkh4uedk7l", //29  Sakuya
+		//"okexchainvaloper14zgafe7cynlpuhpfpqpxu2gntzhq6tteagj8px", //30  Linkeye
+		//"okexchainvaloper1rv8tjxp8d8ucuak8c7svewwugzfdjwf9dtr80x", //31  Kktp
 	})
 	if err != nil {
 		panic(err)
@@ -404,7 +404,7 @@ const (
 )
 
 func TestCalShare(t *testing.T) {
-	totalDec, ourDec := sdk.MustNewDecFromStr("8132527269402"), sdk.MustNewDecFromStr("6686194179115")
+	totalDec, ourDec := sdk.MustNewDecFromStr("26812966588669"), sdk.MustNewDecFromStr("23016747012944")
 	shares := sdk.MustNewDecFromStr("0.9").Mul(totalDec).Sub(ourDec).Mul(sdk.MustNewDecFromStr("10.0"))
 	nowWeek := (time.Now().Unix() - blockTimestampEpoch) / secondsPerWeek
 	rate := float64(nowWeek) / weeksPerYear
@@ -416,4 +416,30 @@ func TestCalShare(t *testing.T) {
 		token := shares.Quo(weightByDec)
 		fmt.Println(token)
 	}
+}
+
+func TestQueryDel(t *testing.T) {
+	cfg, err := gosdk.NewClientConfig("http://10.0.240.37:26657", "okexchain-66", gosdk.BroadcastBlock, "0.002okt", 200000, 0, "")
+	if err != nil {
+		panic(err)
+	}
+
+	cli := gosdk.NewClient(cfg)
+
+	total := sdk.ZeroDec()
+	accs := common.AddrsBook[8]
+	for i:=0;i<35;i++{
+		acc := accs[i]
+		accInfo, err := cli.Auth().QueryAccount(acc.Address)
+		if err != nil {
+			panic(err)
+		}
+		del, err := cli.Staking().QueryDelegator(acc.Address)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println(acc.Index, "tokens", accInfo.GetCoins(), "del", del.Tokens)
+		total = total.Add(del.Tokens)
+	}
+	fmt.Println(total)
 }

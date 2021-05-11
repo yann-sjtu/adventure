@@ -10,8 +10,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/okex/adventure/common"
-	"github.com/okex/okexchain-go-sdk/utils"
-	ammswaptypes "github.com/okex/okexchain/x/ammswap/types"
+	"github.com/okex/exchain-go-sdk/utils"
+	ammswaptypes "github.com/okex/exchain/x/ammswap/types"
 )
 
 //  coinType: 1571

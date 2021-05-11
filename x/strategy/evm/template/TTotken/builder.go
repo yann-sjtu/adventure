@@ -3,7 +3,7 @@ package TTotken
 import (
 	"math/big"
 
-	"github.com/okex/okexchain-go-sdk/utils"
+	"github.com/okex/exchain-go-sdk/utils"
 )
 
 var (

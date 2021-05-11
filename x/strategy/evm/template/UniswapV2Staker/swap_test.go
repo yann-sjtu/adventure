@@ -11,7 +11,7 @@ import (
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/okex/adventure/common"
 	"github.com/okex/adventure/x/strategy/evm/template/UniswapV2"
-	"github.com/okex/okexchain-go-sdk/utils"
+	"github.com/okex/exchain-go-sdk/utils"
 )
 
 const (
@@ -25,7 +25,7 @@ const (
 func TestBuilder(t *testing.T) {
 	UniswapV2.Init()
 	Init()
-	clients := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
+	clients := common.NewClientManager(common.GlobalConfig.Networks[""].Hosts, common.AUTO)
 	info, _, err := utils.CreateAccountWithMnemo("plunge silk glide glass curve cycle snack garbage obscure express decade dirt", fmt.Sprintf("acc%d", 1), "12345678")
 	if err != nil {
 		panic(err)
@@ -61,7 +61,7 @@ func TestBuilder(t *testing.T) {
 	//log.Println(res.TxHash)
 
 	payload := UniswapV2.BuildRemoveLiquidOKTPayload(
-		usdtAddr, utils.GetEthAddressStrFromCosmosAddr(info.GetAddress()),
+		usdtAddr, "utils.ToHexAddress(info.GetAddress())",
 		sdk.MustNewDecFromStr("900").Int, sdk.MustNewDecFromStr("8").Int, sdk.MustNewDecFromStr("0.109147").Int,
 		time.Now().Add(time.Hour*24).Unix(),
 	)

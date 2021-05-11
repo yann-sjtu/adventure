@@ -4,7 +4,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/adventure/common"
-	gosdk "github.com/okex/okexchain-go-sdk"
+	gosdk "github.com/okex/exchain-go-sdk"
 )
 
 const withdrawRewards = common.WithdrawRewards

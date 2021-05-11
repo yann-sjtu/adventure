@@ -12,7 +12,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/adventure/common"
 	"github.com/okex/adventure/x/strategy/staking/validators/val"
-	gosdk "github.com/okex/okexchain-go-sdk"
+	gosdk "github.com/okex/exchain-go-sdk"
 )
 
 var (
@@ -38,12 +38,12 @@ func NewValidator(operKey gokeys.Info, id int, consPubKey string) *Validator {
 func (v *Validator) Edit(wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	hosts := common.Cfg.Hosts
+	hosts := common.GlobalConfig.Networks[""].Hosts
 	// pick a client randomly
 	luckyNum := rand.Intn(len(hosts))
 	config, _ := gosdk.NewClientConfig(
 		hosts[luckyNum],
-		common.Cfg.ChainId,
+		common.GlobalConfig.Networks[""].ChainId,
 		gosdk.BroadcastBlock,
 		"0.1"+common.NativeToken,
 		2000000,
@@ -70,12 +70,12 @@ func (v *Validator) Edit(wg *sync.WaitGroup) {
 func (v *Validator) Create(wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	hosts := common.Cfg.Hosts
+	hosts := common.GlobalConfig.Networks[""].Hosts
 	// pick a client randomly
 	luckyNum := rand.Intn(len(hosts))
 	config, _ := gosdk.NewClientConfig(
 		hosts[luckyNum],
-		common.Cfg.ChainId,
+		common.GlobalConfig.Networks[""].ChainId,
 		gosdk.BroadcastBlock,
 		"0.1"+common.NativeToken,
 		2000000,
@@ -105,12 +105,12 @@ func (v *Validator) Create(wg *sync.WaitGroup) {
 func (v *Validator) Destroy(wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	hosts := common.Cfg.Hosts
+	hosts := common.GlobalConfig.Networks[""].Hosts
 	/// pick a client randomly
 	luckyNum := rand.Intn(len(hosts))
 	config, _ := gosdk.NewClientConfig(
 		hosts[luckyNum],
-		common.Cfg.ChainId,
+		common.GlobalConfig.Networks[""].ChainId,
 		gosdk.BroadcastBlock,
 		"0.01"+common.NativeToken,
 		200000,

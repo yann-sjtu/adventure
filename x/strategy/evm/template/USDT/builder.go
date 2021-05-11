@@ -4,7 +4,7 @@ import (
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/okex/okexchain-go-sdk/utils"
+	"github.com/okex/exchain-go-sdk/utils"
 )
 
 var (

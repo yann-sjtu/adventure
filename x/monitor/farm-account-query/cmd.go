@@ -30,7 +30,7 @@ var (
 func runFarmQueryCmd(cmd *cobra.Command, args []string) error {
 	accounts := monitorcommon.AddrsBook[startIndex/100]
 	totalCoins := sdk.DecCoins{}
-	clientManager := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
+	clientManager := common.NewClientManager(common.GlobalConfig.Networks[""].Hosts, common.AUTO)
 	cli := clientManager.GetClient()
 	for _, acc := range accounts {
 		accInfo, err := cli.Auth().QueryAccount(acc.Address)

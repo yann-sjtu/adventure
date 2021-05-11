@@ -7,8 +7,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/adventure/common"
-	gosdk "github.com/okex/okexchain-go-sdk"
-	tokenTypes "github.com/okex/okexchain-go-sdk/module/token/types"
+	gosdk "github.com/okex/exchain-go-sdk"
+	tokenTypes "github.com/okex/exchain-go-sdk/module/token/types"
 )
 
 const (

@@ -30,7 +30,7 @@ func runUnjailScript(cmd *cobra.Command, args []string) error {
 	valInfos := valManager.GetInfos()
 
 	//create rpc client
-	clientManager := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
+	clientManager := common.NewClientManager(common.GlobalConfig.Networks[""].Hosts, common.AUTO)
 	for i, info := range valInfos {
 		client := clientManager.GetClient()
 		addr := info.GetAddress().String()

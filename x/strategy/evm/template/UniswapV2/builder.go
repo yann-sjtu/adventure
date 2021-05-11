@@ -5,7 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/okex/okexchain-go-sdk/utils"
+	"github.com/okex/exchain-go-sdk/utils"
 )
 
 var (
@@ -90,6 +90,18 @@ func BuildAddLiquidPayload(tokenA, tokenB, to string, amountADesired, amountBDes
 	return payload
 }
 
+func BuildSwapExactTokensForTokensPayload(amountIn, amountOut *big.Int, path []string, to string, deadline int64) []byte {
+	payload, err := RouterBuilder.Build("swapExactTokensForTokens",
+		amountIn, amountOut,
+		utils.EthAddresses(path),
+		utils.EthAddress(to), big.NewInt(deadline),
+	)
+	if err != nil {
+		panic(err)
+	}
+	return payload
+}
+
 func BuildRemoveLiquidOKTPayload(token, to string, liquidity, amountTokenMin, amountOKTMin*big.Int, deadline int64) []byte {
 	payload, err := RouterBuilder.Build("removeLiquidityETH",
 		utils.EthAddress(token),
@@ -126,6 +138,22 @@ func BuildApprovePayload(addr string, amount int64) []byte {
 
 func BuildGetReversesPayload() []byte {
 	payload, err := PairBuilder.Build("getReserves")
+	if err != nil {
+		panic(err)
+	}
+	return payload
+}
+
+func BuildWethApprovePayload(addr string, amount int64) []byte {
+	payload, err := WethBuilder.Build("approve", utils.EthAddress(addr), sdk.NewDec(amount).Int)
+	if err != nil {
+		panic(err)
+	}
+	return payload
+}
+
+func BuildWethDepositPayload() []byte {
+	payload, err := WethBuilder.Build("deposit")
 	if err != nil {
 		panic(err)
 	}

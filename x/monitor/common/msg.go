@@ -4,7 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/okex/adventure/common"
-	stakingtypes "github.com/okex/okexchain/x/staking/types"
+	stakingtypes "github.com/okex/exchain/x/staking/types"
 )
 
 var gasPrice sdk.Dec

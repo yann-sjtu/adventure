@@ -1,6 +1,6 @@
 package common
 
-import "github.com/okex/okexchain/x/common"
+import "github.com/okex/exchain/x/common"
 
 const (
 	PassWord          = "12345678"

@@ -6,7 +6,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/adventure/common"
-	stakingTypes "github.com/okex/okexchain/x/staking/types"
+	stakingTypes "github.com/okex/exchain/x/staking/types"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/crypto/ed25519"
@@ -47,7 +47,7 @@ func runCreateValidators(cmd *cobra.Command, args []string) error {
 	}
 	accManager := common.GetAccountManagerFromFile(path, valNumber)
 
-	clientManager := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
+	clientManager := common.NewClientManager(common.GlobalConfig.Networks[""].Hosts, common.AUTO)
 	for i := 0; i < valNumber; i++ {
 		privKey := ed25519.GenPrivKey()
 		fakeValidator := &fakeValidator{

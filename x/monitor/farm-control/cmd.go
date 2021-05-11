@@ -8,7 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/adventure/common"
 	monitorcommon "github.com/okex/adventure/x/monitor/common"
-	gosdk "github.com/okex/okexchain-go-sdk"
+	gosdk "github.com/okex/exchain-go-sdk"
 	"github.com/spf13/cobra"
 )
 
@@ -49,7 +49,7 @@ var (
 
 func runFarmControlCmd(cmd *cobra.Command, args []string) error {
 	accounts := monitorcommon.AddrsBook[startIndex/100]
-	clientManager := common.NewClientManager(common.Cfg.Hosts, common.AUTO)
+	clientManager := common.NewClientManager(common.GlobalConfig.Networks[""].Hosts, common.AUTO)
 
 	for _, account := range accounts {
 		cli := clientManager.GetClient()

@@ -5,11 +5,11 @@ import (
 	"log"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	ethcommon "github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/okex/adventure/common"
 	"github.com/okex/adventure/x/strategy/evm/template/USDT"
-	"github.com/okex/okexchain-go-sdk/types"
-	"github.com/okex/okexchain-go-sdk/utils"
+	"github.com/okex/exchain-go-sdk/types"
+	"github.com/okex/exchain-go-sdk/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -36,7 +36,7 @@ var (
 )
 
 func transferCoins(cmd *cobra.Command, args []string) error {
-	clis := common.NewClientManagerWithMode(common.Cfg.Hosts, "0.003okt", types.BroadcastSync, 300000)
+	clis := common.NewClientManagerWithMode(common.GlobalConfig.Networks[""].Hosts, "0.003okt", types.BroadcastSync, 300000)
 	cli := clis.GetClient()
 
 	ownerInfo, _, err := utils.CreateAccountWithMnemo(Owner, fmt.Sprintf("acc%d", 1), common.PassWord)
@@ -58,7 +58,7 @@ func transferCoins(cmd *cobra.Command, args []string) error {
 	fmt.Printf("start send coins from contract %s\n", ErcAddr)
 	for i, ethAddr := range ethAddrs {
 		payload := USDT.BuildUSDTTransferPayload(ethAddr, 100)
-		res, err := cli.Evm().SendTx(ownerInfo, common.PassWord, ErcAddr, "", ethcommon.Bytes2Hex(payload), "", acc.GetAccountNumber(), acc.GetSequence()+uint64(i))
+		res, err := cli.Evm().SendTxEthereum("", ErcAddr, "", hexutil.Encode(payload), 300000, acc.GetSequence()+uint64(i))
 		if err != nil {
 			log.Printf("%s fail to send erc20 coins to %s: %s \n", ownerEthAddr, ethAddr, err)
 			return err

@@ -13,8 +13,8 @@ import (
 	"github.com/okex/adventure/x/strategy/evm/template/UniswapV2"
 	"github.com/okex/adventure/x/strategy/evm/template/UniswapV2Staker"
 	"github.com/okex/adventure/x/strategy/evm/tools"
-	"github.com/okex/okexchain-go-sdk/types"
-	"github.com/okex/okexchain-go-sdk/utils"
+	"github.com/okex/exchain-go-sdk/types"
+	"github.com/okex/exchain-go-sdk/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -79,7 +79,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 	_, poolAddr, tokenAddr := LPAddrs[0], PoolAddrs[0], TokenAddrs[0]
 
 	infos := common.GetAccountManagerFromFile(deploy_contracts.MnemonicPath)
-	clients := common.NewClientManagerWithMode(common.Cfg.Hosts, "0.005okt", types.BroadcastBlock,5000000)
+	clients := common.NewClientManagerWithMode(common.GlobalConfig.Networks[""].Hosts, "0.005okt", types.BroadcastBlock,5000000)
 
 	succ, fail := tools.NewCounter(-1), tools.NewCounter(-1)
 	var wg sync.WaitGroup
@@ -108,7 +108,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 				payload := UniswapV2.BuildAddLiquidOKTPayload(
 					tokenAddr, toEthAddr.String(),
 					sdk.MustNewDecFromStr("0.1").Int, sdk.MustNewDecFromStr("0.0001").Int, sdk.MustNewDecFromStr("0.0001").Int,
-					time.Now().Add(time.Hour*24).Unix(),
+					time.Now().Add(time.Hour*8640).Unix(),
 				)
 				res, err := cli.Evm().SendTx(info, common.PassWord, routerAddr, "0.001", ethcommon.Bytes2Hex(payload), "", accNum, seqNum)
 				if err != nil {
