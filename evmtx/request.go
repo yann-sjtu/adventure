@@ -55,7 +55,7 @@ func CallWithError(method string, params interface{}) (*Response, error) {
 	res, err := http.Post(host, "application/json", bytes.NewBuffer(req)) //nolint:gosec
 	elapsed := time.Since(startTime)
 	if err != nil {
-		log.Println(method, strconv.FormatInt(elapsed.Milliseconds(), 10)+"ms", fail, err)
+		log.Println(method, strconv.FormatInt(elapsed.Milliseconds(), 10)+"ms", fail)
 		return nil, err
 	}
 
@@ -65,13 +65,7 @@ func CallWithError(method string, params interface{}) (*Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	var resStr string
-	if len(rpcRes.Result) < 8 {
-		resStr = string(rpcRes.Result[:len(rpcRes.Result)])
-	} else {
-		resStr = string(rpcRes.Result[:6])
-	}
-	log.Println(method, strconv.FormatInt(elapsed.Milliseconds(), 10)+"ms", success, resStr)
+	log.Println(method, strconv.FormatInt(elapsed.Milliseconds(), 10)+"ms", success)
 
 	err = res.Body.Close()
 	if err != nil {
