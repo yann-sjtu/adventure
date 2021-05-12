@@ -25,7 +25,7 @@ func MintCmd() *cobra.Command {
 	flags := cmd.Flags()
 	flags.IntVarP(&GoroutineNum, "goroutine-num", "g", 1, "set Goroutine Num of deploying contracts")
 	flags.StringVarP(&PrivKeysPath, "privkeys-path", "p", "", "set the PrivKeysPath path")
-	flags.StringVarP(&TTokenAddr, "token-contract", "c", "", "set the ttoken contract addr")
+	flags.StringVarP(&TTokenAddr, "token-contract", "t", "", "set the ttoken contract addr")
 
 	return cmd
 }
@@ -38,7 +38,7 @@ var (
 
 func mint(cmd *cobra.Command, args []string) {
 	privkeys := common.GetPrivKeyFromPrivKeyFile(PrivKeysPath)
-	clients := common.NewClientManagerWithMode(common.GlobalConfig.Networks[""].Hosts, "0.0005okt", types.BroadcastSync, 500000)
+	clients := common.NewClientManagerWithMode(common.GlobalConfig.Networks[common.NetworkType].Hosts, "0.0005okt", types.BroadcastSync, 500000)
 
 	//succ, fail := tools.NewCounter(-1), tools.NewCounter(-1)
 	var wg sync.WaitGroup
