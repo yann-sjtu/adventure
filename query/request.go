@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -67,7 +68,7 @@ func CallWithProxy(postBody []byte, reqType int, proxyIP string) (*Response, err
 	resp, reqErr := client.Do(req)
 	elapsed := time.Since(startTime)
 	if reqErr != nil {
-		log.Println(reqType, elapsed, fail, reqErr, proxyIP)
+		log.Println(reqType, strconv.FormatInt(elapsed.Milliseconds(), 10)+"ms", fail, reqErr)
 		return nil, reqErr
 	}
 	//返回内容
@@ -84,7 +85,7 @@ func CallWithProxy(postBody []byte, reqType int, proxyIP string) (*Response, err
 	} else {
 		resStr = string(rpcRes.Result[:6])
 	}
-	log.Println(reqType, elapsed, success, resStr, proxyIP)
+	log.Println(reqType, strconv.FormatInt(elapsed.Milliseconds(), 10)+"ms", success, resStr)
 	err = resp.Body.Close()
 	if err != nil {
 		return nil, err
