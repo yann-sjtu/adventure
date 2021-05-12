@@ -5,12 +5,15 @@ import (
 	"fmt"
 	"log"
 	"math/big"
+	"time"
 
 	ethcmn "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/okex/adventure/common"
 	"github.com/okex/adventure/x/strategy/evm"
+	"github.com/okex/adventure/x/strategy/evm/template/DYF"
+	"github.com/okex/adventure/x/strategy/evm/template/UniswapV2"
 	"github.com/okex/exchain-go-sdk/utils"
 	"github.com/spf13/cobra"
 )
@@ -31,6 +34,17 @@ func BenchTxCmd() *cobra.Command {
 		Run:   benchTx,
 		PreRun: func(cmd *cobra.Command, args []string) {
 			evm.InitTemplate()
+
+			depositPayloadStr = hexutil.Encode(UniswapV2.BuildWethDepositPayload())
+			approvePayloadStr = hexutil.Encode(UniswapV2.BuildWethApprovePayload(
+				routerAddr, 5,
+			))
+			swapPayloadStr = hexutil.Encode(UniswapV2.BuildSwapExactTokensForTokensPayload(
+				big.NewInt(1000), big.NewInt(0),
+				[]string{wethAddr, usdtAddr}, "0x2B5Cf24AeBcE90f0B8f80Bc42603157b27cFbf47",
+				time.Now().Add(time.Hour*8640).Unix(),
+			))
+			dyfPayloadStr = hexutil.Encode(DYF.BuildExcutePayload())
 		},
 	}
 	flags := cmd.Flags()
@@ -59,10 +73,10 @@ func benchTx(cmd *cobra.Command, args []string) {
 			}
 			ethAddr := ethAddrHex.String()
 
-			for {
+			for r := 0; ;r++{
 				// mint、approve、transfer
 				// 1. estimate gas
-				param := generateTxParams(ethAddr)
+				param := generateTxParams(ethAddr, r%4)
 				rpcRes, err := CallWithError("eth_estimateGas", param)
 				if err != nil {
 					log.Println(err)
@@ -98,8 +112,8 @@ func benchTx(cmd *cobra.Command, args []string) {
 				}
 				fmt.Println(uint64(nonce))
 
-				// sendRawTransaction
-				data := signTx(privateKey, uint64(nonce), uint64(gas), (*big.Int)(&gasPrice))
+				// 4. eth_sendRawTransaction
+				data := signTx(privateKey, nonce, param[0]["to"], param[0]["value"], gas, gasPrice, param[0]["data"])
 				rpcRes, err = CallWithError("eth_sendRawTransaction", []interface{}{data})
 				if err != nil {
 					log.Println(err)
