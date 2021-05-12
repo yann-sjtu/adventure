@@ -48,10 +48,9 @@ func benchQuery(cmd *cobra.Command, args []string) {
 	for r := 1; ; r++ {
 		for n := 0; n < 7; n++ {
 			reqType := n
-			req := generateRequest(reqType)
 			for i := 0; i < concurrency[reqType]; i++ {
 				go func(round int, num int, typeIndex int) {
-
+					req := generateRequest(reqType)
 					//fmt.Println(curIndex%len(ips))
 					CallWithProxy(req, typeIndex, "")
 					//res, err := CallWithProxy(req, reqType, "http://"+ips[rand.Intn(len(ips))])
