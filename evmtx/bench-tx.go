@@ -4,8 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math/big"
 
+	ethcmn "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/okex/adventure/common"
 	"github.com/okex/adventure/x/strategy/evm"
 	"github.com/okex/exchain-go-sdk/utils"
@@ -42,6 +45,10 @@ func benchTx(cmd *cobra.Command, args []string) {
 	privkeys := common.GetPrivKeyFromPrivKeyFile(privkPath, concurrency)
 	for i := 0; i < concurrency; i++ {
 		go func(privkey string) {
+			privateKey, err := crypto.HexToECDSA(privkey)
+			if err != nil {
+				log.Fatalf("failed to switch unencrypted private key -> secp256k1 private key: %+v", err)
+			}
 			info, err := utils.CreateAccountWithPrivateKey(privkey, "acc", common.PassWord)
 			if err != nil {
 				panic(err)
@@ -58,15 +65,14 @@ func benchTx(cmd *cobra.Command, args []string) {
 				param := generateTxParams(ethAddr)
 				rpcRes, err := CallWithError("eth_estimateGas", param)
 				if err != nil {
-					panic(err)
-					//log.Println(err)
-					//continue
+					log.Println(err)
+					continue
 				}
-				var gas string
+				var gas hexutil.Uint64
 				if err = json.Unmarshal(rpcRes.Result, &gas); err != nil {
 					panic(err)
 				}
-				fmt.Println(gas)
+				fmt.Println(uint64(gas))
 
 				// 2. fetch gas price
 				rpcRes, err = CallWithError("eth_gasPrice", nil)
@@ -81,14 +87,21 @@ func benchTx(cmd *cobra.Command, args []string) {
 				fmt.Println(gasPrice.String())
 
 				// 3. eth_getTransactionCount
-				rpcRes, err = CallWithError("eth_getTransactionCount", []interface{}{ethAddr, "latest"})
+				rpcRes, err = CallWithError("eth_getTransactionCount", []interface{}{ethAddr, "pending"})
 				var nonce hexutil.Uint64
 				if err = json.Unmarshal(rpcRes.Result, &nonce); err != nil {
 					panic(err)
 				}
-				fmt.Println(nonce.String())
+				fmt.Println(uint64(nonce))
 
 				// sendRawTransaction
+				data := signTx(privateKey, uint64(nonce), uint64(gas), (*big.Int)(&gasPrice))
+				rpcRes, err = CallWithError("eth_sendRawTransaction", []interface{}{data})
+				var txhash ethcmn.Hash
+				if err = json.Unmarshal(rpcRes.Result, &txhash); err != nil {
+					panic(err)
+				}
+				fmt.Println(txhash.String())
 
 				// getTransactionReceipt
 			}
