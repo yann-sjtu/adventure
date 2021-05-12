@@ -71,6 +71,7 @@ func CallWithProxy(postBody []byte, reqType int, proxyIP string) (*Response, err
 		log.Println(reqType, strconv.FormatInt(elapsed.Milliseconds(), 10)+"ms", fail, reqErr)
 		return nil, reqErr
 	}
+	log.Println(reqType, strconv.FormatInt(elapsed.Milliseconds(), 10)+"ms", success)
 	//返回内容
 	var rpcRes *Response
 	decoder := json.NewDecoder(resp.Body)
@@ -79,13 +80,7 @@ func CallWithProxy(postBody []byte, reqType int, proxyIP string) (*Response, err
 	if err != nil {
 		return nil, err
 	}
-	var resStr string
-	if len(rpcRes.Result) < 8 {
-		resStr = string(rpcRes.Result[:len(rpcRes.Result)])
-	} else {
-		resStr = string(rpcRes.Result[:6])
-	}
-	log.Println(reqType, strconv.FormatInt(elapsed.Milliseconds(), 10)+"ms", success, resStr)
+
 	err = resp.Body.Close()
 	if err != nil {
 		return nil, err
