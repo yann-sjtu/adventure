@@ -25,28 +25,28 @@ func BenchQueryCmd() *cobra.Command {
 		Run:   benchQuery,
 	}
 	flags := cmd.Flags()
-	flags.IntSliceVarP(&concurrency, "concurrency", "g", []int{1, 1, 1, 1, 1, 1, 1}, "set the number of query concurrent number per second")
+	flags.IntSliceVarP(&concurrency, "concurrency", "g", []int{1, 1, 1, 1, 1, 1, 1, 1}, "set the number of query concurrent number per second")
 	flags.IntVarP(&sleepTime, "sleeptime", "t", 1, "")
 	flags.StringVarP(&host, "host", "o", "https://exchaintestrpc.okex.org", "")
 	flags.BoolVarP(&test, "test", "s", false, "")
 	return cmd
 }
 
-var startList = []int{0, 0, 0, 0, 0, 0, 0}
+var startList = []int{0, 0, 0, 0, 0, 0, 0, 0}
 
 func benchQuery(cmd *cobra.Command, args []string) {
 
-	if len(concurrency) != 7 {
+	if len(concurrency) != 8 {
 		panic(fmt.Errorf("concurrent config length should be 7, acutal len: %d", len(concurrency)))
 	}
 	total := concurrency[0]
-	for i := 1; i < 7; i++ {
+	for i := 1; i < 8; i++ {
 		startList[i] = startList[i-1] + concurrency[i-1]
 		total += concurrency[i]
 	}
 
 	for r := 1; ; r++ {
-		for n := 0; n < 7; n++ {
+		for n := 0; n < 8; n++ {
 			reqType := n
 			for i := 0; i < concurrency[reqType]; i++ {
 				go func(round int, num int, typeIndex int) {
@@ -87,6 +87,8 @@ func generateRequest(index int) []byte {
 		req = EthGetTransactionCount()
 	case 6:
 		req = EthGetTransactionReceipt()
+	case 7:
+		req = NetVersion()
 	default:
 		req = persistentBlockNumberRequest
 	}

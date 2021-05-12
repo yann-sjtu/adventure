@@ -16,6 +16,8 @@ const (
 	ethGetCode               = "eth_getCode"
 	ethGetTransactionCount   = "eth_getTransactionCount"
 	ethGetTransactionReceipt = "eth_getTransactionReceipt"
+
+	netVersion = "net_version"
 )
 
 var (
@@ -46,4 +48,8 @@ func EthGetTransactionCount() Request {
 }
 func EthGetTransactionReceipt() Request {
 	return CreateRequest(ethGetTransactionReceipt, []interface{}{txHashList[rand.Intn(len(txHashList))]})
+}
+
+func NetVersion() Request {
+	return CreateRequest(netVersion, nil)
 }
