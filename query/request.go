@@ -43,7 +43,7 @@ func CreateRequest(method string, params interface{}) Request {
 	}
 }
 
-func CallWithProxy(postBody []byte, reqType int,proxyIP string) (*Response, error) {
+func CallWithProxy(postBody []byte, reqType int, proxyIP string) (*Response, error) {
 	client := &http.Client{}
 
 	//是否使用代理IP

@@ -3,9 +3,6 @@ package query
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
-	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -17,9 +14,6 @@ var (
 	host        string
 	test        bool
 
-	proxyTestFetchIp = "http://webapi.http.zhimacangku.com/getip?num=10&type=1&pro=&city=0&yys=0&port=1&time=1&ts=0&ys=0&cs=0&lb=1&sb=0&pb=4&mr=1&regions="
-	//proxyFetchIp     = "http://webapi.http.zhimacangku.com/getip?num=400&type=1&pro=&city=0&yys=0&port=1&pack=138919&ts=0&ys=0&cs=0&lb=1&sb=0&pb=4&mr=1&regions=&big_num=2000"
-	proxyFetchIp  = "http://webapi.http.zhimacangku.com/getallip?&big_num=1000&type=1&pro=&city=0&yys=0&port=1&pack=138919&ts=0&ys=0&cs=0&lb=1&sb=0&pb=4&mr=3&regions=&username=chukou01&spec=1"
 )
 
 func BenchQueryCmd() *cobra.Command {
@@ -31,9 +25,9 @@ func BenchQueryCmd() *cobra.Command {
 		Run:   benchQuery,
 	}
 	flags := cmd.Flags()
-	flags.IntSliceVarP(&concurrency, "concurrency", "c", []int{1, 1, 1, 1, 1, 1, 1}, "set the number of query concurrent number per second")
+	flags.IntSliceVarP(&concurrency, "concurrency", "g", []int{1, 1, 1, 1, 1, 1, 1}, "set the number of query concurrent number per second")
 	flags.IntVarP(&sleepTime, "sleeptime", "t", 1, "")
-	flags.StringVarP(&host, "host", "n", "https://exchaintest.okexcn.com", "")
+	flags.StringVarP(&host, "host", "o", "https://exchaintestrpc.okex.org", "")
 	flags.BoolVarP(&test, "test", "s", false, "")
 	return cmd
 }
@@ -41,9 +35,6 @@ func BenchQueryCmd() *cobra.Command {
 var startList = []int{0, 0, 0, 0, 0, 0, 0}
 
 func benchQuery(cmd *cobra.Command, args []string) {
-	if test {
-		proxyFetchIp = proxyTestFetchIp
-	}
 
 	if len(concurrency) != 7 {
 		panic(fmt.Errorf("concurrent config length should be 7, acutal len: %d", len(concurrency)))
@@ -54,22 +45,15 @@ func benchQuery(cmd *cobra.Command, args []string) {
 		total += concurrency[i]
 	}
 
-	ips := QueryProxyIpList()
 	for r := 1; ; r++ {
-		if r % 15 == 0 {
-			newIps := QueryProxyIpList()
-			if len(newIps) > 1{
-				ips = newIps
-			}
-		}
 		for n := 0; n < 7; n++ {
 			reqType := n
 			req := generateRequest(reqType)
 			for i := 0; i < concurrency[reqType]; i++ {
 				go func(round int, num int, typeIndex int) {
-					curIndex := startList[typeIndex] + num + round*total
+
 					//fmt.Println(curIndex%len(ips))
-					CallWithProxy(req, typeIndex, "http://"+ips[curIndex%len(ips)])
+					CallWithProxy(req, typeIndex, "")
 					//res, err := CallWithProxy(req, reqType, "http://"+ips[rand.Intn(len(ips))])
 					//if err != nil {
 					//	log.Println("query failed:", err)
@@ -115,21 +99,21 @@ func generateRequest(index int) []byte {
 	return postBody
 }
 
-func QueryProxyIpList() []string {
-	resp, err := http.Get(proxyFetchIp)
-	if err != nil {
-		return nil
-	}
-	defer resp.Body.Close()
-	conent, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		panic(err)
-	}
-	urls := string(conent)
-	fmt.Println(urls)
-	list := strings.Split(urls, "\r\n")
-	if len(list) == 1 {
-		return nil
-	}
-	return list[:len(list)-1]
-}
+//func QueryProxyIpList() []string {
+//	resp, err := http.Get(proxyFetchIp)
+//	if err != nil {
+//		return nil
+//	}
+//	defer resp.Body.Close()
+//	conent, err := ioutil.ReadAll(resp.Body)
+//	if err != nil {
+//		panic(err)
+//	}
+//	urls := string(conent)
+//	fmt.Println(urls)
+//	list := strings.Split(urls, "\r\n")
+//	if len(list) == 1 {
+//		return nil
+//	}
+//	return list[:len(list)-1]
+//}
