@@ -2,7 +2,6 @@ package evmtx
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"math/big"
 	"time"
@@ -86,7 +85,7 @@ func benchTx(cmd *cobra.Command, args []string) {
 				if err = json.Unmarshal(rpcRes.Result, &gas); err != nil {
 					panic(err)
 				}
-				fmt.Println(uint64(gas))
+				//fmt.Println(uint64(gas))
 
 				// 2. fetch gas price
 				rpcRes, err = CallWithError("eth_gasPrice", nil)
@@ -98,7 +97,7 @@ func benchTx(cmd *cobra.Command, args []string) {
 				if err = json.Unmarshal(rpcRes.Result, &gasPrice); err != nil {
 					panic(err)
 				}
-				fmt.Println(gasPrice.String())
+				//fmt.Println(gasPrice.String())
 
 				// 3. eth_getTransactionCount
 				rpcRes, err = CallWithError("eth_getTransactionCount", []interface{}{ethAddr, "pending"})
@@ -110,7 +109,7 @@ func benchTx(cmd *cobra.Command, args []string) {
 				if err = json.Unmarshal(rpcRes.Result, &nonce); err != nil {
 					panic(err)
 				}
-				fmt.Println(uint64(nonce))
+				//fmt.Println(uint64(nonce))
 
 				// 4. eth_sendRawTransaction
 				data := signTx(privateKey, nonce, param[0]["to"], param[0]["value"], gas, gasPrice, param[0]["data"])
@@ -123,9 +122,33 @@ func benchTx(cmd *cobra.Command, args []string) {
 				if err = json.Unmarshal(rpcRes.Result, &txhash); err != nil {
 					panic(err)
 				}
-				fmt.Println(txhash.String())
+				//fmt.Println(txhash.String())
 
-				// getTransactionReceipt
+				// 5. getTransactionReceipt
+				go func(hash string) {
+					for {
+						rpcRes, err := CallWithError("eth_getTransactionReceipt", []interface{}{hash})
+						if err != nil {
+							log.Println(err)
+							return
+						}
+						if string(rpcRes.Result) == "null" {
+							time.Sleep(time.Second*2)
+							continue
+						}
+
+						var receipt map[string]interface{}
+						if err = json.Unmarshal(rpcRes.Result, &receipt); err != nil {
+							panic(err)
+						}
+						if receipt["status"].(string) == hexutil.Uint(1).String() {
+							log.Println("done")
+						}
+						break
+					}
+				}(txhash.String())
+
+				time.Sleep(time.Second*time.Duration(sleepTime))
 			}
 
 		}(privkeys[i])
