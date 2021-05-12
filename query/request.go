@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"net/url"
 	"time"
 )
 
@@ -44,18 +43,18 @@ func CreateRequest(method string, params interface{}) Request {
 }
 
 func CallWithProxy(postBody []byte, reqType int, proxyIP string) (*Response, error) {
-	client := &http.Client{}
-
-	//是否使用代理IP
-	if proxyIP != "" {
-		proxy := func(_ *http.Request) (*url.URL, error) {
-			return url.Parse(proxyIP)
-		}
-		transport := &http.Transport{Proxy: proxy}
-		client = &http.Client{Transport: transport}
-	} else {
-		client = &http.Client{}
-	}
+	//client := &http.Client{}
+	//
+	////是否使用代理IP
+	//if proxyIP != "" {
+	//	proxy := func(_ *http.Request) (*url.URL, error) {
+	//		return url.Parse(proxyIP)
+	//	}
+	//	transport := &http.Transport{Proxy: proxy}
+	//	client = &http.Client{Transport: transport}
+	//} else {
+	//	client = &http.Client{}
+	//}
 
 	//post请求
 	req, err := http.NewRequest("POST", host, bytes.NewBuffer(postBody))
@@ -65,7 +64,7 @@ func CallWithProxy(postBody []byte, reqType int, proxyIP string) (*Response, err
 	req.Header.Set("Content-Type", "application/json")
 
 	startTime := time.Now()
-	resp, reqErr := client.Do(req)
+	resp, reqErr := http.DefaultClient.Do(req)
 	elapsed := time.Since(startTime)
 	if reqErr != nil {
 		log.Println(reqType, elapsed, fail, reqErr, proxyIP)
