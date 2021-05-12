@@ -2,6 +2,8 @@ package mint
 
 import (
 	"log"
+	"math/rand"
+	"strconv"
 	"sync"
 	"time"
 
@@ -26,6 +28,7 @@ func MintCmd() *cobra.Command {
 	flags.IntVarP(&GoroutineNum, "goroutine-num", "g", 1, "set Goroutine Num of deploying contracts")
 	flags.StringVarP(&PrivKeysPath, "privkeys-path", "p", "", "set the PrivKeysPath path")
 	flags.StringVarP(&TTokenAddr, "token-contract", "t", "", "set the ttoken contract addr")
+	flags.IntVarP(&sleepTime, "sleep-time", "s", 1, "set the ttoken contract addr")
 
 	return cmd
 }
@@ -34,11 +37,12 @@ var (
 	GoroutineNum = 1
 	PrivKeysPath = ""
 	TTokenAddr   = ""
+	sleepTime    = 1
 )
 
 func mint(cmd *cobra.Command, args []string) {
 	privkeys := common.GetPrivKeyFromPrivKeyFile(PrivKeysPath)
-	clients := common.NewClientManagerWithMode(common.GlobalConfig.Networks[common.NetworkType].Hosts, "0.0005okt", types.BroadcastSync, 500000)
+	clients := common.NewClientManagerWithMode(common.GlobalConfig.Networks[common.NetworkType].Hosts, "0.0005okt", types.BroadcastAsync, 500000)
 
 	//succ, fail := tools.NewCounter(-1), tools.NewCounter(-1)
 	var wg sync.WaitGroup
@@ -71,8 +75,13 @@ func mint(cmd *cobra.Command, args []string) {
 				// 1. mint
 				payload := TTotken.BuildTTokenMintPayload(ethAddr.String(), sdk.NewDec(1).Int)
 				for {
+					//for r := 0 ; r <= 10; r++ {
+					k := float64(rand.Intn(20)+1) / 1000000000.0
+					i := strconv.FormatFloat(k, 'f', -1, 64)
+					gasPrice := sdk.MustNewDecFromStr(i).BigInt()
+
 					//res, err :=
-					res, err := cli.Evm().SendTxEthereum(privkey, TTokenAddr, "", ethcommon.Bytes2Hex(payload), 500000, seqNum+offset)
+					res, err := cli.Evm().SendTxEthereum(privkey, TTokenAddr, "", ethcommon.Bytes2Hex(payload), 500000, seqNum+offset, gasPrice)
 					if err != nil {
 						log.Printf("[%s] %s failed to mint in %s: %s\n", res.TxHash, ethAddr, TTokenAddr, err)
 						continue
@@ -80,7 +89,9 @@ func mint(cmd *cobra.Command, args []string) {
 						log.Printf("[%s] %s mint in %s \n", res.TxHash, ethAddr, TTokenAddr)
 						offset++
 					}
-					time.Sleep(time.Second*2)
+					//}
+
+					time.Sleep(time.Second * time.Duration(sleepTime))
 				}
 			}
 		}(i)

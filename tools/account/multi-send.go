@@ -131,7 +131,7 @@ func transferTokenScript1(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	clients := common.NewClientManager(common.GlobalConfig.Networks[""].Hosts, common.AUTO)
+	clients := common.NewClientManager(common.GlobalConfig.Networks[common.NetworkType].Hosts, common.AUTO)
 	cli := clients.GetRandomClient()
 	err = SendCoins(cli, addrs, coinStr, richMnemonic)
 	if err != nil {
