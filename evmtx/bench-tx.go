@@ -88,6 +88,10 @@ func benchTx(cmd *cobra.Command, args []string) {
 
 				// 3. eth_getTransactionCount
 				rpcRes, err = CallWithError("eth_getTransactionCount", []interface{}{ethAddr, "pending"})
+				if err != nil {
+					log.Println(err)
+					continue
+				}
 				var nonce hexutil.Uint64
 				if err = json.Unmarshal(rpcRes.Result, &nonce); err != nil {
 					panic(err)
@@ -97,6 +101,10 @@ func benchTx(cmd *cobra.Command, args []string) {
 				// sendRawTransaction
 				data := signTx(privateKey, uint64(nonce), uint64(gas), (*big.Int)(&gasPrice))
 				rpcRes, err = CallWithError("eth_sendRawTransaction", []interface{}{data})
+				if err != nil {
+					log.Println(err)
+					continue
+				}
 				var txhash ethcmn.Hash
 				if err = json.Unmarshal(rpcRes.Result, &txhash); err != nil {
 					panic(err)
