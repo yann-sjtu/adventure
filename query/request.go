@@ -43,7 +43,7 @@ func CreateRequest(method string, params interface{}) Request {
 }
 
 func CallWithProxy(postBody []byte, reqType int, proxyIP string) (*Response, error) {
-	//client := &http.Client{}
+	client := &http.Client{}
 	//
 	////是否使用代理IP
 	//if proxyIP != "" {
@@ -64,7 +64,7 @@ func CallWithProxy(postBody []byte, reqType int, proxyIP string) (*Response, err
 	req.Header.Set("Content-Type", "application/json")
 
 	startTime := time.Now()
-	resp, reqErr := http.DefaultClient.Do(req)
+	resp, reqErr := client.Do(req)
 	elapsed := time.Since(startTime)
 	if reqErr != nil {
 		log.Println(reqType, elapsed, fail, reqErr, proxyIP)
