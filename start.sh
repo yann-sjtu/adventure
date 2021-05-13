@@ -51,7 +51,7 @@ do
 #    ulimit -a | grep "open files"
 
 #    echo "47.75.105.229 exchaintestrpc.okex.org" >> /etc/hosts
-    cat /etc/hosts | grep exchaintestrpc
+#    cat /etc/hosts | grep exchaintestrpc
 
 
 #     systemctl start docker
