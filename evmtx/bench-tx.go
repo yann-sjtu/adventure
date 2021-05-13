@@ -78,7 +78,7 @@ func benchTx(cmd *cobra.Command, args []string) {
 				param := generateTxParams(ethAddr, r%4)
 				rpcRes, err := CallWithError("eth_estimateGas", param)
 				if err != nil {
-					log.Println(err)
+					//log.Println(err)
 					continue
 				}
 				var gas hexutil.Uint64
@@ -90,7 +90,7 @@ func benchTx(cmd *cobra.Command, args []string) {
 				// 2. fetch gas price
 				rpcRes, err = CallWithError("eth_gasPrice", nil)
 				if err != nil {
-					log.Println(err)
+					//log.Println(err)
 					continue
 				}
 				var gasPrice hexutil.Big
@@ -102,7 +102,7 @@ func benchTx(cmd *cobra.Command, args []string) {
 				// 3. eth_getTransactionCount
 				rpcRes, err = CallWithError("eth_getTransactionCount", []interface{}{ethAddr, "pending"})
 				if err != nil {
-					log.Println(err)
+					//log.Println(err)
 					continue
 				}
 				var nonce hexutil.Uint64
@@ -115,7 +115,7 @@ func benchTx(cmd *cobra.Command, args []string) {
 				data := signTx(privateKey, nonce, param[0]["to"], param[0]["value"], gas, gasPrice, param[0]["data"])
 				rpcRes, err = CallWithError("eth_sendRawTransaction", []interface{}{data})
 				if err != nil {
-					log.Println(err)
+					//log.Println(err)
 					continue
 				}
 				var txhash ethcmn.Hash
@@ -129,7 +129,7 @@ func benchTx(cmd *cobra.Command, args []string) {
 					for {
 						rpcRes, err := CallWithError("eth_getTransactionReceipt", []interface{}{hash})
 						if err != nil {
-							log.Println(err)
+							//log.Println(err)
 							return
 						}
 						if string(rpcRes.Result) == "null" {
@@ -142,7 +142,7 @@ func benchTx(cmd *cobra.Command, args []string) {
 							panic(err)
 						}
 						if receipt["status"].(string) == hexutil.Uint(1).String() {
-							log.Println("done")
+							//log.Println("done")
 						}
 						break
 					}

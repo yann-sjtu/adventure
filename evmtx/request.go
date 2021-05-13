@@ -55,7 +55,7 @@ func CallWithError(method string, params interface{}) (*Response, error) {
 	res, err := http.Post(host, "application/json", bytes.NewBuffer(req)) //nolint:gosec
 	elapsed := time.Since(startTime)
 	if err != nil {
-		log.Println(method, strconv.FormatInt(elapsed.Milliseconds(), 10)+"ms", fail)
+		log.Println(method, strconv.FormatInt(elapsed.Milliseconds(), 10)+"ms", fail, err)
 		return nil, err
 	}
 
