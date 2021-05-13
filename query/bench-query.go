@@ -3,6 +3,7 @@ package query
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -44,7 +45,7 @@ func benchQuery(cmd *cobra.Command, args []string) {
 		startList[i] = startList[i-1] + concurrency[i-1]
 		total += concurrency[i]
 	}
-
+	http.DefaultTransport.(*http.Transport).MaxIdleConnsPerHost = 10000000
 	for r := 1; ; r++ {
 		for n := 0; n < 8; n++ {
 			reqType := n
