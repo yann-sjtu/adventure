@@ -58,6 +58,7 @@ func CallWithError(method string, params interface{}) (*Response, error) {
 		log.Println(method, strconv.FormatInt(elapsed.Milliseconds(), 10)+"ms", fail, err)
 		return nil, err
 	}
+	log.Println(method, strconv.FormatInt(elapsed.Milliseconds(), 10)+"ms", success)
 
 	decoder := json.NewDecoder(res.Body)
 	rpcRes = new(Response)
@@ -65,7 +66,6 @@ func CallWithError(method string, params interface{}) (*Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Println(method, strconv.FormatInt(elapsed.Milliseconds(), 10)+"ms", success)
 
 	err = res.Body.Close()
 	if err != nil {
