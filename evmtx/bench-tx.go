@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"math/big"
+	"sync"
 	"time"
 
 	ethcmn "github.com/ethereum/go-ethereum/common"
@@ -73,49 +74,62 @@ func benchTx(cmd *cobra.Command, args []string) {
 			ethAddr := ethAddrHex.String()
 
 			for r := 0; ;r++{
+				var wg sync.WaitGroup
+				wg.Add(3)
+
 				// mint、approve、transfer
 				// 1. estimate gas
-				param := generateTxParams(ethAddr, r%4)
-				rpcRes, err := CallWithError("eth_estimateGas", param)
-				if err != nil {
-					//log.Println(err)
-					continue
-				}
 				var gas hexutil.Uint64
-				if err = json.Unmarshal(rpcRes.Result, &gas); err != nil {
-					panic(err)
-				}
-				//fmt.Println(uint64(gas))
+				param := generateTxParams(ethAddr, r%4)
+				go func(p []map[string]string) {
+					defer wg.Done()
+					rpcRes, err := CallWithError("eth_estimateGas", p)
+					if err != nil {
+						log.Println("eth_estimateGas", err)
+						return
+					}
+					if err = json.Unmarshal(rpcRes.Result, &gas); err != nil {
+						panic(err)
+					}
+					//fmt.Println(uint64(gas))
+				}(param)
 
 				// 2. fetch gas price
-				rpcRes, err = CallWithError("eth_gasPrice", nil)
-				if err != nil {
-					//log.Println(err)
-					continue
-				}
 				var gasPrice hexutil.Big
-				if err = json.Unmarshal(rpcRes.Result, &gasPrice); err != nil {
-					panic(err)
-				}
-				//fmt.Println(gasPrice.String())
+				go func() {
+					defer wg.Done()
+					rpcRes, err := CallWithError("eth_gasPrice", nil)
+					if err != nil {
+						log.Println("eth_gasPrice", err)
+						return
+					}
+					if err = json.Unmarshal(rpcRes.Result, &gasPrice); err != nil {
+						panic(err)
+					}
+					//fmt.Println(gasPrice.String())
+				}()
 
 				// 3. eth_getTransactionCount
-				rpcRes, err = CallWithError("eth_getTransactionCount", []interface{}{ethAddr, "pending"})
-				if err != nil {
-					//log.Println(err)
-					continue
-				}
 				var nonce hexutil.Uint64
-				if err = json.Unmarshal(rpcRes.Result, &nonce); err != nil {
-					panic(err)
-				}
-				//fmt.Println(uint64(nonce))
+				go func() {
+					defer wg.Done()
+					rpcRes, err := CallWithError("eth_getTransactionCount", []interface{}{ethAddr, "pending"})
+					if err != nil {
+						log.Println("eth_getTransactionCount", err)
+						return
+					}
+					if err = json.Unmarshal(rpcRes.Result, &nonce); err != nil {
+						panic(err)
+					}
+					//fmt.Println(uint64(nonce))
+				}()
+				wg.Wait()
 
 				// 4. eth_sendRawTransaction
 				data := signTx(privateKey, nonce, param[0]["to"], param[0]["value"], gas, gasPrice, param[0]["data"])
-				rpcRes, err = CallWithError("eth_sendRawTransaction", []interface{}{data})
+				rpcRes, err := CallWithError("eth_sendRawTransaction", []interface{}{data})
 				if err != nil {
-					//log.Println(err)
+					log.Println("eth_sendRawTransaction", err)
 					continue
 				}
 				var txhash ethcmn.Hash
@@ -129,7 +143,7 @@ func benchTx(cmd *cobra.Command, args []string) {
 					for {
 						rpcRes, err := CallWithError("eth_getTransactionReceipt", []interface{}{hash})
 						if err != nil {
-							//log.Println(err)
+							log.Println("eth_getTransactionReceipt", err)
 							return
 						}
 						if string(rpcRes.Result) == "null" {
