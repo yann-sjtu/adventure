@@ -61,10 +61,11 @@ do
 #    ps -ef | grep adventure | grep -v grep | awk '{print $2}'
 #    pgrep adventure | xargs kill -s 9
 
-#rm -f /root/adventure/query.log
 
-#nohup adventure bench-query -g 200,200,200,200,200,200,200,200 -t 2 >> /root/adventure/query.log 2>&1 &
+#    nohup adventure bench-query -g 40,40,40,40,40,40,40,40 -t 1 >> /root/adventure/query.log 2>&1 &
+#    mv /root/adventure/query.log /root/adventure/query-old.log
 
+#    nohup adventure bench-query -g 200,0,200,00,0,0,0,200 -t 1 >> /root/adventure/test.log 2>&1 &
     exit
 eeooff
 done
