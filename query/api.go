@@ -18,6 +18,8 @@ const (
 	ethGetTransactionReceipt = "eth_getTransactionReceipt"
 
 	netVersion = "net_version"
+
+	ethCall = "eth_call"
 )
 
 var (
@@ -52,4 +54,15 @@ func EthGetTransactionReceipt() Request {
 
 func NetVersion() Request {
 	return CreateRequest(netVersion, nil)
+}
+
+func EthCall() Request {
+	callArgs := make(map[string]string)
+	callArgs["from"] = "0xd01bf1F0dB0E0F9998Ec01a45Cfc03116D0224bE"
+	callArgs["to"] = "0x4a191907012673c9efde02a10a24c19db48bed0c"
+	callArgs["value"] = "0x0"
+	callArgs["data"] = "0x70a08231000000000000000000000000"+hexAddrs[rand.Intn(len(hexAddrs))][2:]
+	callArgs["gas"] = "0x2dc6c0"
+
+	return CreateRequest(ethCall, []interface{}{callArgs, latestBlockNumber})
 }
