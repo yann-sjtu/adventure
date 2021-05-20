@@ -37,7 +37,7 @@ var startList = []int{0, 0, 0, 0, 0, 0, 0, 0, 0}
 func benchQuery(cmd *cobra.Command, args []string) {
 
 	if len(concurrency) != 9 {
-		panic(fmt.Errorf("concurrent config length should be 7, acutal len: %d", len(concurrency)))
+		panic(fmt.Errorf("concurrent config length should be 9, acutal len: %d", len(concurrency)))
 	}
 	total := concurrency[0]
 	for i := 1; i < 9; i++ {
