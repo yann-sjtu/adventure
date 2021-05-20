@@ -75,13 +75,13 @@ func CallWithProxy(postBody []byte, reqType int, proxyIP string) (*Response, err
 
 	log.Println(reqType, strconv.FormatInt(elapsed.Milliseconds(), 10)+"ms", success)
 	//返回内容
-	var rpcRes *Response
-	decoder := json.NewDecoder(resp.Body)
-	rpcRes = new(Response)
-	err = decoder.Decode(&rpcRes)
-	if err != nil {
-		return nil, err
-	}
+	//var rpcRes *Response
+	//decoder := json.NewDecoder(resp.Body)
+	//rpcRes = new(Response)
+	//err = decoder.Decode(&rpcRes)
+	//if err != nil {
+	//	return nil, err
+	//}
 
 	//return rpcRes, nil
 	return &Response{}, nil
