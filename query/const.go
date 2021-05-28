@@ -1,13 +1,12 @@
 package query
 
-
 const (
 	latestBlockNumber = "latest"
 
-	startHeight       = 2322600
-	endHeight         = 2725525
+	startHeight = 3121530
+	endHeight   = 2725525
 
-	usdtContract      = "0x24e150093838b3f1737c6481016f247fbfface4b"
+	usdtContract = "0x24e150093838b3f1737c6481016f247fbfface4b"
 )
 
 var queryAccount = []string{
@@ -11014,7 +11013,6 @@ var txHashList = []string{
 	"0xFCEF677D8C1491A62DABBE2EC680EA4E130BB76AA7DDFD2192152C8E225E45C2",
 	"0x27C30794901EC4DA68188883FA40AC0DA76B128A515965A9DAAA302BBE888123",
 	"0x32A084B7BE1EF96BA9857C32FFF45A16FE3566B3D748260C8ADB41DFA2BE6A84",
-
 }
 
 var hexAddrs = []string{
