@@ -35,8 +35,8 @@ func EthGetBalance() Request {
 	return CreateRequest(ethGetBalance, []interface{}{queryAccount[rand.Intn(len(queryAccount))], latestBlockNumber})
 }
 func EthGetBlockByNumber() Request {
-	rand.Seed(time.Now().UnixNano()+rand.Int63n(11111111111111))
-	height := startHeight+rand.Int63n(402925)
+	rand.Seed(time.Now().UnixNano() + rand.Int63n(11111111111111))
+	height := startHeight + rand.Int63n(2000)
 	return CreateRequest(ethGetBlockByNumber, []interface{}{hexutil.Uint64(height), false})
 }
 func EthGasPrice() Request {
