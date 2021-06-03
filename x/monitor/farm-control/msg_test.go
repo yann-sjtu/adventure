@@ -86,10 +86,10 @@ func TestAddShares(t *testing.T) {
 	//okexchain1gln5srut8yr4da5czc6rrvwsa8t0nqr0j8py6j 803
 	//okexchain1p4fk4kehstehj9k4r0qgqmnpukcxx20c9txvg3 804
 	//okexchain1vy0d5a4rh5l42dhs39e8zhjyjapa6ym32g4f6z 805
-	addr := "okexchain1v9asy9x82lk7hfw27kq3pzeg2rgeeg6t5u27uv"
-	index := 801
+	addr := "ex1va25ew62xztnkzttepgywxkrv3e2hx952x5leg"
+	index := 843
 
-	cfg, err := gosdk.NewClientConfig("http://10.0.240.38:26657", "okexchain-66", gosdk.BroadcastBlock, "0.002okt", 200000, 0, "")
+	cfg, err := gosdk.NewClientConfig("http://10.0.240.38:26657", "exchain-66", gosdk.BroadcastBlock, "0.002okt", 200000, 0, "")
 	if err != nil {
 		panic(err)
 	}
@@ -105,38 +105,38 @@ func TestAddShares(t *testing.T) {
 		//"okexchainvaloper1vsjcts3ga8dgf6nj2q7vmlrnu5en4cnedc8n76",
 		//"okexchainvaloper188dhgmaq8cka2yczzjfzsw0nely6y8ua3ad0du",
 
-		"okexchainvaloper18au05qx485u2qcw2gvqsrfh29evq77lm45mf4h", //1
-		"okexchainvaloper1s6nfs7mlj7ewsskkrmekqhpq2w234fczy53wqq", //2
-		"okexchainvaloper1zxthrcdcecfe5ss4tal0tq30hzel2lks2fp8v0", //3
-		"okexchainvaloper1q9nct2gska2yutx24starv6s63xz022faxunec", //4
-		"okexchainvaloper195ez67wmhprwrru34gvttyd8ttpl7edxpfhu8f", //5
-		"okexchainvaloper19wln93k3faq7vkqzlc9gljr3ey5fljt9p6cats", //6
-		"okexchainvaloper1qva0ejf0t943x6rt824gwmvtjgec9cjrvr94gn", //7
-		"okexchainvaloper1ka92ujcwh6hyyeu4tymzy3dedgxplt4dmcj9ar", //8
-		"okexchainvaloper1zza3jrylyecrtuh0p9ts2xauzsefuvwa9h5jtj", //9
-		"okexchainvaloper1ja9xngm4zh0t442mse73ll30p7dczd49q0kg3j", //10
-		"okexchainvaloper1c34s7lc7ec8gs9xrtxeh0j2wjaam25c3c8ta69", //11
-		"okexchainvaloper1ygcvtcqxl82xvzrq25dymam434k3nnc8xxacd0", //12
-		"okexchainvaloper1m569cfenudxemegcf4mmykhugnslhdv0klarfw", //13
-		"okexchainvaloper1fymxn4gazxzjdfvwvr0ccnrnjpwmj0r9uxqs3s", //14
-		"okexchainvaloper1xkl5agjzqnjnptyat2dng2asmx8g5kllckhxqc", //15
-		"okexchainvaloper1tkwxgcpvptua0q0h5tn0at58ufnjdue7kf5fvp", //16
-		"okexchainvaloper1508d7eq592kg2lh9d46xvv3r4sm7gm8wlmjzfz", //17
-		"okexchainvaloper18v23ln9ycrtg0mrwsm004sh4tdknudtddffjr5", //18   val1
-		"okexchainvaloper1ucmx6vvtrwam9pg20fnwmy9z80uhchyxsmt945", //19   val2
-		"okexchainvaloper1g3a6vtau2k93n4tqgqnrggeu3qa4x20rccyawy", //20   val3
-		"okexchainvaloper19e6edpu97d6w2t5dlp7lph2fkdja0lvlz0zndm", //21   val4
+		    "exvaloper18au05qx485u2qcw2gvqsrfh29evq77lm9u2jwr", //1
+		    "exvaloper1s6nfs7mlj7ewsskkrmekqhpq2w234fcz5uq4m5", //2
+		    "exvaloper1zxthrcdcecfe5ss4tal0tq30hzel2lks6psuhm", //3
+		    "exvaloper1q9nct2gska2yutx24starv6s63xz022fdwdgzv", //4
+		    "exvaloper195ez67wmhprwrru34gvttyd8ttpl7edx3px8ua", //5
+		    "exvaloper19wln93k3faq7vkqzlc9gljr3ey5fljt93jfxsy", //6
+		    "exvaloper1qva0ejf0t943x6rt824gwmvtjgec9cjrut5wn8", //7
+		    "exvaloper1ka92ujcwh6hyyeu4tymzy3dedgxplt4dtsr7xh", //8
+		    "exvaloper1zza3jrylyecrtuh0p9ts2xauzsefuvwa4l9fsx", //9
+		    "exvaloper1ja9xngm4zh0t442mse73ll30p7dczd49s88n2x", //10
+		    "exvaloper1c34s7lc7ec8gs9xrtxeh0j2wjaam25c3g06xp3", //11
+		    "exvaloper1ygcvtcqxl82xvzrq25dymam434k3nnc8kwvrkm", //12
+		    "exvaloper1m569cfenudxemegcf4mmykhugnslhdv0xhvcj6", //13
+		    "exvaloper1fymxn4gazxzjdfvwvr0ccnrnjpwmj0r9vw3t2y", //14
+		    "exvaloper1xkl5agjzqnjnptyat2dng2asmx8g5kllg7xamv", //15
+		    "exvaloper1tkwxgcpvptua0q0h5tn0at58ufnjdue7xp9jh4", //16
+		    "exvaloper1508d7eq592kg2lh9d46xvv3r4sm7gm8w0nrejk", //17
+		    "exvaloper18v23ln9ycrtg0mrwsm004sh4tdknudtdapcfcq", //18   val1
+		    "exvaloper1ucmx6vvtrwam9pg20fnwmy9z80uhchyxqn67wq", //19   val2
+		    "exvaloper1g3a6vtau2k93n4tqgqnrggeu3qa4x20rgs4x4s", //20   val3
+		    "exvaloper19e6edpu97d6w2t5dlp7lph2fkdja0lvlj8ngk0", //21   val4
 
-		//"okexchainvaloper1tat4lam8wjqmeax9mv4s584vu2mp7c0ccywxft", //22  Best bp
-		//"okexchainvaloper1mlmwvdprn8dj6g45vdxkjsjgu4ntu9j7amrdl7", //23  OKvibe
-		//"okexchainvaloper1rz7frqz9ky52qqjwlpawfe5hz6plcrmm3lv56j", //24  Taurus
-		//"okexchainvaloper1w3ptfgekjgdvwkqmdepdeyvuxqmcplfsjhn2f0", //25  Junglefly
-		//"okexchainvaloper1v4kagglr3vq82vqywqd8quhsuarkm4kf6mnu0h", //26  Deeworld
-		//"okexchainvaloper1rmrx7wp60almzvghx2820aamjfd4kgwlgw9w34", //27  Pialote
-		//"okexchainvaloper13mayrjzsrp976y0ae0qw8sjan3qg2xfdfgkhqr", //28  Wulix
-		//"okexchainvaloper104y8sy0r6fke4a9qr8u05j6v5y68gkh4uedk7l", //29  Sakuya
-		//"okexchainvaloper14zgafe7cynlpuhpfpqpxu2gntzhq6tteagj8px", //30  Linkeye
-		//"okexchainvaloper1rv8tjxp8d8ucuak8c7svewwugzfdjwf9dtr80x", //31  Kktp
+		    "exvaloper1tat4lam8wjqmeax9mv4s584vu2mp7c0cgvlajl", //22  Best bp
+		    "exvaloper1mlmwvdprn8dj6g45vdxkjsjgu4ntu9j7dnjky2", //23  OKvibe
+		    "exvaloper1rz7frqz9ky52qqjwlpawfe5hz6plcrmmpha0px", //24  Taurus
+		    "exvaloper1w3ptfgekjgdvwkqmdepdeyvuxqmcplfszlz3jm", //25  Junglefly
+		    "exvaloper1v4kagglr3vq82vqywqd8quhsuarkm4kf2nz85r", //26  Deeworld
+		    "exvaloper1rmrx7wp60almzvghx2820aamjfd4kgwlcx542p", //27  Pialote
+		    "exvaloper13mayrjzsrp976y0ae0qw8sjan3qg2xfdeq8vmh", //28  Wulix
+		    "exvaloper104y8sy0r6fke4a9qr8u05j6v5y68gkh4v3ud9t", //29  Sakuya
+		    "exvaloper14zgafe7cynlpuhpfpqpxu2gntzhq6ttedqru6j", //30  Linkeye
+		//"exvaloper1rv8tjxp8d8ucuak8c7svewwugzfdjwf9arju5j", //31  Kktp
 	})
 	if err != nil {
 		panic(err)
@@ -300,7 +300,7 @@ func newMsgAddShares(accNum, seqNum uint64, valAddrs []sdk.ValAddress, addr stri
 	msg := stakingtypes.NewMsgAddShares(cosmosAddr, valAddrs)
 	msgs := []sdk.Msg{msg}
 	signMsg := authtypes.StdSignMsg{
-		ChainID:       "okexchain-66",
+		ChainID:       "exchain-66",
 		AccountNumber: accNum,
 		Sequence:      seqNum,
 		Memo:          "",
