@@ -12,7 +12,6 @@ import (
 const (
 	success = "sucess"
 	fail    = "failed"
-
 )
 
 type Request struct {
@@ -73,18 +72,23 @@ func CallWithProxy(postBody []byte, reqType int, proxyIP string) (*Response, err
 	}
 	defer resp.Body.Close()
 
-	log.Println(reqType, strconv.FormatInt(elapsed.Milliseconds(), 10)+"ms", success)
 	//返回内容
-	//var rpcRes *Response
-	//decoder := json.NewDecoder(resp.Body)
-	//rpcRes = new(Response)
-	//err = decoder.Decode(&rpcRes)
-	//if err != nil {
-	//	return nil, err
-	//}
+	var rpcRes *Response
+	decoder := json.NewDecoder(resp.Body)
+	rpcRes = new(Response)
+	err = decoder.Decode(&rpcRes)
+	if err != nil {
+		log.Println(reqType, strconv.FormatInt(elapsed.Milliseconds(), 10)+"ms", fail, err)
+		return nil, err
+	}
+	if rpcRes.Error != nil {
+		log.Println(reqType, strconv.FormatInt(elapsed.Milliseconds(), 10)+"ms", fail, rpcRes.Error)
+		return nil, err
+	}
 
+	log.Println(reqType, strconv.FormatInt(elapsed.Milliseconds(), 10)+"ms", success)
 	//return rpcRes, nil
-	return &Response{}, nil
+	return rpcRes, nil
 }
 
 func Call(request Request) (*Response, error) {
