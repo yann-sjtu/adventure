@@ -86,7 +86,7 @@ func CallWithProxy(postBody []byte, reqType int, proxyIP string) (*Response, err
 		return nil, err
 	}
 
-	log.Println(reqType, strconv.FormatInt(elapsed.Milliseconds(), 10)+"ms", success, rpcRes)
+	log.Println(reqType, strconv.FormatInt(elapsed.Milliseconds(), 10)+"ms", success)
 	//return rpcRes, nil
 	return rpcRes, nil
 }
