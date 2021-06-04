@@ -62,7 +62,7 @@ func newMsgAddLiquidity(accNum, seqNum uint64, minLiquidity sdk.Dec, maxBaseAmou
 	msg := ammswaptypes.NewMsgAddLiquidity(minLiquidity, maxBaseAmount, quoteAmount, deadline, cosmosAddr)
 	msgs := []types.Msg{msg}
 	signMsg := authtypes.StdSignMsg{
-		ChainID:       "okexchain-66",
+		ChainID:       "exchain-66",
 		AccountNumber: accNum,
 		Sequence:      seqNum,
 		Memo:          "",
