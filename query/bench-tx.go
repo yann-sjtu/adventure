@@ -73,7 +73,7 @@ func benchTx(cmd *cobra.Command, args []string) {
 			defer wg.Done()
 
 			privateKey, _ := crypto.HexToECDSA(privkey)
-			client, err := ethclient.Dial(host)
+			client, err := ethclient.Dial(hostTx)
 			if err != nil {
 				log.Fatalf("failed to initialize client: %+v", err)
 			}
