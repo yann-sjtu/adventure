@@ -59,6 +59,7 @@ adventure is a very powerful cli tool for OKChain. It supports JSON-file and Sub
 		evm.EvmCmd(),
 		evmweb3.EvmCmd(),
 		query.BenchQueryCmd(),
+		query.BenchTxCmd(),
 		evmtx.BenchTxCmd(),
 
 		version.Cmd,
@@ -73,8 +74,8 @@ adventure is a very powerful cli tool for OKChain. It supports JSON-file and Sub
 		simple.TxCmd(),
 	)
 
-	mainCmd.PersistentFlags().StringVarP(&common.ConfigPath, ConfigFlag, "c", path.Join(os.ExpandEnv("$HOME/.adventure"), "config.toml"),"setting of config path")
-	mainCmd.PersistentFlags().StringVarP(&common.NetworkType, NetworkFlag, "n", "","setting of network type")
+	mainCmd.PersistentFlags().StringVarP(&common.ConfigPath, ConfigFlag, "c", path.Join(os.ExpandEnv("$HOME/.adventure"), "config.toml"), "setting of config path")
+	mainCmd.PersistentFlags().StringVarP(&common.NetworkType, NetworkFlag, "n", "", "setting of network type")
 
 	if err := mainCmd.Execute(); err != nil {
 		log.Println(err)
