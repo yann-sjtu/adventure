@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"math/big"
+	"strings"
 	"sync"
 	"time"
 
@@ -131,7 +132,7 @@ func sendTxToRestNodes(privkey string, host string) {
 }
 
 func sendTxToRpcNodes(privkey string, host string) {
-	cfg, _ := adtypes.NewClientConfig(host, rpc_chainId, adtypes.BroadcastSync, "", 350000, 1.5, "0.000000001"+adcomm.NativeToken)
+	cfg, _ := adtypes.NewClientConfig(host, rpc_chainId, adtypes.BroadcastSync, "", 3500000, 1.5, "0.0000000001"+adcomm.NativeToken)
 	cli := gosdk.NewClient(cfg)
 
 	addr := getCosmosAddress(privkey)
@@ -142,13 +143,19 @@ func sendTxToRpcNodes(privkey string, host string) {
 	fmt.Println(addr.String(), accInfo.GetSequence())
 
 	payload := buildCosmosTxData()
-	for i := 0;; i++ {
-		res, err := cli.Evm().SendTxEthereum(privkey, contractAddress, "", common.Bytes2Hex(payload), 300000, accInfo.GetSequence()+uint64(i))
+	index := 0
+	for {
+		res, err := cli.Evm().SendTxEthereum(privkey, contractAddress, "", common.Bytes2Hex(payload), 3500000, accInfo.GetSequence()+uint64(index))
 		if err != nil {
-			panic(fmt.Errorf("it is better not to happen, %s", err))
+			if strings.Contains(err.Error(), "mempool") || strings.Contains(err.Error(), "EOF") {
+				time.Sleep(time.Second * 10)
+				continue
+			}
+		} else {
+			log.Printf("txhash: %s\n", res.TxHash)
 		}
-		log.Printf("txhash: %s\n", res.TxHash)
 
+		index++
 		time.Sleep(time.Second * time.Duration(sleepTimeTx))
 	}
 }
