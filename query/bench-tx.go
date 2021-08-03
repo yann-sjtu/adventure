@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"math/big"
+	"sync"
 	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -65,40 +66,49 @@ func benchTx(cmd *cobra.Command, args []string) {
 	}
 
 	privkeys := adcomm.GetPrivKeyFromPrivKeyFile(privkPath)
-	for {
-		for i := 0; i < concurrencyTx; i++ {
-			go func(privkey string) {
-				privateKey, _ := crypto.HexToECDSA(privkey)
-				client, err := ethclient.Dial(host)
+	var wg sync.WaitGroup
+	for i := 0; i < concurrencyTx; i++ {
+		go func(privkey string) {
+			wg.Add(1)
+			defer wg.Done()
+
+			privateKey, _ := crypto.HexToECDSA(privkey)
+			client, err := ethclient.Dial(host)
+			if err != nil {
+				log.Fatalf("failed to initialize client: %+v", err)
+			}
+			nonce, err := client.PendingNonceAt(context.Background(), getAddress(privateKey))
+			if err != nil {
+				log.Fatalf("failed to fetch noce: %+v", err)
+			}
+			fmt.Println(getAddress(privateKey), nonce)
+
+			for {
+				// 2. sign unsignedTx -> rawTx
+				signedTx, err := types.SignTx(
+					buildUnsignedTx(nonce, common.HexToAddress(contractAddress)),
+					types.NewEIP155Signer(big.NewInt(int64(chainIdTx))),
+					privateKey,
+				)
 				if err != nil {
-					log.Fatalf("failed to initialize client: %+v", err)
+					log.Fatalf("failed to sign the unsignedTx offline: %+v", err)
 				}
-				nonce, _ := client.PendingNonceAt(context.Background(), getAddress(privateKey))
 
-				for {
-					unsignedTx := buildUnsignedTx(nonce, common.HexToAddress(contractAddress))
-					// 2. sign unsignedTx -> rawTx
-					signedTx, err := types.SignTx(unsignedTx, types.NewEIP155Signer(big.NewInt(int64(chainIdTx))), privateKey)
-					if err != nil {
-						log.Fatalf("failed to sign the unsignedTx offline: %+v", err)
-					}
-
-					// 3. send rawTx
-					err = client.SendTransaction(context.Background(), signedTx)
-					if err != nil {
-						log.Fatal(err)
-					}
-
-					nonce++
-					time.Sleep(time.Second * time.Duration(sleepTimeTx))
+				// 3. send rawTx
+				err = client.SendTransaction(context.Background(), signedTx)
+				if err != nil {
+					log.Fatal(err)
 				}
-			}(privkeys[i])
-		}
+				log.Println(signedTx.Hash().String())
+				nonce++
+				time.Sleep(time.Second * time.Duration(sleepTimeTx))
+			}
+		}(privkeys[i])
 	}
-
+	wg.Wait()
 }
 
-func getAddress(privateKey *ecdsa.PrivateKey) common.Address  {
+func getAddress(privateKey *ecdsa.PrivateKey) common.Address {
 	pubkeyECDSA, ok := privateKey.Public().(*ecdsa.PublicKey)
 	if ok != true {
 		panic(fmt.Errorf("convert into pubkey failed"))
