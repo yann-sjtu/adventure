@@ -142,8 +142,7 @@ func writeContractTx(nonce uint64, contractAddr common.Address, gasPrice *big.In
 	value := big.NewInt(0)
 	gasLimit := uint64(3000000)
 
-	num := big.NewInt(999)
-	data, err := sampleContractABI.Pack("setNum", num)
+	data, err := sampleContractABI.Pack("operate")
 	if err != nil {
 		log.Fatal(err)
 	}
