@@ -11,23 +11,30 @@ import (
 	"sync"
 	"time"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	adcomm "github.com/okex/adventure/common"
+	gosdk "github.com/okex/exchain-go-sdk"
+	adtypes "github.com/okex/exchain-go-sdk/types"
+	"github.com/okex/exchain-go-sdk/utils"
 	"github.com/spf13/cobra"
 )
 
 var (
 	concurrencyTx   int
 	sleepTimeTx     int
-	hostTx          string
-	chainIdTx       int
 	privkPath       string
 	contractAddress string
 	abiPath         string
+
+	rest_host       string
+	rest_chainId    int
+	rpc_host        string
+	rpc_chainId     string
 )
 
 var (
@@ -46,11 +53,15 @@ func BenchTxCmd() *cobra.Command {
 	flags := cmd.Flags()
 	flags.IntVar(&concurrencyTx, "concurrency", 10, "set the number of tx number per second")
 	flags.IntVar(&sleepTimeTx, "sleepTime", 1, "")
-	flags.StringVar(&hostTx, "host", "https://exchaintestrpc.okex.org", "")
-	flags.IntVar(&chainIdTx, "chainId", 65, "")
+
 	flags.StringVar(&privkPath, "privkeyPath", "", "")
 	flags.StringVar(&contractAddress, "contractAddress", "", "")
 	flags.StringVar(&abiPath, "abiPath", "", "")
+
+	flags.StringVar(&rest_host, "rest-host", "", "")
+	flags.IntVar(&rest_chainId, "rest-chainid", 65, "")
+	flags.StringVar(&rpc_host, "rpc-host", "", "")
+	flags.StringVar(&rpc_chainId, "rpc-chainid", "", "")
 	return cmd
 }
 
@@ -72,49 +83,100 @@ func benchTx(cmd *cobra.Command, args []string) {
 			wg.Add(1)
 			defer wg.Done()
 
-			privateKey, _ := crypto.HexToECDSA(privkey)
-			client, err := ethclient.Dial(hostTx)
-			if err != nil {
-				log.Fatalf("failed to initialize client: %+v", err)
+			if rest_host != "" {
+				sendTxToRestNodes(privkey, rest_host)
+			} else if rpc_host != "" {
+				sendTxToRpcNodes(privkey, rpc_host)
+			} else {
+				panic(fmt.Errorf("no host"))
 			}
-			nonce, err := client.PendingNonceAt(context.Background(), getAddress(privateKey))
-			if err != nil {
-				log.Fatalf("failed to fetch noce: %+v", err)
-			}
-			fmt.Println(getAddress(privateKey), nonce)
 
-			for {
-				// 2. sign unsignedTx -> rawTx
-				signedTx, err := types.SignTx(
-					buildUnsignedTx(nonce, common.HexToAddress(contractAddress)),
-					types.NewEIP155Signer(big.NewInt(int64(chainIdTx))),
-					privateKey,
-				)
-				if err != nil {
-					log.Fatalf("failed to sign the unsignedTx offline: %+v", err)
-				}
-
-				// 3. send rawTx
-				err = client.SendTransaction(context.Background(), signedTx)
-				if err != nil {
-					log.Fatal(err)
-				}
-				log.Println(signedTx.Hash().String())
-				nonce++
-				time.Sleep(time.Second * time.Duration(sleepTimeTx))
-			}
 		}(privkeys[i])
 	}
 	wg.Wait()
 }
 
-func getAddress(privateKey *ecdsa.PrivateKey) common.Address {
+func sendTxToRestNodes(privkey string, host string) {
+	privateKey, _ := crypto.HexToECDSA(privkey)
+	client, err := ethclient.Dial(host)
+	if err != nil {
+		log.Fatalf("failed to initialize client: %+v", err)
+	}
+	nonce, err := client.PendingNonceAt(context.Background(), getEthAddress(privateKey))
+	if err != nil {
+		log.Fatalf("failed to fetch noce: %+v", err)
+	}
+	fmt.Println(getEthAddress(privateKey), nonce)
+
+	for {
+		// 2. sign unsignedTx -> rawTx
+		signedTx, err := types.SignTx(
+			buildUnsignedTx(nonce, common.HexToAddress(contractAddress)),
+			types.NewEIP155Signer(big.NewInt(int64(rest_chainId))),
+			privateKey,
+		)
+		if err != nil {
+			log.Fatalf("failed to sign the unsignedTx offline: %+v", err)
+		}
+
+		// 3. send rawTx
+		err = client.SendTransaction(context.Background(), signedTx)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Println("txhash:", signedTx.Hash().String())
+		nonce++
+		time.Sleep(time.Second * time.Duration(sleepTimeTx))
+	}
+}
+
+func sendTxToRpcNodes(privkey string, host string) {
+	cfg, _ := adtypes.NewClientConfig(host, rpc_chainId, adtypes.BroadcastSync, "", 350000, 1.5, "0.000000001"+adcomm.NativeToken)
+	cli := gosdk.NewClient(cfg)
+
+	addr := getCosmosAddress(privkey)
+	accInfo, err := cli.Auth().QueryAccount(addr.String())
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(addr.String(), accInfo.GetSequence())
+
+	payload := buildCosmosTxData()
+	for i := 0;; i++ {
+		res, err := cli.Evm().SendTxEthereum(privkey, contractAddress, "", common.Bytes2Hex(payload), 300000, accInfo.GetSequence()+uint64(i))
+		if err != nil {
+			panic(fmt.Errorf("it is better not to happen, %s", err))
+		}
+		log.Printf("txhash: %s\n", res.TxHash)
+
+		time.Sleep(time.Second * time.Duration(sleepTimeTx))
+	}
+}
+
+func getEthAddress(privateKey *ecdsa.PrivateKey) common.Address {
 	pubkeyECDSA, ok := privateKey.Public().(*ecdsa.PublicKey)
 	if ok != true {
 		panic(fmt.Errorf("convert into pubkey failed"))
 	}
 	fromAddress := crypto.PubkeyToAddress(*pubkeyECDSA)
 	return fromAddress
+}
+
+func getCosmosAddress(privkey string) sdk.Address {
+	privateKey, _ := crypto.HexToECDSA(privkey)
+	cosmosAddr, err := utils.ToCosmosAddress(getEthAddress(privateKey).String())
+	if err != nil {
+		panic(err)
+	}
+	return cosmosAddr
+}
+
+func buildCosmosTxData() []byte {
+	data, err := sampleContractABI.Pack("operate")
+	if err != nil {
+		panic(err)
+	}
+	return data
 }
 
 func buildUnsignedTx(nonce uint64, contractAddr common.Address) *types.Transaction {
@@ -127,6 +189,5 @@ func buildUnsignedTx(nonce uint64, contractAddr common.Address) *types.Transacti
 		log.Fatal(err)
 	}
 	trans := types.NewTransaction(nonce, contractAddr, value, gasLimit, gasPrice, data)
-	log.Println("tx ,", trans.Hash())
 	return trans
 }
