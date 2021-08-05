@@ -34,7 +34,7 @@ var (
 
 	rest_host       string
 	rest_chainId    int
-	rpc_host        string
+	rpc_hosts       []string
 	rpc_chainId     string
 )
 
@@ -61,7 +61,7 @@ func BenchTxCmd() *cobra.Command {
 
 	flags.StringVar(&rest_host, "rest-host", "", "")
 	flags.IntVar(&rest_chainId, "rest-chainid", 65, "")
-	flags.StringVar(&rpc_host, "rpc-host", "", "")
+	flags.StringSliceVar(&rpc_hosts, "rpc-hosts", []string{}, "")
 	flags.StringVar(&rpc_chainId, "rpc-chainid", "", "")
 	return cmd
 }
@@ -80,19 +80,20 @@ func benchTx(cmd *cobra.Command, args []string) {
 	privkeys := adcomm.GetPrivKeyFromPrivKeyFile(privkPath)
 	var wg sync.WaitGroup
 	for i := 0; i < concurrencyTx; i++ {
-		go func(privkey string) {
+		go func(index int, privkey string) {
 			wg.Add(1)
 			defer wg.Done()
 
 			if rest_host != "" {
 				sendTxToRestNodes(privkey, rest_host)
-			} else if rpc_host != "" {
-				sendTxToRpcNodes(privkey, rpc_host)
+			} else if rpc_hosts != nil {
+				rpcHost := rpc_hosts[index%len(rpc_hosts)]
+				sendTxToRpcNodes(privkey, rpcHost)
 			} else {
 				panic(fmt.Errorf("no host"))
 			}
 
-		}(privkeys[i])
+		}(i, privkeys[i])
 	}
 	wg.Wait()
 }
