@@ -79,9 +79,9 @@ func benchTx(cmd *cobra.Command, args []string) {
 
 	privkeys := adcomm.GetPrivKeyFromPrivKeyFile(privkPath)
 	var wg sync.WaitGroup
+	wg.Add(concurrencyTx)
 	for i := 0; i < concurrencyTx; i++ {
 		go func(index int, privkey string) {
-			wg.Add(1)
 			defer wg.Done()
 
 			if rest_host != "" {
