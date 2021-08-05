@@ -14,6 +14,7 @@ require (
 	github.com/spf13/cobra v1.1.1
 	github.com/tendermint/tendermint v0.33.9
 	go.uber.org/zap v1.15.0
+	golang.org/x/tools v0.0.0-20200221224223-e1da425f72fd
 	gopkg.in/yaml.v2 v2.3.0
 )
 
