@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"math/big"
+	"math/rand"
 	"strings"
 	"sync"
 	"time"
@@ -108,12 +109,18 @@ func sendTxToRestNodes(privkey string, host string) {
 	if err != nil {
 		log.Fatalf("failed to fetch noce: %+v", err)
 	}
-	fmt.Println(getEthAddress(privateKey), nonce)
+	//fmt.Println(getEthAddress(privateKey), nonce)
 
 	for {
+		gasPrice, err := client.SuggestGasPrice(context.Background())
+		if err != nil {
+			log.Println("failed to fetch gas price:", err)
+			gasPrice = big.NewInt(1000000000)
+		}
+
 		// 2. sign unsignedTx -> rawTx
 		signedTx, err := types.SignTx(
-			buildUnsignedTx(nonce, common.HexToAddress(contractAddress)),
+			buildUnsignedTx(nonce, gasPrice, common.HexToAddress(contractAddress)),
 			types.NewEIP155Signer(big.NewInt(int64(rest_chainId))),
 			privateKey,
 		)
@@ -124,7 +131,8 @@ func sendTxToRestNodes(privkey string, host string) {
 		// 3. send rawTx
 		err = client.SendTransaction(context.Background(), signedTx)
 		if err != nil {
-			log.Fatal(err)
+			log.Printf("err: %s\n", err)
+			continue
 		}
 		log.Println("txhash:", signedTx.Hash().String())
 		nonce++
@@ -141,13 +149,15 @@ func sendTxToRpcNodes(privkey string, host string) {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(addr.String(), accInfo.GetSequence())
+	//fmt.Println(addr.String(), accInfo.GetSequence())
 
+	gasPrice := big.NewInt(int64((rand.Intn(20)+1) * 100000000))
 	payload := buildCosmosTxData()
 	index := 0
 	for {
-		res, err := cli.Evm().SendTxEthereum(privkey, contractAddress, "", common.Bytes2Hex(payload), 1000000, accInfo.GetSequence()+uint64(index), big.NewInt(100000000))
+		res, err := cli.Evm().SendTxEthereum(privkey, contractAddress, "", common.Bytes2Hex(payload), 1000000, accInfo.GetSequence()+uint64(index), gasPrice)
 		if err != nil {
+			log.Printf("err: %s\n", err)
 			if strings.Contains(err.Error(), "mempool") || strings.Contains(err.Error(), "EOF") {
 				time.Sleep(time.Second * 10)
 				continue
@@ -187,8 +197,7 @@ func buildCosmosTxData() []byte {
 	return data
 }
 
-func buildUnsignedTx(nonce uint64, contractAddr common.Address) *types.Transaction {
-	gasPrice := big.NewInt(1000000000)
+func buildUnsignedTx(nonce uint64, gasPrice *big.Int, contractAddr common.Address) *types.Transaction {
 	value := big.NewInt(0)
 	gasLimit := uint64(3000000)
 
