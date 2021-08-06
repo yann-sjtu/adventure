@@ -134,7 +134,7 @@ func sendTxToRestNodes(privkey string, host string) {
 			log.Printf("err: %s\n", err)
 			continue
 		}
-		log.Println("txhash:", signedTx.Hash().String())
+		log.Println("txhash:", signedTx.Hash().String(), "gasPrice", gasPrice.String())
 		nonce++
 		time.Sleep(time.Second * time.Duration(sleepTimeTx))
 	}
