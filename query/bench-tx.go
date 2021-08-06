@@ -151,10 +151,10 @@ func sendTxToRpcNodes(privkey string, host string) {
 	}
 	//fmt.Println(addr.String(), accInfo.GetSequence())
 
-	gasPrice := big.NewInt(int64((rand.Intn(20)+1) * 100000000))
 	payload := buildCosmosTxData()
 	index := 0
 	for {
+		gasPrice := big.NewInt(int64((rand.Intn(50)+1) * 100000000))
 		res, err := cli.Evm().SendTxEthereum(privkey, contractAddress, "", common.Bytes2Hex(payload), 1000000, accInfo.GetSequence()+uint64(index), gasPrice)
 		if err != nil {
 			log.Printf("err: %s\n", err)
