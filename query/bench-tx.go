@@ -163,7 +163,7 @@ func sendTxToRpcNodes(privkey string, host string) {
 				continue
 			}
 		} else {
-			log.Printf("txhash: %s\n", res.TxHash)
+			log.Printf("txhash: %s\n", res.TxHash, gasPrice.String())
 		}
 
 		index++
