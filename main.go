@@ -6,6 +6,7 @@ import (
 	"path"
 
 	"github.com/okex/adventure/common"
+	evmtx2 "github.com/okex/adventure/evm-tx-enhance"
 	"github.com/okex/adventure/evmtx"
 	"github.com/okex/adventure/query"
 	"github.com/okex/adventure/tools/account"
@@ -59,7 +60,8 @@ adventure is a very powerful cli tool for OKChain. It supports JSON-file and Sub
 		evm.EvmCmd(),
 		evmweb3.EvmCmd(),
 		query.BenchQueryCmd(),
-		query.BenchTxCmd(),
+		evmtx2.BenchTxCmd(),
+		evmtx2.DeployCmd(),
 		evmtx.BenchTxCmd(),
 
 		version.Cmd,
