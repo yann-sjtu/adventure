@@ -33,10 +33,10 @@ var (
 	contractAddress string
 	abiPath         string
 
-	rest_host       string
-	rest_chainId    int
-	rpc_hosts       []string
-	rpc_chainId     string
+	rest_host    string
+	rest_chainId int
+	rpc_hosts    []string
+	rpc_chainId  string
 )
 
 var (
@@ -154,7 +154,7 @@ func sendTxToRpcNodes(privkey string, host string) {
 	payload := buildCosmosTxData()
 	index := 0
 	for {
-		gasPrice := big.NewInt(int64((rand.Intn(200)+1) * 100000000))
+		gasPrice := big.NewInt(int64((rand.Intn(200) + 1) * 100000000))
 		res, err := cli.Evm().SendTxEthereum(privkey, contractAddress, "", common.Bytes2Hex(payload), 1000000, accInfo.GetSequence()+uint64(index), gasPrice)
 		if err != nil {
 			log.Printf("err: %s\n", err)
@@ -199,7 +199,7 @@ func buildCosmosTxData() []byte {
 
 func buildUnsignedTx(nonce uint64, gasPrice *big.Int, contractAddr common.Address) *types.Transaction {
 	value := big.NewInt(0)
-	gasLimit := uint64(3000000)
+	gasLimit := uint64(30000000)
 
 	data, err := sampleContractABI.Pack("operate")
 	if err != nil {
