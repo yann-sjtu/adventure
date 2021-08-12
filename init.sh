@@ -1,3 +1,4 @@
-rm -rf ~/.adventure
-cp config.toml  ~/.adventure
+rm -rf $HOME/.adventure
+mkdir -p $HOME/.adventure
+cp config.toml  $HOME/.adventure/
 make
