@@ -2,6 +2,7 @@ package uniswap_mining
 
 import (
 	"log"
+	"math/big"
 	"math/rand"
 	"sync"
 	"time"
@@ -80,7 +81,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 	_, poolAddr, tokenAddr := LPAddrs[0], PoolAddrs[0], TokenAddrs[0]
 
 	privkeys := common.GetPrivKeyFromPrivKeyFile(privkeyPath)
-	clients := common.NewClientManagerWithMode(common.GlobalConfig.Networks[""].Hosts, "0.005okt", types.BroadcastSync, 500000)
+	clients := common.NewClientManagerWithMode(common.GlobalConfig.Networks[common.NetworkType].Hosts, "0.005okt", types.BroadcastSync, 500000)
 	succ, fail := tools.NewCounter(-1), tools.NewCounter(-1)
 
 	var wg sync.WaitGroup
@@ -106,8 +107,8 @@ func testLoop(cmd *cobra.Command, args []string) {
 			// init various payload
 			addLiquidPayloadStr := hexutil.Encode(UniswapV2.BuildAddLiquidOKTPayload(
 				tokenAddr, ethAddr.String(),
-				sdk.MustNewDecFromStr("0.1").Int, sdk.MustNewDecFromStr("0.0001").Int, sdk.MustNewDecFromStr("0.0001").Int,
-				time.Now().Add(time.Hour*8640).Unix(),
+				sdk.MustNewDecFromStr("0.0000000000001").Int, sdk.MustNewDecFromStr("0").Int, sdk.MustNewDecFromStr("0").Int,
+				1728763396,
 			))
 			stakePayloadStr := hexutil.Encode(UniswapV2Staker.BuildStakePayload(1500000000000000))
 			getRewardPayload := hexutil.Encode(UniswapV2Staker.BuildGetRewardPayload())
@@ -125,7 +126,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 
 				// Let Us GO GO GO !!!!!!
 				// 1. add liquididy
-				res, err := cli.Evm().SendTxEthereum(privkey, poolAddr,"", addLiquidPayloadStr, 500000, seqNum+offset)
+				res, err := cli.Evm().SendTxEthereum(privkey, routerAddr,"0.000000001", addLiquidPayloadStr, 500000, seqNum+offset, big.NewInt( 100000000))
 				if err != nil {
 					log.Printf("(%d)[%s] %s failed to add liquidity in %s: %s\n", fail.Add(), res.TxHash, ethAddr, routerAddr, err)
 					continue
@@ -135,7 +136,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 				}
 
 				// 2.1 stake
-				res, err = cli.Evm().SendTxEthereum(privkey, poolAddr,"", stakePayloadStr, 500000, seqNum+offset)
+				res, err = cli.Evm().SendTxEthereum(privkey, poolAddr,"", stakePayloadStr, 500000, seqNum+offset, big.NewInt( 100000000))
 				if err != nil {
 					log.Printf("(%d)[%s] %s failed to stake lp in %s: %s\n", fail.Add(), res.TxHash, ethAddr, poolAddr, err)
 					continue
@@ -147,7 +148,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 				// 2.2 withDraw randomly
 				rand.Seed(time.Now().UnixNano())
 				if rand.Intn(10) <= 3 {
-					res, err = cli.Evm().SendTxEthereum(privkey, poolAddr, "", withdrawPayload, 500000, seqNum+offset)
+					res, err = cli.Evm().SendTxEthereum(privkey, poolAddr, "", withdrawPayload, 500000, seqNum+offset, big.NewInt( 100000000))
 					if err != nil {
 						log.Printf("(%d)[%s] %s failed to withdraw lp from %s: %s\n", fail.Add(), res.TxHash, ethAddr, poolAddr, err)
 						continue
@@ -160,7 +161,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 				// 2.3 get Reward randomly
 				rand.Seed(time.Now().UnixNano())
 				if rand.Intn(10) <= 3 {
-					res, err = cli.Evm().SendTxEthereum(privkey, poolAddr, "", getRewardPayload, 500000, seqNum+offset)
+					res, err = cli.Evm().SendTxEthereum(privkey, poolAddr, "", getRewardPayload, 500000, seqNum+offset, big.NewInt( 100000000))
 					if err != nil {
 						log.Printf("(%d)[%s] %s failed to get reward from %s: %s\n", fail.Add(), res.TxHash, ethAddr, poolAddr, err)
 						continue
@@ -173,7 +174,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 				// 2.4 Exit randomly
 				rand.Seed(time.Now().UnixNano())
 				if rand.Intn(10) <= 3 {
-					res, err = cli.Evm().SendTxEthereum(privkey, poolAddr, "", exitPayload, 500000, seqNum+offset)
+					res, err = cli.Evm().SendTxEthereum(privkey, poolAddr, "", exitPayload, 500000, seqNum+offset, big.NewInt( 100000000))
 					if err != nil {
 						log.Printf("(%d)[%s] %s failed to exit from %s: %s\n", fail.Add(), res.TxHash, ethAddr, poolAddr, err)
 						continue
@@ -182,7 +183,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 						offset++
 					}
 				}
-				time.Sleep(time.Duration(sleepTime))
+				time.Sleep(time.Duration(sleepTime)*time.Second)
 			}
 		}(i)
 	}
