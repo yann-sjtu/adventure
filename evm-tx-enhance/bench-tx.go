@@ -59,7 +59,7 @@ func BenchTxCmd() *cobra.Command {
 	flags.StringVar(&contractAddress, "contractAddress", "", "")
 	flags.StringVar(&abiPath, "abiPath", "", "")
 
-	flags.StringSliceVar(&rest_hosts, "rest-host", []string{}, "")
+	flags.StringSliceVar(&rest_hosts, "rest-hosts", []string{}, "")
 	flags.IntVar(&rest_chainId, "rest-chainid", 65, "")
 	flags.StringSliceVar(&rpc_hosts, "rpc-hosts", []string{}, "")
 	flags.StringVar(&rpc_chainId, "rpc-chainid", "", "")
