@@ -84,10 +84,10 @@ func benchTx(cmd *cobra.Command, args []string) {
 		go func(index int, privkey string) {
 			defer wg.Done()
 
-			if rest_hosts != nil {
+			if len(rest_hosts) != 0 {
 				restHost := rest_hosts[index%len(rest_hosts)]
 				sendTxToRestNodes(privkey, restHost)
-			} else if rpc_hosts != nil {
+			} else if len(rpc_hosts) != 0 {
 				rpcHost := rpc_hosts[index%len(rpc_hosts)]
 				sendTxToRpcNodes(privkey, rpcHost)
 			} else {
