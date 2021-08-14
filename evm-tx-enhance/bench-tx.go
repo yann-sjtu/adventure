@@ -141,7 +141,7 @@ func sendTxToRestNodes(privkey string, host string) {
 }
 
 func sendTxToRpcNodes(privkey string, host string) {
-	cfg, _ := adtypes.NewClientConfig(host, rpc_chainId, adtypes.BroadcastSync, "", 1000000, 1.5, "0.0000000001"+adcomm.NativeToken)
+	cfg, _ := adtypes.NewClientConfig(host, rpc_chainId, adtypes.BroadcastSync, "", 30000000, 1.5, "0.0000000001"+adcomm.NativeToken)
 	cli := gosdk.NewClient(cfg)
 
 	addr := getCosmosAddress(privkey)
@@ -155,7 +155,7 @@ func sendTxToRpcNodes(privkey string, host string) {
 	index := 0
 	for {
 		gasPrice := big.NewInt(int64((rand.Intn(200) + 1) * 100000000))
-		res, err := cli.Evm().SendTxEthereum(privkey, contractAddress, "", common.Bytes2Hex(payload), 1000000, accInfo.GetSequence()+uint64(index), gasPrice)
+		res, err := cli.Evm().SendTxEthereum(privkey, contractAddress, "", common.Bytes2Hex(payload), 30000000, accInfo.GetSequence()+uint64(index), gasPrice)
 		if err != nil {
 			log.Printf("err: %s\n", err)
 			if strings.Contains(err.Error(), "mempool") || strings.Contains(err.Error(), "EOF") {
