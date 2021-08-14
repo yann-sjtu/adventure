@@ -154,7 +154,7 @@ func sendTxToRpcNodes(privkey string, host string) {
 	payload := buildCosmosTxData()
 	index := 0
 	for {
-		gasPrice := big.NewInt(int64((rand.Intn(200) + 1) * 100000000))
+		gasPrice := big.NewInt(int64((rand.Intn(10) + 1) * 100000000))
 		res, err := cli.Evm().SendTxEthereum(privkey, contractAddress, "", common.Bytes2Hex(payload), 30000000, accInfo.GetSequence()+uint64(index), gasPrice)
 		if err != nil {
 			if strings.Contains(err.Error(), "mempool") || strings.Contains(err.Error(), "EOF") {
