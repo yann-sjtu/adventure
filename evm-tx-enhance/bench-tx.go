@@ -157,7 +157,7 @@ func sendTxToRpcNodes(privkey string, host string) {
 		gasPrice := big.NewInt(100000000)
 		res, err := cli.Evm().SendTxEthereum(privkey, contractAddress, "", common.Bytes2Hex(payload), 30000000, accInfo.GetSequence()+uint64(index), gasPrice)
 		if err != nil {
-			if strings.Contains(err.Error(), "mempool") || strings.Contains(err.Error(), "EOF") {
+			if strings.Contains(err.Error(), "mempool") {
 				time.Sleep(time.Second * 10)
 			}
 			continue
