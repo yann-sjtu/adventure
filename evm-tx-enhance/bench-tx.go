@@ -32,7 +32,7 @@ var (
 	contractAddress string
 	abiPath         string
 
-	rest_host    string
+	rest_hosts    []string
 	rest_chainId int
 	rpc_hosts    []string
 	rpc_chainId  string
@@ -59,7 +59,7 @@ func BenchTxCmd() *cobra.Command {
 	flags.StringVar(&contractAddress, "contractAddress", "", "")
 	flags.StringVar(&abiPath, "abiPath", "", "")
 
-	flags.StringVar(&rest_host, "rest-host", "", "")
+	flags.StringSliceVar(&rest_hosts, "rest-host", []string{}, "")
 	flags.IntVar(&rest_chainId, "rest-chainid", 65, "")
 	flags.StringSliceVar(&rpc_hosts, "rpc-hosts", []string{}, "")
 	flags.StringVar(&rpc_chainId, "rpc-chainid", "", "")
@@ -84,8 +84,9 @@ func benchTx(cmd *cobra.Command, args []string) {
 		go func(index int, privkey string) {
 			defer wg.Done()
 
-			if rest_host != "" {
-				sendTxToRestNodes(privkey, rest_host)
+			if rest_hosts != nil {
+				restHost := rest_hosts[index%len(rest_hosts)]
+				sendTxToRestNodes(privkey, restHost)
 			} else if rpc_hosts != nil {
 				rpcHost := rpc_hosts[index%len(rpc_hosts)]
 				sendTxToRpcNodes(privkey, rpcHost)
@@ -104,22 +105,30 @@ func sendTxToRestNodes(privkey string, host string) {
 	if err != nil {
 		log.Fatalf("failed to initialize client: %+v", err)
 	}
+	//fmt.Println(getEthAddress(privateKey), nonce)
+
 	nonce, err := client.PendingNonceAt(context.Background(), getEthAddress(privateKey))
 	if err != nil {
 		log.Fatalf("failed to fetch noce: %+v", err)
 	}
-	//fmt.Println(getEthAddress(privateKey), nonce)
 
 	for {
-		gasPrice, err := client.SuggestGasPrice(context.Background())
+		newnonce, err := client.PendingNonceAt(context.Background(), getEthAddress(privateKey))
 		if err != nil {
-			log.Println("failed to fetch gas price:", err)
-			gasPrice = big.NewInt(1000000000)
+			nonce++
+		} else {
+			nonce = newnonce
 		}
+
+		//gasPrice, err := client.SuggestGasPrice(context.Background())
+		//if err != nil {
+		//	log.Println("failed to fetch gas price:", err)
+		//	gasPrice = big.NewInt(1000000000)
+		//}
 
 		// 2. sign unsignedTx -> rawTx
 		signedTx, err := types.SignTx(
-			buildUnsignedTx(nonce, gasPrice, common.HexToAddress(contractAddress)),
+			buildUnsignedTx(nonce, big.NewInt(1000000000), common.HexToAddress(contractAddress)),
 			types.NewEIP155Signer(big.NewInt(int64(rest_chainId))),
 			privateKey,
 		)
@@ -133,8 +142,8 @@ func sendTxToRestNodes(privkey string, host string) {
 			log.Printf("err: %s\n", err)
 			continue
 		}
-		log.Println("txhash:", signedTx.Hash().String(), "gasPrice", gasPrice.String())
-		nonce++
+		//log.Println("txhash:", signedTx.Hash().String(), "gasPrice", gasPrice.String())
+		log.Println("txhash:", signedTx.Hash().String())
 		time.Sleep(time.Second * time.Duration(sleepTimeTx))
 	}
 }
