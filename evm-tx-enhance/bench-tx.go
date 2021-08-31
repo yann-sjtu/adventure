@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"log"
 	"math/big"
-	"math/rand"
 	"strings"
 	"sync"
 	"time"
@@ -33,7 +32,7 @@ var (
 	contractAddress string
 	abiPath         string
 
-	rest_host    string
+	rest_hosts    []string
 	rest_chainId int
 	rpc_hosts    []string
 	rpc_chainId  string
@@ -60,7 +59,7 @@ func BenchTxCmd() *cobra.Command {
 	flags.StringVar(&contractAddress, "contractAddress", "", "")
 	flags.StringVar(&abiPath, "abiPath", "", "")
 
-	flags.StringVar(&rest_host, "rest-host", "", "")
+	flags.StringSliceVar(&rest_hosts, "rest-hosts", []string{}, "")
 	flags.IntVar(&rest_chainId, "rest-chainid", 65, "")
 	flags.StringSliceVar(&rpc_hosts, "rpc-hosts", []string{}, "")
 	flags.StringVar(&rpc_chainId, "rpc-chainid", "", "")
@@ -85,9 +84,10 @@ func benchTx(cmd *cobra.Command, args []string) {
 		go func(index int, privkey string) {
 			defer wg.Done()
 
-			if rest_host != "" {
-				sendTxToRestNodes(privkey, rest_host)
-			} else if rpc_hosts != nil {
+			if len(rest_hosts) != 0 {
+				restHost := rest_hosts[index%len(rest_hosts)]
+				sendTxToRestNodes(privkey, restHost)
+			} else if len(rpc_hosts) != 0 {
 				rpcHost := rpc_hosts[index%len(rpc_hosts)]
 				sendTxToRpcNodes(privkey, rpcHost)
 			} else {
@@ -105,22 +105,30 @@ func sendTxToRestNodes(privkey string, host string) {
 	if err != nil {
 		log.Fatalf("failed to initialize client: %+v", err)
 	}
+	//fmt.Println(getEthAddress(privateKey), nonce)
+
 	nonce, err := client.PendingNonceAt(context.Background(), getEthAddress(privateKey))
 	if err != nil {
 		log.Fatalf("failed to fetch noce: %+v", err)
 	}
-	//fmt.Println(getEthAddress(privateKey), nonce)
 
 	for {
-		gasPrice, err := client.SuggestGasPrice(context.Background())
+		newnonce, err := client.PendingNonceAt(context.Background(), getEthAddress(privateKey))
 		if err != nil {
-			log.Println("failed to fetch gas price:", err)
-			gasPrice = big.NewInt(1000000000)
+			nonce++
+		} else {
+			nonce = newnonce
 		}
+
+		//gasPrice, err := client.SuggestGasPrice(context.Background())
+		//if err != nil {
+		//	log.Println("failed to fetch gas price:", err)
+		//	gasPrice = big.NewInt(1000000000)
+		//}
 
 		// 2. sign unsignedTx -> rawTx
 		signedTx, err := types.SignTx(
-			buildUnsignedTx(nonce, gasPrice, common.HexToAddress(contractAddress)),
+			buildUnsignedTx(nonce, big.NewInt(1000000000), common.HexToAddress(contractAddress)),
 			types.NewEIP155Signer(big.NewInt(int64(rest_chainId))),
 			privateKey,
 		)
@@ -134,14 +142,14 @@ func sendTxToRestNodes(privkey string, host string) {
 			log.Printf("err: %s\n", err)
 			continue
 		}
-		log.Println("txhash:", signedTx.Hash().String(), "gasPrice", gasPrice.String())
-		nonce++
+		//log.Println("txhash:", signedTx.Hash().String(), "gasPrice", gasPrice.String())
+		log.Println("txhash:", signedTx.Hash().String())
 		time.Sleep(time.Second * time.Duration(sleepTimeTx))
 	}
 }
 
 func sendTxToRpcNodes(privkey string, host string) {
-	cfg, _ := adtypes.NewClientConfig(host, rpc_chainId, adtypes.BroadcastSync, "", 10000000000, 1.5, "0.0000000001"+adcomm.NativeToken)
+	cfg, _ := adtypes.NewClientConfig(host, rpc_chainId, adtypes.BroadcastSync, "", 30000000, 1.5, "0.0000000001"+adcomm.NativeToken)
 	cli := gosdk.NewClient(cfg)
 
 	addr := getCosmosAddress(privkey)
@@ -154,14 +162,14 @@ func sendTxToRpcNodes(privkey string, host string) {
 	payload := buildCosmosTxData()
 	index := 0
 	for {
-		gasPrice := big.NewInt(int64((rand.Intn(200) + 1) * 100000000))
-		res, err := cli.Evm().SendTxEthereum(privkey, contractAddress, "", common.Bytes2Hex(payload), 10000000000, accInfo.GetSequence()+uint64(index), gasPrice)
+		//gasPrice := big.NewInt(int64((rand.Intn(10) + 1) * 100000000))
+		gasPrice := big.NewInt(100000000)
+		res, err := cli.Evm().SendTxEthereum(privkey, contractAddress, "", common.Bytes2Hex(payload), 30000000, accInfo.GetSequence()+uint64(index), gasPrice)
 		if err != nil {
-			log.Printf("err: %s\n", err)
-			if strings.Contains(err.Error(), "mempool") || strings.Contains(err.Error(), "EOF") {
+			if strings.Contains(err.Error(), "mempool") {
 				time.Sleep(time.Second * 10)
-				continue
 			}
+			continue
 		} else {
 			log.Printf("txhash: %s, gasPrice: %s\n", res.TxHash, gasPrice.String())
 		}

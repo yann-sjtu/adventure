@@ -39,3 +39,11 @@
   ]
 
   chain-id = "exchainevm-8"
+
+  ############# local-testnet #############
+  [networks.local-testnet]
+  hosts = [
+      "http://10.0.240.32:20057",
+  ]
+
+  chain-id = "exchain-65"
