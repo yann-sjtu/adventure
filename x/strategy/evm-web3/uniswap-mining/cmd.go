@@ -2,7 +2,6 @@ package uniswap_mining
 
 import (
 	"log"
-	"math/big"
 	"math/rand"
 	"sync"
 	"time"
@@ -126,7 +125,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 
 				// Let Us GO GO GO !!!!!!
 				// 1. add liquididy
-				res, err := cli.Evm().SendTxEthereum(privkey, routerAddr,"0.000000001", addLiquidPayloadStr, 500000, seqNum+offset, big.NewInt( 100000000))
+				res, err := cli.Evm().SendTxEthereum(privkey, routerAddr,"0.000000001", addLiquidPayloadStr, 500000, seqNum+offset)
 				if err != nil {
 					log.Printf("(%d)[%s] %s failed to add liquidity in %s: %s\n", fail.Add(), res.TxHash, ethAddr, routerAddr, err)
 					continue
@@ -136,7 +135,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 				}
 
 				// 2.1 stake
-				res, err = cli.Evm().SendTxEthereum(privkey, poolAddr,"", stakePayloadStr, 500000, seqNum+offset, big.NewInt( 100000000))
+				res, err = cli.Evm().SendTxEthereum(privkey, poolAddr,"", stakePayloadStr, 500000, seqNum+offset)
 				if err != nil {
 					log.Printf("(%d)[%s] %s failed to stake lp in %s: %s\n", fail.Add(), res.TxHash, ethAddr, poolAddr, err)
 					continue
@@ -148,7 +147,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 				// 2.2 withDraw randomly
 				rand.Seed(time.Now().UnixNano())
 				if rand.Intn(10) <= 3 {
-					res, err = cli.Evm().SendTxEthereum(privkey, poolAddr, "", withdrawPayload, 500000, seqNum+offset, big.NewInt( 100000000))
+					res, err = cli.Evm().SendTxEthereum(privkey, poolAddr, "", withdrawPayload, 500000, seqNum+offset)
 					if err != nil {
 						log.Printf("(%d)[%s] %s failed to withdraw lp from %s: %s\n", fail.Add(), res.TxHash, ethAddr, poolAddr, err)
 						continue
@@ -161,7 +160,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 				// 2.3 get Reward randomly
 				rand.Seed(time.Now().UnixNano())
 				if rand.Intn(10) <= 3 {
-					res, err = cli.Evm().SendTxEthereum(privkey, poolAddr, "", getRewardPayload, 500000, seqNum+offset, big.NewInt( 100000000))
+					res, err = cli.Evm().SendTxEthereum(privkey, poolAddr, "", getRewardPayload, 500000, seqNum+offset)
 					if err != nil {
 						log.Printf("(%d)[%s] %s failed to get reward from %s: %s\n", fail.Add(), res.TxHash, ethAddr, poolAddr, err)
 						continue
@@ -174,7 +173,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 				// 2.4 Exit randomly
 				rand.Seed(time.Now().UnixNano())
 				if rand.Intn(10) <= 3 {
-					res, err = cli.Evm().SendTxEthereum(privkey, poolAddr, "", exitPayload, 500000, seqNum+offset, big.NewInt( 100000000))
+					res, err = cli.Evm().SendTxEthereum(privkey, poolAddr, "", exitPayload, 500000, seqNum+offset)
 					if err != nil {
 						log.Printf("(%d)[%s] %s failed to exit from %s: %s\n", fail.Add(), res.TxHash, ethAddr, poolAddr, err)
 						continue

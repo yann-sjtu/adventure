@@ -2,8 +2,6 @@ package mint
 
 import (
 	"log"
-	"math/rand"
-	"strconv"
 	"sync"
 	"time"
 
@@ -75,13 +73,8 @@ func mint(cmd *cobra.Command, args []string) {
 				// 1. mint
 				payload := TTotken.BuildTTokenMintPayload(ethAddr.String(), sdk.NewDec(1).Int)
 				for {
-					//for r := 0 ; r <= 10; r++ {
-					k := float64(rand.Intn(20)+1) / 1000000000.0
-					i := strconv.FormatFloat(k, 'f', -1, 64)
-					gasPrice := sdk.MustNewDecFromStr(i).BigInt()
 
-					//res, err :=
-					res, err := cli.Evm().SendTxEthereum(privkey, TTokenAddr, "", ethcommon.Bytes2Hex(payload), 500000, seqNum+offset, gasPrice)
+					res, err := cli.Evm().SendTxEthereum(privkey, TTokenAddr, "", ethcommon.Bytes2Hex(payload), 500000, seqNum+offset)
 					if err != nil {
 						log.Printf("[%s] %s failed to mint in %s: %s\n", res.TxHash, ethAddr, TTokenAddr, err)
 						continue

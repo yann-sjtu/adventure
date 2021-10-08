@@ -3,27 +3,20 @@ package query
 import (
 	"context"
 	"crypto/ecdsa"
-	"encoding/hex"
 	"fmt"
 	"math/big"
 	"strconv"
 	"strings"
 	"time"
 
-	authclient "github.com/cosmos/cosmos-sdk/x/auth/client/utils"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/ethereum/go-ethereum/rlp"
+	ethcompatible "github.com/okex/exchain-ethereum-compatible/utils"
 	"github.com/okex/exchain-go-sdk/utils"
-	"github.com/okex/exchain/app"
-	"github.com/okex/exchain/app/codec"
-	types2 "github.com/okex/exchain/x/evm/types"
 	"github.com/spf13/cobra"
-	"github.com/tendermint/tendermint/crypto/tmhash"
-	"github.com/tendermint/tendermint/libs/bytes"
 )
 
 var (
@@ -133,36 +126,6 @@ func getPublicAddress(privateKey *ecdsa.PrivateKey) ethcommon.Address {
 	return fromAddress
 }
 
-func getTxHash(signedTx *types.Transaction) ethcommon.Hash {
-	ts := types.Transactions{signedTx}
-	rawTx := hex.EncodeToString(ts.GetRlp(0))
-	//fmt.Println(rawTx) // f86...772
-
-	rawTxBytes, err := hex.DecodeString(rawTx)
-	if err != nil {
-		panic(err)
-	}
-
-	tx := new(types2.MsgEthereumTx)
-	// RLP decode raw transaction bytes
-	if err := rlp.DecodeBytes(rawTxBytes, tx); err != nil {
-		// Return nil is for when gasLimit overflows uint64
-		panic(err)
-	}
-
-	cdc := codec.MakeCodec(app.ModuleBasics)
-	txEncoder := authclient.GetTxEncoder(cdc)
-	txBytes, err := txEncoder(tx)
-	if err != nil {
-		panic(err)
-	}
-
-	var hexBytes bytes.HexBytes
-	hexBytes = tmhash.Sum(txBytes)
-	hash := ethcommon.HexToHash(hexBytes.String())
-	return hash
-}
-
 func simulateTestTokenTx(nonce uint64, name, symbol string, decimal uint8, from ethcommon.Address) *types.Transaction {
 	value := big.NewInt(0)
 	gasLimit := uint64(30000000)                // in units
@@ -222,7 +185,7 @@ func getRecipet(unsignedTx *types.Transaction, privateKey *ecdsa.PrivateKey, cha
 		panic(err)
 	}
 	// 4. get the contract address based on tx hash
-	hash := getTxHash(signedTx)
+	hash, _ := ethcompatible.Hash(signedTx)
 	fmt.Println("txhash:", hash.String())
 	time.Sleep(time.Second*5)
 	receipt, err := client.TransactionReceipt(context.Background(), hash)
