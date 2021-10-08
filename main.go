@@ -11,7 +11,6 @@ import (
 	"github.com/okex/adventure/query"
 	"github.com/okex/adventure/tools/account"
 	"github.com/okex/adventure/tools/version"
-	"github.com/okex/adventure/x/monitor"
 	"github.com/okex/adventure/x/simple"
 	"github.com/okex/adventure/x/strategy/evm"
 	evmweb3 "github.com/okex/adventure/x/strategy/evm-web3"
@@ -66,7 +65,6 @@ adventure is a very powerful cli tool for OKChain. It supports JSON-file and Sub
 
 		version.Cmd,
 
-		monitor.MonitorCmd(),
 		account.Cmd(),
 		validators.StakingCmd(),
 		token.TokenCmd(),
