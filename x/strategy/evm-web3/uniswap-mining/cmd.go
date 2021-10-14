@@ -85,11 +85,12 @@ func testLoop(cmd *cobra.Command, args []string) {
 	clients := common.NewClientManagerWithMode(common.GlobalConfig.Networks[common.NetworkType].Hosts, "0.005okt", types.BroadcastSync, 500000)
 
 	depositPayloadStr := hexutil.Encode(UniswapV2.BuildWethDepositPayload())
-	approvePayloadStr := hexutil.Encode(UniswapV2.BuildWethApprovePayload(routerAddr, 10))
+	approveToRouterPayloadStr := hexutil.Encode(UniswapV2.BuildWethApprovePayload(routerAddr, 10))
+	approveToPoolPayloadStr := hexutil.Encode(UniswapV2.BuildWethApprovePayload(OktUsdtPoolAddr, 10))
 
-	stakePayloadStr := hexutil.Encode(UniswapV2Staker.BuildStakePayload(1500000000000000))
+	stakePayloadStr := hexutil.Encode(UniswapV2Staker.BuildStakePayload(100))
 	getRewardPayload := hexutil.Encode(UniswapV2Staker.BuildGetRewardPayload())
-	withdrawPayload := hexutil.Encode(UniswapV2Staker.BuildWithdrawPayload(500000000))
+	withdrawPayload := hexutil.Encode(UniswapV2Staker.BuildWithdrawPayload(10))
 	exitPayload := hexutil.Encode(UniswapV2Staker.BuildExitPayload())
 
 	var wg sync.WaitGroup
@@ -104,20 +105,20 @@ func testLoop(cmd *cobra.Command, args []string) {
 				// 0.1 deposit okt
 				res, err := cli.Evm().SendTxEthereum(privkey, WethAddr, "0.000000001", depositPayloadStr, 500000, accinfo.GetNonce(cli))
 				if err != nil {
-					log.Printf("[%s] %s deposit failed: %s\n", res.TxHash, ethAddr, err)
+					log.Printf("[%s] %s deposit       failed: %s\n", res.TxHash, ethAddr, err)
 					continue
 				} else {
-					log.Printf("[%s] %s deposit done\n", res.TxHash, ethAddr)
+					log.Printf("[%s] %s deposit       done\n", res.TxHash, ethAddr)
 					accinfo.AddNonce()
 				}
 
 				// 0.2 approve wokt
-				res, err = cli.Evm().SendTxEthereum(privkey, WethAddr, "", approvePayloadStr, 500000, accinfo.GetNonce(cli))
+				res, err = cli.Evm().SendTxEthereum(privkey, WethAddr, "", approveToRouterPayloadStr, 500000, accinfo.GetNonce(cli))
 				if err != nil {
-					log.Printf("[%s] %s approve failed: %s\n", res.TxHash, ethAddr, err)
+					log.Printf("[%s] %s approve wokt  failed: %s\n", res.TxHash, ethAddr, err)
 					continue
 				} else {
-					log.Printf("[%s] %s approve done\n", res.TxHash, ethAddr)
+					log.Printf("[%s] %s approve wokt  done\n", res.TxHash, ethAddr)
 					accinfo.AddNonce()
 				}
 
@@ -125,65 +126,85 @@ func testLoop(cmd *cobra.Command, args []string) {
 				swapPayloadStr := hexutil.Encode(UniswapV2.BuildSwapExactTokensForTokensPayload(big.NewInt(10000), big.NewInt(0), []string{WethAddr,UsdtAddr}, ethAddr, time.Now().Add(time.Hour*8640).Unix()))
 				res, err = cli.Evm().SendTxEthereum(privkey, routerAddr, "", swapPayloadStr, 500000, accinfo.GetNonce(cli))
 				if err != nil {
-					log.Printf("[%s] %s swap failed: %s\n", res.TxHash, ethAddr, err)
+					log.Printf("[%s] %s swap          failed: %s\n", res.TxHash, ethAddr, err)
 					continue
 				} else {
-					log.Printf("[%s] %s swap done\n", res.TxHash, ethAddr)
+					log.Printf("[%s] %s swap          done\n", res.TxHash, ethAddr)
 					accinfo.AddNonce()
 				}
 
-				addLiquidPayloadStr := hexutil.Encode(UniswapV2.BuildAddLiquidOKTPayload(tokenAddr, ethAddr, sdk.MustNewDecFromStr("0.0000000000001").Int, sdk.MustNewDecFromStr("0").Int, sdk.MustNewDecFromStr("0").Int, 1728763396, ))
-				// 1. add liquidity
+				// 1.1 approve usdt
+				res, err = cli.Evm().SendTxEthereum(privkey, tokenAddr, "", approveToRouterPayloadStr, 500000, accinfo.GetNonce(cli))
+				if err != nil {
+					log.Printf("[%s] %s approve usdt  failed: %s\n", res.TxHash, ethAddr, err)
+					continue
+				} else {
+					log.Printf("[%s] %s approve usdt  done\n", res.TxHash, ethAddr)
+					accinfo.AddNonce()
+				}
+
+				// 1.2 add liquidity (usdt-okt)
+				addLiquidPayloadStr := hexutil.Encode(UniswapV2.BuildAddLiquidOKTPayload(tokenAddr, ethAddr, sdk.MustNewDecFromStr("0.0000000000001").Int, sdk.MustNewDecFromStr("0").Int, sdk.MustNewDecFromStr("0").Int, time.Now().Add(time.Hour*8640).Unix()))
 				res, err = cli.Evm().SendTxEthereum(privkey, routerAddr, "0.000000001", addLiquidPayloadStr, 500000, accinfo.GetNonce(cli))
 				if err != nil {
-					log.Printf("[%s] %s add liquidity failed: %s\n", res.TxHash, ethAddr, err)
+					log.Printf("[%s] %s addLiquidity  failed: %s\n", res.TxHash, ethAddr, err)
 					continue
 				} else {
-					log.Printf("[%s] %s add liquidity done\n", res.TxHash, ethAddr)
+					log.Printf("[%s] %s addLiquidity  done\n", res.TxHash, ethAddr)
 					accinfo.AddNonce()
 				}
 
-				// 2.1 stake
+				// 2.1 approve uni
+				res, err = cli.Evm().SendTxEthereum(privkey, OktUsdtLPAddr, "", approveToPoolPayloadStr, 500000, accinfo.GetNonce(cli))
+				if err != nil {
+					log.Printf("[%s] %s approve uni   failed: %s\n", res.TxHash, ethAddr, err)
+					continue
+				} else {
+					log.Printf("[%s] %s approve uni   done\n", res.TxHash, ethAddr)
+					accinfo.AddNonce()
+				}
+
+				// 2.2 stake
 				res, err = cli.Evm().SendTxEthereum(privkey, poolAddr, "", stakePayloadStr, 500000, accinfo.GetNonce(cli))
 				if err != nil {
-					log.Printf("[%s] %s stake failed: %s\n", res.TxHash, ethAddr, err)
+					log.Printf("[%s] %s stake         failed: %s\n", res.TxHash, ethAddr, err)
 					continue
 				} else {
-					log.Printf("[%s] %s stake done\n", res.TxHash, ethAddr)
+					log.Printf("[%s] %s stake         done\n", res.TxHash, ethAddr)
 					accinfo.AddNonce()
 				}
 
-				// 2.2 withDraw randomly
+				// 2.3 withDraw randomly
 				rand.Seed(time.Now().UnixNano())
 				if rand.Intn(10) <= 3 {
 					res, err = cli.Evm().SendTxEthereum(privkey, poolAddr, "", withdrawPayload, 500000, accinfo.GetNonce(cli))
 					if err != nil {
-						log.Printf("[%s] %s withdraw fail: %s\n", res.TxHash, ethAddr, err)
+						log.Printf("[%s] %s withdraw      fail: %s\n", res.TxHash, ethAddr, err)
 						continue
 					} else {
-						log.Printf("[%s] %s withdraw done\n", res.TxHash, ethAddr)
+						log.Printf("[%s] %s withdraw      done\n", res.TxHash, ethAddr)
 						accinfo.AddNonce()
 					}
 				}
-				// 2.3 get Reward randomly
+				// 2.4 get Reward randomly
 				if rand.Intn(10) <= 3 {
 					res, err = cli.Evm().SendTxEthereum(privkey, poolAddr, "", getRewardPayload, 500000, accinfo.GetNonce(cli))
 					if err != nil {
-						log.Printf("[%s] %s get reward fail: %s\n", res.TxHash, ethAddr, err)
+						log.Printf("[%s] %s getReward     fail: %s\n", res.TxHash, ethAddr, err)
 						continue
 					} else {
-						log.Printf("[%s] %s get reward done\n", res.TxHash, ethAddr)
+						log.Printf("[%s] %s getReward     done\n", res.TxHash, ethAddr)
 						accinfo.AddNonce()
 					}
 				}
-				// 2.4 Exit randomly
+				// 2.5 Exit randomly
 				if rand.Intn(10) <= 3 {
 					res, err = cli.Evm().SendTxEthereum(privkey, poolAddr, "", exitPayload, 500000, accinfo.GetNonce(cli))
 					if err != nil {
-						log.Printf("[%s] %s exit fail: %s\n", res.TxHash, ethAddr, err)
+						log.Printf("[%s] %s exit          fail: %s\n", res.TxHash, ethAddr, err)
 						continue
 					} else {
-						log.Printf("[%s] %s exit done\n", res.TxHash, ethAddr)
+						log.Printf("[%s] %s exit          done\n", res.TxHash, ethAddr)
 						accinfo.AddNonce()
 					}
 				}
