@@ -3,13 +3,14 @@ package account
 import (
 	"bufio"
 	"fmt"
+	"os"
+	"path/filepath"
+	"sync"
+
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	ethcmn "github.com/ethereum/go-ethereum/common"
 	"github.com/okex/exchain-go-sdk/utils"
 	"github.com/spf13/cobra"
-	"os"
-	"path/filepath"
-	"sync"
 )
 
 const (
@@ -28,7 +29,7 @@ func createAccInfoCmd() *cobra.Command {
 		RunE:  runCreateAccInfoCmd,
 	}
 	flags := addressCmd.Flags()
-	flags.IntP(flagAccountNum, "n", 0, "the number of accounts to create")
+	flags.IntP(flagAccountNum, "x", 0, "the number of accounts to create")
 	flags.StringP(flagOutputFolder, "f", "", "the output folder path of 4 kinds of files")
 	return addressCmd
 }
