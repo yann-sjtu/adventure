@@ -9,11 +9,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/okex/adventure/common"
-	"github.com/okex/adventure/x/strategy/evm-unfinish/tools"
 	"github.com/okex/adventure/x/strategy/evm/template/UniswapV2"
 	"github.com/okex/adventure/x/strategy/evm/template/UniswapV2Staker"
+	gosdk "github.com/okex/exchain-go-sdk"
 	"github.com/okex/exchain-go-sdk/types"
-	"github.com/okex/exchain-go-sdk/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -79,112 +78,82 @@ const (
 func testLoop(cmd *cobra.Command, args []string) {
 	_, poolAddr, tokenAddr := LPAddrs[0], PoolAddrs[0], TokenAddrs[0]
 
-	privkeys := common.GetPrivKeyFromPrivKeyFile(privkeyPath)
+	m := common.GetPrivKeyManager(privkeyPath)
+	leng := m.Length()
 	clients := common.NewClientManagerWithMode(common.GlobalConfig.Networks[common.NetworkType].Hosts, "0.005okt", types.BroadcastSync, 500000)
-	succ, fail := tools.NewCounter(-1), tools.NewCounter(-1)
+
+	stakePayloadStr := hexutil.Encode(UniswapV2Staker.BuildStakePayload(1500000000000000))
+	getRewardPayload := hexutil.Encode(UniswapV2Staker.BuildGetRewardPayload())
+	withdrawPayload := hexutil.Encode(UniswapV2Staker.BuildWithdrawPayload(500000000))
+	exitPayload := hexutil.Encode(UniswapV2Staker.BuildExitPayload())
 
 	var wg sync.WaitGroup
 	for i := 0; i < goroutineNum; i++ {
 		wg.Add(1)
-		go func(index int) {
+		go func(index int, cli *gosdk.Client) {
 			defer wg.Done()
-			privkey := privkeys[index]
-			cli := clients.GetClient()
-			info, err := utils.CreateAccountWithPrivateKey(privkey, "acc", common.PassWord)
-			if err != nil {
-				panic(err)
-			}
+			for k := 0; ; k++ {
+				accinfo := m.GetAccount((k*goroutineNum+index)%leng)
+				ethAddr, privkey := accinfo.GetEthAddress().String(), accinfo.GetPirvkey()
 
-			ethAddr, err  := utils.ToHexAddress(info.GetAddress().String())
-			if err != nil {
-				panic(err)
-			}
-			//fmt.Println(privkey)
-			//fmt.Println(info.GetAddress().String())
-			//fmt.Println(ethAddr)
-
-			// init various payload
-			addLiquidPayloadStr := hexutil.Encode(UniswapV2.BuildAddLiquidOKTPayload(
-				tokenAddr, ethAddr.String(),
-				sdk.MustNewDecFromStr("0.0000000000001").Int, sdk.MustNewDecFromStr("0").Int, sdk.MustNewDecFromStr("0").Int,
-				1728763396,
-			))
-			stakePayloadStr := hexutil.Encode(UniswapV2Staker.BuildStakePayload(1500000000000000))
-			getRewardPayload := hexutil.Encode(UniswapV2Staker.BuildGetRewardPayload())
-			withdrawPayload := hexutil.Encode(UniswapV2Staker.BuildWithdrawPayload(500000000))
-			exitPayload := hexutil.Encode(UniswapV2Staker.BuildExitPayload())
-
-
-			accInfo, err := cli.Auth().QueryAccount(info.GetAddress().String())
-			if err != nil {
-				panic(err)
-			}
-			seqNum := accInfo.GetSequence()
-			offset := uint64(0)
-			for {
-
-				// Let Us GO GO GO !!!!!!
-				// 1. add liquididy
-				res, err := cli.Evm().SendTxEthereum(privkey, routerAddr,"0.000000001", addLiquidPayloadStr, 500000, seqNum+offset)
+				addLiquidPayloadStr := hexutil.Encode(UniswapV2.BuildAddLiquidOKTPayload(tokenAddr, ethAddr, sdk.MustNewDecFromStr("0.0000000000001").Int, sdk.MustNewDecFromStr("0").Int, sdk.MustNewDecFromStr("0").Int, 1728763396, ))
+				// 1. add liquidity
+				res, err := cli.Evm().SendTxEthereum(privkey, routerAddr, "0.000000001", addLiquidPayloadStr, 500000, accinfo.GetNonce(cli))
 				if err != nil {
-					log.Printf("(%d)[%s] %s failed to add liquidity in %s: %s\n", fail.Add(), res.TxHash, ethAddr, routerAddr, err)
+					log.Printf("[%s] %s add liquidity failed: %s\n", res.TxHash, ethAddr, err)
 					continue
 				} else {
-					log.Printf("(%d)[%s] %s add liquidity in %s \n", succ.Add(), res.TxHash, ethAddr, routerAddr)
-					offset++
+					log.Printf("[%s] %s add liquidity done\n", res.TxHash, ethAddr)
+					accinfo.AddNonce()
 				}
 
 				// 2.1 stake
-				res, err = cli.Evm().SendTxEthereum(privkey, poolAddr,"", stakePayloadStr, 500000, seqNum+offset)
+				res, err = cli.Evm().SendTxEthereum(privkey, poolAddr, "", stakePayloadStr, 500000, accinfo.GetNonce(cli))
 				if err != nil {
-					log.Printf("(%d)[%s] %s failed to stake lp in %s: %s\n", fail.Add(), res.TxHash, ethAddr, poolAddr, err)
+					log.Printf("[%s] %s stake failed: %s\n", res.TxHash, ethAddr, err)
 					continue
 				} else {
-					log.Printf("(%d)[%s] %s stake lp in %s \n", succ.Add(), res.TxHash, ethAddr, poolAddr)
-					offset++
+					log.Printf("[%s] %s stake done\n", res.TxHash, ethAddr)
+					accinfo.AddNonce()
 				}
 
 				// 2.2 withDraw randomly
 				rand.Seed(time.Now().UnixNano())
 				if rand.Intn(10) <= 3 {
-					res, err = cli.Evm().SendTxEthereum(privkey, poolAddr, "", withdrawPayload, 500000, seqNum+offset)
+					res, err = cli.Evm().SendTxEthereum(privkey, poolAddr, "", withdrawPayload, 500000, accinfo.GetNonce(cli))
 					if err != nil {
-						log.Printf("(%d)[%s] %s failed to withdraw lp from %s: %s\n", fail.Add(), res.TxHash, ethAddr, poolAddr, err)
+						log.Printf("[%s] %s withdraw fail: %s\n", res.TxHash, ethAddr, err)
 						continue
 					} else {
-						log.Printf("(%d)[%s] %s withdraw lp from %s \n", succ.Add(), res.TxHash, ethAddr, poolAddr)
-						offset++
+						log.Printf("[%s] %s withdraw done\n", res.TxHash, ethAddr)
+						accinfo.AddNonce()
 					}
 				}
-
 				// 2.3 get Reward randomly
-				rand.Seed(time.Now().UnixNano())
 				if rand.Intn(10) <= 3 {
-					res, err = cli.Evm().SendTxEthereum(privkey, poolAddr, "", getRewardPayload, 500000, seqNum+offset)
+					res, err = cli.Evm().SendTxEthereum(privkey, poolAddr, "", getRewardPayload, 500000, accinfo.GetNonce(cli))
 					if err != nil {
-						log.Printf("(%d)[%s] %s failed to get reward from %s: %s\n", fail.Add(), res.TxHash, ethAddr, poolAddr, err)
+						log.Printf("[%s] %s get reward fail: %s\n", res.TxHash, ethAddr, err)
 						continue
 					} else {
-						log.Printf("(%d)[%s] %s get reward from %s \n", succ.Add(), res.TxHash, ethAddr, poolAddr)
-						offset++
+						log.Printf("[%s] %s get reward done\n", res.TxHash, poolAddr)
+						accinfo.AddNonce()
 					}
 				}
-
 				// 2.4 Exit randomly
-				rand.Seed(time.Now().UnixNano())
 				if rand.Intn(10) <= 3 {
-					res, err = cli.Evm().SendTxEthereum(privkey, poolAddr, "", exitPayload, 500000, seqNum+offset)
+					res, err = cli.Evm().SendTxEthereum(privkey, poolAddr, "", exitPayload, 500000, accinfo.GetNonce(cli))
 					if err != nil {
-						log.Printf("(%d)[%s] %s failed to exit from %s: %s\n", fail.Add(), res.TxHash, ethAddr, poolAddr, err)
+						log.Printf("[%s] %s exit fail: %s\n", res.TxHash, ethAddr, err)
 						continue
 					} else {
-						log.Printf("(%d)[%s] %s exit from %s \n", succ.Add(), res.TxHash, ethAddr, poolAddr)
-						offset++
+						log.Printf("[%s] %s exit done\n", res.TxHash, ethAddr)
+						accinfo.AddNonce()
 					}
 				}
-				time.Sleep(time.Duration(sleepTime)*time.Second)
+				time.Sleep(time.Duration(sleepTime) * time.Second)
 			}
-		}(i)
+		}(i, clients.GetClient())
 	}
 	wg.Wait()
 }
