@@ -2,6 +2,7 @@ package uniswap_mining
 
 import (
 	"log"
+	"math/big"
 	"math/rand"
 	"sync"
 	"time"
@@ -63,6 +64,7 @@ const (
 	UniUsdtPoolAddr = "0xaAFd4b09e0c275b3EC35B3cacB99D6DA9Ca96E33"
 
 	UsdtAddr = "0xee666e967293094007d7c3718044e07565b1f8a9"
+	WethAddr = "0x70c1c53E991F31981d592C2d865383AC0d212225"
 	WoktAddr = "0x2789Fdc29D0f1D2ddaC362B2cb79F7799A5fbdAF"
 	UniAddr  = "0x0A1D36fCD446Df6bA0bA326bec5291417B97757d"
 	OkbAddr  = "0xa860E9929B7DE53218c9B0a555680587D3542882"
@@ -82,6 +84,9 @@ func testLoop(cmd *cobra.Command, args []string) {
 	leng := m.Length()
 	clients := common.NewClientManagerWithMode(common.GlobalConfig.Networks[common.NetworkType].Hosts, "0.005okt", types.BroadcastSync, 500000)
 
+	depositPayloadStr := hexutil.Encode(UniswapV2.BuildWethDepositPayload())
+	approvePayloadStr := hexutil.Encode(UniswapV2.BuildWethApprovePayload(routerAddr, 10))
+
 	stakePayloadStr := hexutil.Encode(UniswapV2Staker.BuildStakePayload(1500000000000000))
 	getRewardPayload := hexutil.Encode(UniswapV2Staker.BuildGetRewardPayload())
 	withdrawPayload := hexutil.Encode(UniswapV2Staker.BuildWithdrawPayload(500000000))
@@ -96,9 +101,40 @@ func testLoop(cmd *cobra.Command, args []string) {
 				accinfo := m.GetAccount((k*goroutineNum+index)%leng)
 				ethAddr, privkey := accinfo.GetEthAddress().String(), accinfo.GetPirvkey()
 
+				// 0.1 deposit okt
+				res, err := cli.Evm().SendTxEthereum(privkey, WethAddr, "0.000000001", depositPayloadStr, 500000, accinfo.GetNonce(cli))
+				if err != nil {
+					log.Printf("[%s] %s deposit failed: %s\n", res.TxHash, ethAddr, err)
+					continue
+				} else {
+					log.Printf("[%s] %s deposit done\n", res.TxHash, ethAddr)
+					accinfo.AddNonce()
+				}
+
+				// 0.2 approve wokt
+				res, err = cli.Evm().SendTxEthereum(privkey, WethAddr, "", approvePayloadStr, 500000, accinfo.GetNonce(cli))
+				if err != nil {
+					log.Printf("[%s] %s approve failed: %s\n", res.TxHash, ethAddr, err)
+					continue
+				} else {
+					log.Printf("[%s] %s approve done\n", res.TxHash, ethAddr)
+					accinfo.AddNonce()
+				}
+
+				// 0.3 swap wokt -> usdt
+				swapPayloadStr := hexutil.Encode(UniswapV2.BuildSwapExactTokensForTokensPayload(big.NewInt(10000), big.NewInt(0), []string{WethAddr,UsdtAddr}, ethAddr, time.Now().Add(time.Hour*8640).Unix()))
+				res, err = cli.Evm().SendTxEthereum(privkey, routerAddr, "", swapPayloadStr, 500000, accinfo.GetNonce(cli))
+				if err != nil {
+					log.Printf("[%s] %s swap failed: %s\n", res.TxHash, ethAddr, err)
+					continue
+				} else {
+					log.Printf("[%s] %s swap done\n", res.TxHash, ethAddr)
+					accinfo.AddNonce()
+				}
+
 				addLiquidPayloadStr := hexutil.Encode(UniswapV2.BuildAddLiquidOKTPayload(tokenAddr, ethAddr, sdk.MustNewDecFromStr("0.0000000000001").Int, sdk.MustNewDecFromStr("0").Int, sdk.MustNewDecFromStr("0").Int, 1728763396, ))
 				// 1. add liquidity
-				res, err := cli.Evm().SendTxEthereum(privkey, routerAddr, "0.000000001", addLiquidPayloadStr, 500000, accinfo.GetNonce(cli))
+				res, err = cli.Evm().SendTxEthereum(privkey, routerAddr, "0.000000001", addLiquidPayloadStr, 500000, accinfo.GetNonce(cli))
 				if err != nil {
 					log.Printf("[%s] %s add liquidity failed: %s\n", res.TxHash, ethAddr, err)
 					continue
@@ -136,7 +172,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 						log.Printf("[%s] %s get reward fail: %s\n", res.TxHash, ethAddr, err)
 						continue
 					} else {
-						log.Printf("[%s] %s get reward done\n", res.TxHash, poolAddr)
+						log.Printf("[%s] %s get reward done\n", res.TxHash, ethAddr)
 						accinfo.AddNonce()
 					}
 				}
