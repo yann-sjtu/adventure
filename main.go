@@ -70,7 +70,6 @@ adventure is a very powerful cli tool for OKChain. It supports JSON-file and Sub
 		account.Cmd(),
 		validators.StakingCmd(),
 		token.TokenCmd(),
-		account.Cmd(),
 		validators.StakingCmd(),
 		//TODO:
 		simple.TxCmd(),
