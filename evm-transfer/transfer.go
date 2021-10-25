@@ -18,10 +18,6 @@ import (
 )
 
 var (
-	to = ethcmm.BytesToAddress(crypto.Keccak256(rand.Bytes(64)))
-)
-
-var (
 	concurrencyTx   int
 	sleepTimeTx     int
 	privkPath       string
@@ -53,10 +49,14 @@ func TransferCmd() *cobra.Command {
 
 func transferTx(cmd *cobra.Command, args []string) {
 	privkeys := common.GetPrivKeyFromPrivKeyFile(privkPath)
+	to := ethcmm.BytesToAddress(crypto.Keccak256(rand.Bytes(64)))
 	for i := 0; i < concurrencyTx; i++ {
 		go func(index int, privkey string) {
+			if !fixed {
+				to = ethcmm.BytesToAddress(crypto.Keccak256(rand.Bytes(64)))
+			}
 			rpcHost := rpc_hosts[index%len(rpc_hosts)]
-			transfer(privkey, rpcHost)
+			transfer(privkey, rpcHost, to.String())
 
 		}(i, privkeys[i])
 	}
@@ -64,7 +64,7 @@ func transferTx(cmd *cobra.Command, args []string) {
 	select {}
 }
 
-func transfer(privkey string, host string) {
+func transfer(privkey string, host string, to string) {
 	cfg, _ := types.NewClientConfig(host, chainID, types.BroadcastSync, "", 30000000, 1.5, "0.0000000001"+common.NativeToken)
 	cli := gosdk.NewClient(cfg)
 
@@ -76,10 +76,7 @@ func transfer(privkey string, host string) {
 	nonce := accInfo.GetSequence()
 
 	for {
-		if !fixed {
-			to = ethcmm.BytesToAddress(crypto.Keccak256(rand.Bytes(64)))
-		}
-		res, err := cli.Evm().SendTxEthereum(privkey, to.String(), "0.000000001", "",21000, nonce)
+		res, err := cli.Evm().SendTxEthereum(privkey, to, "0.000000001", "",21000, nonce)
 		if err != nil {
 			continue
 		} else {
