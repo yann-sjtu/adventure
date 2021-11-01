@@ -43,7 +43,6 @@ func sendTx(cli *gosdk.Client, info keys.Info, phase string) {
 	addr := info.GetAddress().String()
 	accInfo, err = cli.Auth().QueryAccount(addr)
 	if err != nil {
-		common.PrintQueryAccountError(err, phase, info)
 		return
 	}
 
@@ -64,10 +63,8 @@ func sendTx(cli *gosdk.Client, info keys.Info, phase string) {
 	}
 
 	if err != nil {
-		common.PrintExecuteTxError(err, phase, info)
 		return
 	}
-	common.PrintExecuteTxSuccess(phase, info)
 }
 
 func getValditorAddrs(cli *gosdk.Client) []string {

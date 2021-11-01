@@ -85,7 +85,6 @@ func Proxy(cli *gosdk.Client, info keys.Info) {
 func bindProxyTx(cli *gosdk.Client, info keys.Info, proxy keys.Info) {
 	accInfo, err := cli.Auth().QueryAccount(info.GetAddress().String())
 	if err != nil {
-		common.PrintQueryAccountError(err, bindProxy, info)
 		return
 	}
 
@@ -93,8 +92,6 @@ func bindProxyTx(cli *gosdk.Client, info keys.Info, proxy keys.Info) {
 		proxy.GetAddress().String(),
 		"", accInfo.GetAccountNumber(), accInfo.GetSequence())
 	if err != nil {
-		common.PrintExecuteTxError(err, bindProxy, info)
 		return
 	}
-	common.PrintExecuteTxSuccess(bindProxy, info)
 }

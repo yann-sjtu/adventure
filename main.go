@@ -5,6 +5,7 @@ import (
 	"os"
 	"path"
 
+	"github.com/okex/adventure/bench"
 	"github.com/okex/adventure/common"
 	evm_transfer "github.com/okex/adventure/evm-transfer"
 	evmtx2 "github.com/okex/adventure/evm-tx-enhance"
@@ -12,11 +13,9 @@ import (
 	"github.com/okex/adventure/query"
 	"github.com/okex/adventure/tools/account"
 	"github.com/okex/adventure/tools/version"
-	"github.com/okex/adventure/x/simple"
 	"github.com/okex/adventure/x/strategy/evm"
 	evmweb3 "github.com/okex/adventure/x/strategy/evm-web3"
 	"github.com/okex/adventure/x/strategy/staking/validators"
-	"github.com/okex/adventure/x/strategy/token"
 	"github.com/spf13/cobra"
 )
 
@@ -69,10 +68,7 @@ adventure is a very powerful cli tool for OKChain. It supports JSON-file and Sub
 
 		account.Cmd(),
 		validators.StakingCmd(),
-		token.TokenCmd(),
-		validators.StakingCmd(),
-		//TODO:
-		simple.TxCmd(),
+		bench.InitStorageCmd(),
 	)
 
 	mainCmd.PersistentFlags().StringVarP(&common.ConfigPath, ConfigFlag, "c", path.Join(os.ExpandEnv("$HOME/.adventure"), "config.toml"), "setting of config path")

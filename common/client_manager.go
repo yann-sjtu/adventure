@@ -9,6 +9,8 @@ import (
 	"github.com/okex/exchain-go-sdk/types"
 )
 
+const AUTO = "auto"
+
 type ClientManager struct {
 	i       int
 	clients []*gosdk.Client
