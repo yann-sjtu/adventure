@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	RouterTestContract = "0x8418e111d9729aa96Cb7Ae86998d52BF6C82A6Fa"
+	RouterTestContract = "0xdA1BD71c96104F7794F263AcD04334870Cb428B7"
 )
 
 var (
@@ -63,7 +63,7 @@ func startOperate(cmd *cobra.Command, args []string) {
 }
 
 func operate(privkey string, host string, txdata string) {
-	cfg, _ := types.NewClientConfig(host, chainID, types.BroadcastSync, "", 1000000, 1.5, "0.0000000001"+common.NativeToken)
+	cfg, _ := types.NewClientConfig(host, chainID, types.BroadcastSync, "", 2000000, 1.5, "0.0000000001"+common.NativeToken)
 	cli := gosdk.NewClient(cfg)
 
 	addr := getCosmosAddress(privkey)
@@ -74,7 +74,7 @@ func operate(privkey string, host string, txdata string) {
 	nonce := accInfo.GetSequence()
 
 	for {
-		res, err := cli.Evm().SendTxEthereum(privkey, RouterTestContract, "", txdata,1000000, nonce)
+		res, err := cli.Evm().SendTxEthereum(privkey, RouterTestContract, "", txdata,2000000, nonce)
 		if err != nil {
 			continue
 		} else {
