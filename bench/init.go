@@ -38,7 +38,7 @@ func InitStorageCmd() *cobra.Command {
 
 	flags.StringVarP(&privkPath, "privkey-path", "p", "","")
 	flags.StringSliceVarP(&rpc_hosts, "rpc-hosts","u", []string{}, "")
-	flags.StringVarP(&chainID, "chain-id", "c","", "")
+	flags.StringVarP(&chainID, "chain-id", "i","", "")
 
 	return cmd
 }
