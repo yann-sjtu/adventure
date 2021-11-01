@@ -33,7 +33,7 @@ func InitStorageCmd() *cobra.Command {
 		Run:   initStorage,
 	}
 	flags := cmd.Flags()
-	flags.IntVarP(&concurrencyTx, "concurrency","c", 10, "set the number of tx number per second")
+	flags.IntVarP(&concurrencyTx, "concurrency","g", 10, "set the number of tx number per second")
 	flags.IntVarP(&sleepTimeTx, "sleepTime", "s",1, "")
 
 	flags.StringVarP(&privkPath, "privkey-path", "p", "","")
