@@ -11,9 +11,9 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/okex/adventure/common"
-	"github.com/okex/adventure/x/strategy/evm"
-	"github.com/okex/adventure/x/strategy/evm/template/DYF"
-	"github.com/okex/adventure/x/strategy/evm/template/UniswapV2"
+	"github.com/okex/adventure/x/evm"
+	"github.com/okex/adventure/x/evm/template/DYF"
+	"github.com/okex/adventure/x/evm/template/UniswapV2"
 	"github.com/okex/exchain-go-sdk/utils"
 	"github.com/spf13/cobra"
 )
