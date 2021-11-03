@@ -14,11 +14,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const (
-	RouterTestContract = "0xdA1BD71c96104F7794F263AcD04334870Cb428B7"
-)
 
 var (
+	RouterTestContract string
+
 	id int64
 	opts []int64
 	times int64
@@ -43,7 +42,7 @@ func OperateCmd() *cobra.Command {
 	flags.Int64SliceVar(&opts, "opts", []int64{}, "")
 	flags.Int64Var(&times, "times", 0, "")
 
-
+	flags.StringVar(&RouterTestContract, "router-contract", "0xdA1BD71c96104F7794F263AcD04334870Cb428B7","")
 	return cmd
 }
 

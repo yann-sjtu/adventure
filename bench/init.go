@@ -29,7 +29,7 @@ func InitStorageCmd() *cobra.Command {
 	flags.StringSliceVarP(&rpc_hosts, "rpc-hosts","u", []string{}, "")
 	flags.StringVarP(&chainID, "chain-id", "i","", "")
 
-	flags.StringVar(&storageContract, "storage-contract","", "")
+	flags.StringVar(&storageContract, "storage-contract","0xb81c8C0d691bA7A72704412cA0cF605427370Fd3", "")
 	return cmd
 }
 
