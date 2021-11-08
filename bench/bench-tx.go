@@ -16,7 +16,8 @@ import (
 
 
 var (
-	RouterTestContract string
+	contract string
+	direct   bool
 
 	id int64
 	opts []int64
@@ -42,12 +43,18 @@ func OperateCmd() *cobra.Command {
 	flags.Int64SliceVar(&opts, "opts", []int64{}, "")
 	flags.Int64Var(&times, "times", 0, "")
 
-	flags.StringVar(&RouterTestContract, "router-contract", "0xdA1BD71c96104F7794F263AcD04334870Cb428B7","")
+	flags.StringVar(&contract, "contract", "","")
+	flags.BoolVar(&direct, "direct", false,"")
 	return cmd
 }
 
 func startOperate(cmd *cobra.Command, args []string) {
-	txdata := generateTxData()
+	var txdata string
+	if direct {
+		txdata = generateTxDataInDirect()
+	} else {
+		txdata = generateTxData()
+	}
 
 	privkeys := common.GetPrivKeyFromPrivKeyFile(privkPath)
 	for i := 0; i < concurrency; i++ {
@@ -73,7 +80,7 @@ func operate(privkey string, host string, txdata string) {
 	nonce := accInfo.GetSequence()
 
 	for {
-		res, err := cli.Evm().SendTxEthereum(privkey, RouterTestContract, "", txdata,2000000, nonce)
+		res, err := cli.Evm().SendTxEthereum(privkey, contract, "", txdata,2000000, nonce)
 		if err != nil {
 			continue
 		} else {
@@ -96,6 +103,22 @@ func generateTxData() string {
 		bigOpts[i] = big.NewInt(opts[i])
 	}
 	txdata, err := routerABI.Pack("operate", big.NewInt(id), bigOpts, big.NewInt(times))
+	if err != nil {
+		log.Fatal(err)
+	}
+	return ethcmm.Bytes2Hex(txdata)
+}
+
+func generateTxDataInDirect() string {
+	readABI, err := abi.JSON(strings.NewReader(ReadABI))
+	if err != nil {
+		log.Fatal(err)
+	}
+	bigOpts := make([]*big.Int, len(opts))
+	for i := 0; i < len(opts); i++ {
+		bigOpts[i] = big.NewInt(opts[i])
+	}
+	txdata, err := readABI.Pack("operate", bigOpts, big.NewInt(times))
 	if err != nil {
 		log.Fatal(err)
 	}
