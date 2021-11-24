@@ -1,14 +1,18 @@
 package evm_transfer
 
 import (
+	"context"
 	"crypto/ecdsa"
 	"fmt"
 	"log"
+	"strconv"
+	"strings"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ethcmm "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/okex/adventure/common"
 	gosdk "github.com/okex/exchain-go-sdk"
 	"github.com/okex/exchain-go-sdk/types"
@@ -18,6 +22,8 @@ import (
 )
 
 var (
+	ethPort int
+
 	concurrencyTx   int
 	sleepTimeTx     int
 	privkPath       string
@@ -44,6 +50,7 @@ func TransferCmd() *cobra.Command {
 	flags.StringVar(&chainID, "chain-id", "", "")
 
 	flags.BoolVar(&fixed, "fixed", false, "")
+	flags.IntVar(&ethPort, "eth-port", 0,"if not zero, query on eth port 26659")
 	return cmd
 }
 
@@ -65,12 +72,8 @@ func transfer(privkey string, host string, to string) {
 	cfg, _ := types.NewClientConfig(host, chainID, types.BroadcastSync, "", 30000000, 1.5, "0.0000000001"+common.NativeToken)
 	cli := gosdk.NewClient(cfg)
 
-	addr := getCosmosAddress(privkey)
-	accInfo, err := cli.Auth().QueryAccount(addr.String())
-	if err != nil {
-		panic(err)
-	}
-	nonce := accInfo.GetSequence()
+	nonce := queryNonce(host, privkey)
+	fmt.Println(getCosmosAddress(privkey).String(), nonce)
 
 	for {
 		if !fixed {
@@ -105,4 +108,46 @@ func getCosmosAddress(privkey string) sdk.Address {
 		panic(err)
 	}
 	return cosmosAddr
+}
+
+func queryNonce(host string, privkey string) (nonce uint64) {
+	if ethPort == 0 {
+		cfg, _ := types.NewClientConfig(host, chainID, types.BroadcastSync, "", 2000000, 1.5, "0.0000000001"+common.NativeToken)
+		cli := gosdk.NewClient(cfg)
+
+		addr := getCosmosAddress(privkey)
+		for i := 0; ; i++ {
+			accInfo, err := cli.Auth().QueryAccount(addr.String())
+			if err != nil {
+				log.Printf("[cosmos] query %s error: %s\n", addr.String(), err)
+				time.Sleep(time.Second)
+				continue
+			}
+			nonce = accInfo.GetSequence()
+			return
+		}
+	} else {
+		str := strings.Split(host, ":")
+		ethhost := str[0] + ":" + str[1] + ":" + strconv.Itoa(ethPort)
+		client, err := ethclient.Dial(ethhost)
+		if err != nil {
+			panic(err)
+		}
+
+		privateKey, err := crypto.HexToECDSA(privkey)
+		if err != nil {
+			panic(err)
+		}
+
+		addr := getEthAddress(privateKey)
+		for i := 0; ; i++ {
+			nonce, err = client.PendingNonceAt(context.Background(), addr)
+			if err != nil {
+				log.Printf("[eth] query %s error: %s\n", addr.String(), err)
+				time.Sleep(time.Second)
+				continue
+			}
+			return
+		}
+	}
 }
