@@ -10,7 +10,6 @@ import (
 	"github.com/okex/adventure/x/evm/template/UniswapV2"
 	"github.com/okex/adventure/x/evm/template/UniswapV2Staker"
 	"github.com/okex/adventure/x/evm/uniswap-mining"
-	"github.com/okex/adventure/x/evm/uniswap-operate"
 	"github.com/okex/adventure/x/evm/uniswap-swap"
 	"github.com/spf13/cobra"
 )
@@ -24,7 +23,6 @@ func EvmCmd() *cobra.Command {
 	}
 
 	evmCmd.AddCommand(
-		uniswap_operate.UniswapTestCmd(),
 		mint.MintCmd(),
 		uniswap_mining.Cmd(),
 		uniswap_swap.Cmd(),
