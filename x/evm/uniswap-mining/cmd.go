@@ -21,6 +21,8 @@ var (
 	goroutineNum int
 	privkeyPath  string
 	sleepTime    int
+
+	ethPort int
 )
 
 func Cmd() *cobra.Command {
@@ -35,6 +37,7 @@ func Cmd() *cobra.Command {
 	flags.IntVarP(&goroutineNum, "goroutine-num", "g", 1, "set Goroutine Num")
 	flags.StringVarP(&privkeyPath, "private-path", "p", "", "set the Priv Key path")
 	flags.IntVarP(&sleepTime, "sleep-time", "t", 0, "set the sleep time")
+	flags.IntVar(&ethPort, "eth-port", 0, "if not zero, query on eth port 26659")
 
 	return cmd
 }
@@ -82,7 +85,8 @@ func testLoop(cmd *cobra.Command, args []string) {
 
 	m := common.GetPrivKeyManager(privkeyPath)
 	leng := m.Length()
-	clients := common.NewClientManagerWithMode(common.GlobalConfig.Networks[common.NetworkType].Hosts, "0.005okt", types.BroadcastSync, 500000)
+	hosts := common.GlobalConfig.Networks[common.NetworkType].Hosts
+	clients := common.NewClientManagerWithMode(hosts, "0.005okt", types.BroadcastSync, 500000)
 
 	depositPayloadStr := hexutil.Encode(UniswapV2.BuildWethDepositPayload())
 	approveToRouterPayloadStr := hexutil.Encode(UniswapV2.BuildWethApprovePayload(routerAddr, 10))
@@ -96,14 +100,15 @@ func testLoop(cmd *cobra.Command, args []string) {
 	var wg sync.WaitGroup
 	for i := 0; i < goroutineNum; i++ {
 		wg.Add(1)
-		go func(index int, cli *gosdk.Client) {
+		host := hosts[i % len(hosts)]
+		go func(index int, cli *gosdk.Client, host string) {
 			defer wg.Done()
 			for k := 0; ; k++ {
 				accinfo := m.GetAccount((k*goroutineNum +index)%leng)
 				ethAddr, privkey := accinfo.GetEthAddress().String(), accinfo.GetPirvkey()
 
 				// 0.1 deposit okt
-				res, err := cli.Evm().SendTxEthereum(privkey, WethAddr, "0.000000001", depositPayloadStr, 500000, accinfo.GetNonce(cli))
+				res, err := cli.Evm().SendTxEthereum(privkey, WethAddr, "0.000000001", depositPayloadStr, 500000, accinfo.GetNonce(cli, host, ethPort))
 				if err != nil {
 					log.Printf("[%s] %s deposit       failed: %s\n", res.TxHash, ethAddr, err)
 					time.Sleep(time.Millisecond * 100)
@@ -114,7 +119,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 				}
 
 				// 0.2 approve wokt
-				res, err = cli.Evm().SendTxEthereum(privkey, WethAddr, "", approveToRouterPayloadStr, 500000, accinfo.GetNonce(cli))
+				res, err = cli.Evm().SendTxEthereum(privkey, WethAddr, "", approveToRouterPayloadStr, 500000, accinfo.GetNonce(cli, host, ethPort))
 				if err != nil {
 					log.Printf("[%s] %s approve wokt  failed: %s\n", res.TxHash, ethAddr, err)
 					time.Sleep(time.Millisecond * 100)
@@ -126,7 +131,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 
 				// 0.3 swap wokt -> usdt
 				swapPayloadStr := hexutil.Encode(UniswapV2.BuildSwapExactTokensForTokensPayload(big.NewInt(10000), big.NewInt(0), []string{WethAddr, UsdtAddr}, ethAddr, time.Now().Add(time.Hour*8640).Unix()))
-				res, err = cli.Evm().SendTxEthereum(privkey, routerAddr, "", swapPayloadStr, 500000, accinfo.GetNonce(cli))
+				res, err = cli.Evm().SendTxEthereum(privkey, routerAddr, "", swapPayloadStr, 500000, accinfo.GetNonce(cli, host, ethPort))
 				if err != nil {
 					log.Printf("[%s] %s swap          failed: %s\n", res.TxHash, ethAddr, err)
 					time.Sleep(time.Millisecond * 100)
@@ -137,7 +142,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 				}
 
 				// 1.1 approve usdt
-				res, err = cli.Evm().SendTxEthereum(privkey, tokenAddr, "", approveToRouterPayloadStr, 500000, accinfo.GetNonce(cli))
+				res, err = cli.Evm().SendTxEthereum(privkey, tokenAddr, "", approveToRouterPayloadStr, 500000, accinfo.GetNonce(cli, host, ethPort))
 				if err != nil {
 					log.Printf("[%s] %s approve usdt  failed: %s\n", res.TxHash, ethAddr, err)
 					time.Sleep(time.Millisecond * 100)
@@ -149,7 +154,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 
 				// 1.2 add liquidity (usdt-okt)
 				addLiquidPayloadStr := hexutil.Encode(UniswapV2.BuildAddLiquidOKTPayload(tokenAddr, ethAddr, sdk.MustNewDecFromStr("0.0000000000001").Int, sdk.MustNewDecFromStr("0").Int, sdk.MustNewDecFromStr("0").Int, time.Now().Add(time.Hour*8640).Unix()))
-				res, err = cli.Evm().SendTxEthereum(privkey, routerAddr, "0.000000001", addLiquidPayloadStr, 500000, accinfo.GetNonce(cli))
+				res, err = cli.Evm().SendTxEthereum(privkey, routerAddr, "0.000000001", addLiquidPayloadStr, 500000, accinfo.GetNonce(cli, host, ethPort))
 				if err != nil {
 					log.Printf("[%s] %s addLiquidity  failed: %s\n", res.TxHash, ethAddr, err)
 					time.Sleep(time.Millisecond * 100)
@@ -160,7 +165,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 				}
 
 				// 2.1 approve uni
-				res, err = cli.Evm().SendTxEthereum(privkey, OktUsdtLPAddr, "", approveToPoolPayloadStr, 500000, accinfo.GetNonce(cli))
+				res, err = cli.Evm().SendTxEthereum(privkey, OktUsdtLPAddr, "", approveToPoolPayloadStr, 500000, accinfo.GetNonce(cli, host, ethPort))
 				if err != nil {
 					log.Printf("[%s] %s approve uni   failed: %s\n", res.TxHash, ethAddr, err)
 					time.Sleep(time.Millisecond * 100)
@@ -171,7 +176,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 				}
 
 				// 2.2 stake
-				res, err = cli.Evm().SendTxEthereum(privkey, poolAddr, "", stakePayloadStr, 500000, accinfo.GetNonce(cli))
+				res, err = cli.Evm().SendTxEthereum(privkey, poolAddr, "", stakePayloadStr, 500000, accinfo.GetNonce(cli, host, ethPort))
 				if err != nil {
 					log.Printf("[%s] %s stake         failed: %s\n", res.TxHash, ethAddr, err)
 					time.Sleep(time.Millisecond * 100)
@@ -184,7 +189,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 				// 2.3 withDraw randomly
 				rand.Seed(time.Now().UnixNano())
 				if rand.Intn(10) <= 3 {
-					res, err = cli.Evm().SendTxEthereum(privkey, poolAddr, "", withdrawPayload, 500000, accinfo.GetNonce(cli))
+					res, err = cli.Evm().SendTxEthereum(privkey, poolAddr, "", withdrawPayload, 500000, accinfo.GetNonce(cli, host, ethPort))
 					if err != nil {
 						log.Printf("[%s] %s withdraw      fail: %s\n", res.TxHash, ethAddr, err)
 						time.Sleep(time.Millisecond * 100)
@@ -196,7 +201,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 				}
 				// 2.4 get Reward randomly
 				if rand.Intn(10) <= 3 {
-					res, err = cli.Evm().SendTxEthereum(privkey, poolAddr, "", getRewardPayload, 500000, accinfo.GetNonce(cli))
+					res, err = cli.Evm().SendTxEthereum(privkey, poolAddr, "", getRewardPayload, 500000, accinfo.GetNonce(cli, host, ethPort))
 					if err != nil {
 						log.Printf("[%s] %s getReward     fail: %s\n", res.TxHash, ethAddr, err)
 						time.Sleep(time.Millisecond * 100)
@@ -208,7 +213,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 				}
 				// 2.5 Exit randomly
 				if rand.Intn(10) <= 3 {
-					res, err = cli.Evm().SendTxEthereum(privkey, poolAddr, "", exitPayload, 500000, accinfo.GetNonce(cli))
+					res, err = cli.Evm().SendTxEthereum(privkey, poolAddr, "", exitPayload, 500000, accinfo.GetNonce(cli, host, ethPort))
 					if err != nil {
 						log.Printf("[%s] %s exit          fail: %s\n", res.TxHash, ethAddr, err)
 						time.Sleep(time.Millisecond * 100)
@@ -220,7 +225,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 				}
 				time.Sleep(time.Duration(sleepTime) * time.Second)
 			}
-		}(i, clients.GetClient())
+		}(i, clients.GetClient(), host)
 	}
 	wg.Wait()
 }

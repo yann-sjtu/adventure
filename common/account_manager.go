@@ -2,15 +2,20 @@ package common
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"io"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	ethcmm "github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/ethclient"
 	gosdk "github.com/okex/exchain-go-sdk"
 	"github.com/okex/exchain-go-sdk/utils"
 )
@@ -86,20 +91,46 @@ func (accInfo *AccountInfo) initialize() {
 	}
 }
 
-func (accInfo *AccountInfo) GetNonce(client *gosdk.Client) uint64 {
+func (accInfo *AccountInfo) GetNonce(client *gosdk.Client, host string, ethPort int) uint64 {
 	if !accInfo.queried {
-		account, err := client.Auth().QueryAccount(accInfo.info.GetAddress().String())
-		if err != nil {
-			return 0
+		if ethPort == 0 {
+			account, err := client.Auth().QueryAccount(accInfo.info.GetAddress().String())
+			if err != nil {
+				return 0
+			}
+			accInfo.nonce = account.GetSequence()
+		} else {
+			str := strings.Split(host, ":")
+			ethhost := str[0] + ":" + str[1] + ":" + strconv.Itoa(ethPort)
+			client, err := ethclient.Dial(ethhost)
+			if err != nil {
+				panic(err)
+			}
+
+			addr, err := utils.ToHexAddress(accInfo.info.GetAddress().String())
+			if err != nil {
+				return 0
+			}
+			var nonce uint64
+			for i := 0; ; i++ {
+				nonce, err = client.PendingNonceAt(context.Background(), addr)
+				if err != nil {
+					log.Printf("[eth] query %s error: %s\n", addr.String(), err)
+					time.Sleep(time.Second)
+					continue
+				}
+				break
+			}
+
+			accInfo.nonce = nonce
 		}
-		accInfo.nonce = account.GetSequence()
 		accInfo.queried = true
 	}
 	return accInfo.nonce
 }
 
 func (accInfo *AccountInfo) AddNonce() {
-	accInfo.nonce++
+	atomic.AddUint64(&accInfo.nonce, 1)
 }
 
 func (accInfo *AccountInfo) GetEthAddress() ethcmm.Address {
