@@ -24,7 +24,7 @@ func InitStorageCmd() *cobra.Command {
 	}
 	flags := cmd.Flags()
 	flags.IntVarP(&concurrency, "concurrency","g", 10, "set the number of tx number per second")
-	flags.IntVarP(&sleepTimeTx, "sleepTime", "s",1, "")
+	flags.IntVarP(&sleepTime, "sleepTime", "s",1, "")
 
 	flags.StringVarP(&privkPath, "privkey-path", "p", "","")
 	flags.StringSliceVarP(&rpc_hosts, "rpc-hosts","u", []string{}, "")
@@ -68,7 +68,7 @@ func deploy(privkey string, host string) {
 		}
 
 		nonce++
-		time.Sleep(time.Second * time.Duration(sleepTimeTx))
+		time.Sleep(time.Second * time.Duration(sleepTime))
 	}
 }
 //

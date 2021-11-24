@@ -13,8 +13,8 @@ import (
 
 var (
 	concurrency int
-	sleepTimeTx int
-	privkPath       string
+	sleepTime   int
+	privkPath   string
 	rpc_hosts    []string
 
 	chainID       string
