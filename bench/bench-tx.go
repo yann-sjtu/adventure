@@ -82,6 +82,7 @@ func operate(privkey string, host string, txdata string) {
 	for {
 		res, err := cli.Evm().SendTxEthereum(privkey, contract, "", txdata,2000000, nonce)
 		if err != nil {
+			log.Printf("err: %s\n", err)
 			continue
 		} else {
 			log.Printf("txhash: %s\n", res.TxHash)
