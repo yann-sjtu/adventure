@@ -106,6 +106,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 				res, err := cli.Evm().SendTxEthereum(privkey, WethAddr, "0.000000001", depositPayloadStr, 500000, accinfo.GetNonce(cli))
 				if err != nil {
 					log.Printf("[%s] %s deposit       failed: %s\n", res.TxHash, ethAddr, err)
+					time.Sleep(time.Millisecond * 100)
 					continue
 				} else {
 					log.Printf("[%s] %s deposit       done\n", res.TxHash, ethAddr)
@@ -116,6 +117,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 				res, err = cli.Evm().SendTxEthereum(privkey, WethAddr, "", approveToRouterPayloadStr, 500000, accinfo.GetNonce(cli))
 				if err != nil {
 					log.Printf("[%s] %s approve wokt  failed: %s\n", res.TxHash, ethAddr, err)
+					time.Sleep(time.Millisecond * 100)
 					continue
 				} else {
 					log.Printf("[%s] %s approve wokt  done\n", res.TxHash, ethAddr)
@@ -127,6 +129,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 				res, err = cli.Evm().SendTxEthereum(privkey, routerAddr, "", swapPayloadStr, 500000, accinfo.GetNonce(cli))
 				if err != nil {
 					log.Printf("[%s] %s swap          failed: %s\n", res.TxHash, ethAddr, err)
+					time.Sleep(time.Millisecond * 100)
 					continue
 				} else {
 					log.Printf("[%s] %s swap          done\n", res.TxHash, ethAddr)
@@ -137,6 +140,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 				res, err = cli.Evm().SendTxEthereum(privkey, tokenAddr, "", approveToRouterPayloadStr, 500000, accinfo.GetNonce(cli))
 				if err != nil {
 					log.Printf("[%s] %s approve usdt  failed: %s\n", res.TxHash, ethAddr, err)
+					time.Sleep(time.Millisecond * 100)
 					continue
 				} else {
 					log.Printf("[%s] %s approve usdt  done\n", res.TxHash, ethAddr)
@@ -148,6 +152,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 				res, err = cli.Evm().SendTxEthereum(privkey, routerAddr, "0.000000001", addLiquidPayloadStr, 500000, accinfo.GetNonce(cli))
 				if err != nil {
 					log.Printf("[%s] %s addLiquidity  failed: %s\n", res.TxHash, ethAddr, err)
+					time.Sleep(time.Millisecond * 100)
 					continue
 				} else {
 					log.Printf("[%s] %s addLiquidity  done\n", res.TxHash, ethAddr)
@@ -158,6 +163,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 				res, err = cli.Evm().SendTxEthereum(privkey, OktUsdtLPAddr, "", approveToPoolPayloadStr, 500000, accinfo.GetNonce(cli))
 				if err != nil {
 					log.Printf("[%s] %s approve uni   failed: %s\n", res.TxHash, ethAddr, err)
+					time.Sleep(time.Millisecond * 100)
 					continue
 				} else {
 					log.Printf("[%s] %s approve uni   done\n", res.TxHash, ethAddr)
@@ -168,6 +174,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 				res, err = cli.Evm().SendTxEthereum(privkey, poolAddr, "", stakePayloadStr, 500000, accinfo.GetNonce(cli))
 				if err != nil {
 					log.Printf("[%s] %s stake         failed: %s\n", res.TxHash, ethAddr, err)
+					time.Sleep(time.Millisecond * 100)
 					continue
 				} else {
 					log.Printf("[%s] %s stake         done\n", res.TxHash, ethAddr)
@@ -180,6 +187,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 					res, err = cli.Evm().SendTxEthereum(privkey, poolAddr, "", withdrawPayload, 500000, accinfo.GetNonce(cli))
 					if err != nil {
 						log.Printf("[%s] %s withdraw      fail: %s\n", res.TxHash, ethAddr, err)
+						time.Sleep(time.Millisecond * 100)
 						continue
 					} else {
 						log.Printf("[%s] %s withdraw      done\n", res.TxHash, ethAddr)
@@ -191,6 +199,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 					res, err = cli.Evm().SendTxEthereum(privkey, poolAddr, "", getRewardPayload, 500000, accinfo.GetNonce(cli))
 					if err != nil {
 						log.Printf("[%s] %s getReward     fail: %s\n", res.TxHash, ethAddr, err)
+						time.Sleep(time.Millisecond * 100)
 						continue
 					} else {
 						log.Printf("[%s] %s getReward     done\n", res.TxHash, ethAddr)
@@ -202,6 +211,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 					res, err = cli.Evm().SendTxEthereum(privkey, poolAddr, "", exitPayload, 500000, accinfo.GetNonce(cli))
 					if err != nil {
 						log.Printf("[%s] %s exit          fail: %s\n", res.TxHash, ethAddr, err)
+						time.Sleep(time.Millisecond * 100)
 						continue
 					} else {
 						log.Printf("[%s] %s exit          done\n", res.TxHash, ethAddr)
