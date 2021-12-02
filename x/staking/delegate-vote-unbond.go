@@ -4,7 +4,7 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keys"
+	"github.com/okex/exchain/libs/cosmos-sdk/crypto/keys"
 	"github.com/okex/adventure/common"
 	gosdk "github.com/okex/exchain-go-sdk"
 	"github.com/okex/exchain-go-sdk/module/auth/types"

@@ -1,11 +1,15 @@
 package bench
 
 import (
+	"crypto/ecdsa"
 	"log"
 	"time"
 
+	ethcmm "github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/okex/adventure/common"
 	gosdk "github.com/okex/exchain-go-sdk"
+	evmtypes "github.com/okex/exchain-go-sdk/module/evm/types"
 	"github.com/okex/exchain-go-sdk/types"
 	"github.com/spf13/cobra"
 )
@@ -35,32 +39,38 @@ func InitStorageCmd() *cobra.Command {
 }
 
 func initStorage(cmd *cobra.Command, args []string) {
-	//addresses = readAddress()
+	txdata := ethcmm.Hex2Bytes("0xfe4b84df0000000000000000000000000000000000000000000000000000000000000002")
 
 	privkeys := common.GetPrivKeyFromPrivKeyFile(privkPath)
 	for i := 0; i < concurrency; i++ {
 		go func(index int, privkey string) {
+			privateKey, err := crypto.HexToECDSA(privkey)
+			if err != nil {
+				panic(err)
+			}
+
 			rpcHost := rpc_hosts[index%len(rpc_hosts)]
-			deploy(privkey, rpcHost)
+			deploy(privateKey, rpcHost, txdata)
 		}(i, privkeys[i])
 	}
 
 	select {}
 }
 
-func deploy(privkey string, host string) {
+func deploy(privateKey *ecdsa.PrivateKey, host string, txdata []byte) {
 	cfg, _ := types.NewClientConfig(host, chainID, types.BroadcastSync, "", 30000000, 1.5, "0.0000000001"+common.NativeToken)
 	cli := gosdk.NewClient(cfg)
 
-	addr := getCosmosAddress(privkey)
+	addr := getCosmosAddress(privateKey)
 	accInfo, err := cli.Auth().QueryAccount(addr.String())
 	if err != nil {
 		panic(err)
 	}
 	nonce := accInfo.GetSequence()
 
+	to := ethcmm.HexToAddress(containerContract)
 	for {
-		res, err := cli.Evm().SendTxEthereum(privkey, containerContract, "", "0xfe4b84df0000000000000000000000000000000000000000000000000000000000000002",20000000, nonce)
+		res, err := cli.Evm().SendTxEthereum(privateKey, nonce, to, nil ,20000000, evmtypes.DefaultGasPrice, txdata)
 		if err != nil {
 			continue
 		} else {
@@ -96,7 +106,7 @@ func deploy(privkey string, host string) {
 //				panic(err)
 //			}
 //
-//			res, err := cli.Evm().SendTxEthereum(privkey, containerContract, "", ethcmm.Bytes2Hex(txdata),25000000, nonce)
+//			res, err := cli.Evm().SendTxEthereum2(privkey, containerContract, "", ethcmm.Bytes2Hex(txdata),25000000, nonce)
 //			if err != nil {
 //				continue
 //			} else {

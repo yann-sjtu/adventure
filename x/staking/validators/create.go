@@ -4,13 +4,13 @@ import (
 	"log"
 	"strconv"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/okex/exchain/libs/cosmos-sdk/types"
 	"github.com/okex/adventure/common"
 	stakingTypes "github.com/okex/exchain/x/staking/types"
 	"github.com/spf13/cobra"
-	"github.com/tendermint/tendermint/crypto"
-	"github.com/tendermint/tendermint/crypto/ed25519"
-	tmTypes "github.com/tendermint/tendermint/types"
+	"github.com/okex/exchain/libs/tendermint/crypto"
+	"github.com/okex/exchain/libs/tendermint/crypto/ed25519"
+	tmTypes "github.com/okex/exchain/libs/tendermint/types"
 )
 
 var (

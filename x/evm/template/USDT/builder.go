@@ -3,7 +3,7 @@ package USDT
 import (
 	"math/big"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/okex/exchain/libs/cosmos-sdk/types"
 	"github.com/okex/exchain-go-sdk/utils"
 )
 

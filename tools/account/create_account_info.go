@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keys"
+	"github.com/okex/exchain/libs/cosmos-sdk/crypto/keys"
 	ethcmn "github.com/ethereum/go-ethereum/common"
 	"github.com/okex/exchain-go-sdk/utils"
 	"github.com/spf13/cobra"

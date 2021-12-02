@@ -4,10 +4,10 @@ import (
 	"crypto/ecdsa"
 	"fmt"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	ethcmm "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/okex/exchain-go-sdk/utils"
+	sdk "github.com/okex/exchain/libs/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 )
 
@@ -42,8 +42,7 @@ func getEthAddress(privateKey *ecdsa.PrivateKey) ethcmm.Address {
 	return fromAddress
 }
 
-func getCosmosAddress(privkey string) sdk.Address {
-	privateKey, _ := crypto.HexToECDSA(privkey)
+func getCosmosAddress(privateKey *ecdsa.PrivateKey) sdk.Address {
 	cosmosAddr, err := utils.ToCosmosAddress(getEthAddress(privateKey).String())
 	if err != nil {
 		panic(err)

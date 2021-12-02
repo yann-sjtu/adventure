@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/okex/exchain/libs/cosmos-sdk/types"
 	ethcmm "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -18,7 +18,7 @@ import (
 	"github.com/okex/exchain-go-sdk/types"
 	"github.com/okex/exchain-go-sdk/utils"
 	"github.com/spf13/cobra"
-	"github.com/tendermint/tendermint/libs/rand"
+	"github.com/okex/exchain/libs/tendermint/libs/rand"
 )
 
 var (
@@ -80,7 +80,7 @@ func transfer(privkey string, host string, to string) {
 			to = ethcmm.BytesToAddress(crypto.Keccak256(rand.Bytes(64))).String()
 		}
 
-		res, err := cli.Evm().SendTxEthereum(privkey, to, "0.000000001", "",21000, nonce)
+		res, err := cli.Evm().SendTxEthereum2(privkey, to, "0.000000001", "",21000, nonce)
 		if err != nil {
 			continue
 		} else {

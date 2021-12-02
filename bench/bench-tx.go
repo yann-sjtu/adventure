@@ -2,6 +2,7 @@ package bench
 
 import (
 	"context"
+	"crypto/ecdsa"
 	"fmt"
 	"log"
 	"math/big"
@@ -16,9 +17,9 @@ import (
 	"github.com/okex/adventure/common"
 	gosdk "github.com/okex/exchain-go-sdk"
 	"github.com/okex/exchain-go-sdk/types"
+	evmtypes "github.com/okex/exchain-go-sdk/module/evm/types"
 	"github.com/spf13/cobra"
 )
-
 
 var (
 	ethPort int
@@ -57,7 +58,7 @@ func OperateCmd() *cobra.Command {
 }
 
 func startOperate(cmd *cobra.Command, args []string) {
-	var txdata string
+	var txdata []byte
 	if direct {
 		txdata = generateTxDataInDirect()
 	} else {
@@ -67,8 +68,13 @@ func startOperate(cmd *cobra.Command, args []string) {
 	privkeys := common.GetPrivKeyFromPrivKeyFile(privkPath)
 	for i := 0; i < concurrency; i++ {
 		go func(index int, privkey string) {
+			privateKey, err := crypto.HexToECDSA(privkey)
+			if err != nil {
+				panic(err)
+			}
+
 			rpcHost := rpc_hosts[index%len(rpc_hosts)]
-			operate(privkey, rpcHost, txdata)
+			operate(privateKey, rpcHost, txdata)
 
 		}(i, privkeys[i])
 		time.Sleep(time.Millisecond * 10)
@@ -77,14 +83,15 @@ func startOperate(cmd *cobra.Command, args []string) {
 	select {}
 }
 
-func operate(privkey string, host string, txdata string) {
-	nonce := queryNonce(host, privkey)
-	fmt.Println(getCosmosAddress(privkey).String(), nonce)
+func operate(privateKey *ecdsa.PrivateKey, host string, txdata []byte) {
+	to := ethcmm.HexToAddress(contract)
+	nonce := queryNonce(host, privateKey)
+	fmt.Println(getCosmosAddress(privateKey).String(), nonce)
 
 	cfg, _ := types.NewClientConfig(host, chainID, types.BroadcastSync, "", 2000000, 1.5, "0.0000000001"+common.NativeToken)
 	cli := gosdk.NewClient(cfg)
 	for {
-		res, err := cli.Evm().SendTxEthereum(privkey, contract, "", txdata,2000000, nonce)
+		res, err := cli.Evm().SendTxEthereum(privateKey, nonce, to, nil,2000000, evmtypes.DefaultGasPrice, txdata)
 		if err != nil {
 			log.Printf("[cosmos] send tx err: %s\n", err)
 			if strings.Contains(err.Error(), "tx already exists in cache") {
@@ -102,7 +109,7 @@ func operate(privkey string, host string, txdata string) {
 }
 
 //0x4b13e557000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000003000000000000000000000000000000000000000000000000000000000000000500000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002
-func generateTxData() string {
+func generateTxData() []byte {
 	routerABI, err := abi.JSON(strings.NewReader(RouterABI))
 	if err != nil {
 		log.Fatal(err)
@@ -115,10 +122,10 @@ func generateTxData() string {
 	if err != nil {
 		log.Fatal(err)
 	}
-	return ethcmm.Bytes2Hex(txdata)
+	return txdata
 }
 
-func generateTxDataInDirect() string {
+func generateTxDataInDirect() []byte {
 	readABI, err := abi.JSON(strings.NewReader(ReadABI))
 	if err != nil {
 		log.Fatal(err)
@@ -131,15 +138,15 @@ func generateTxDataInDirect() string {
 	if err != nil {
 		log.Fatal(err)
 	}
-	return ethcmm.Bytes2Hex(txdata)
+	return txdata
 }
 
-func queryNonce(host string, privkey string) (nonce uint64) {
+func queryNonce(host string, privateKey *ecdsa.PrivateKey) (nonce uint64) {
  	if ethPort == 0 {
 		cfg, _ := types.NewClientConfig(host, chainID, types.BroadcastSync, "", 2000000, 1.5, "0.0000000001"+common.NativeToken)
 		cli := gosdk.NewClient(cfg)
 
-		addr := getCosmosAddress(privkey)
+		addr := getCosmosAddress(privateKey)
 		for i := 0; ; i++ {
 			accInfo, err := cli.Auth().QueryAccount(addr.String())
 			if err != nil {
@@ -154,11 +161,6 @@ func queryNonce(host string, privkey string) (nonce uint64) {
 		str := strings.Split(host, ":")
 		ethhost := str[0] + ":" + str[1] + ":" + strconv.Itoa(ethPort)
 		client, err := ethclient.Dial(ethhost)
-		if err != nil {
-			panic(err)
-		}
-
-		privateKey, err := crypto.HexToECDSA(privkey)
 		if err != nil {
 			panic(err)
 		}

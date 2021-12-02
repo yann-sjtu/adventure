@@ -13,7 +13,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keys"
+	"github.com/okex/exchain/libs/cosmos-sdk/crypto/keys"
 	ethcmm "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 	gosdk "github.com/okex/exchain-go-sdk"

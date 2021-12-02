@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/okex/exchain/libs/cosmos-sdk/types"
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/okex/adventure/common"
 	"github.com/okex/adventure/x/evm/template/TTotken"
@@ -74,7 +74,7 @@ func mint(cmd *cobra.Command, args []string) {
 				payload := TTotken.BuildTTokenMintPayload(ethAddr.String(), sdk.NewDec(1).Int)
 				for {
 
-					res, err := cli.Evm().SendTxEthereum(privkey, TTokenAddr, "", ethcommon.Bytes2Hex(payload), 500000, seqNum+offset)
+					res, err := cli.Evm().SendTxEthereum2(privkey, TTokenAddr, "", ethcommon.Bytes2Hex(payload), 500000, seqNum+offset)
 					if err != nil {
 						log.Printf("[%s] %s failed to mint in %s: %s\n", res.TxHash, ethAddr, TTokenAddr, err)
 						continue

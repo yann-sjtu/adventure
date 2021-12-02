@@ -12,7 +12,6 @@ import (
 	"sync"
 	"time"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -22,6 +21,7 @@ import (
 	gosdk "github.com/okex/exchain-go-sdk"
 	adtypes "github.com/okex/exchain-go-sdk/types"
 	"github.com/okex/exchain-go-sdk/utils"
+	sdk "github.com/okex/exchain/libs/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 )
 
@@ -164,7 +164,7 @@ func sendTxToRpcNodes(privkey string, host string) {
 	for {
 		//gasPrice := big.NewInt(int64((rand.Intn(10) + 1) * 100000000))
 		gasPrice := big.NewInt(100000000)
-		res, err := cli.Evm().SendTxEthereum(privkey, contractAddress, "", common.Bytes2Hex(payload), 30000000, accInfo.GetSequence()+uint64(index))
+		res, err := cli.Evm().SendTxEthereum2(privkey, contractAddress, "", common.Bytes2Hex(payload), 30000000, accInfo.GetSequence()+uint64(index))
 		if err != nil {
 			if strings.Contains(err.Error(), "mempool") {
 				time.Sleep(time.Second * 10)

@@ -7,7 +7,7 @@ import (
 	"github.com/okex/adventure/common"
 	"github.com/spf13/cobra"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keys"
+	"github.com/okex/exchain/libs/cosmos-sdk/crypto/keys"
 	"github.com/cosmos/go-bip39"
 )
 

@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/types"
+	"github.com/okex/exchain/libs/cosmos-sdk/types"
 	"github.com/okex/adventure/common"
 	gosdk "github.com/okex/exchain-go-sdk"
 	tokenTypes "github.com/okex/exchain-go-sdk/module/token/types"

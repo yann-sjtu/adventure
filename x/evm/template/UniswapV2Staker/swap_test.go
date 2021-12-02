@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/okex/exchain/libs/cosmos-sdk/types"
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/okex/adventure/common"
 	"github.com/okex/adventure/x/evm/template/UniswapV2"

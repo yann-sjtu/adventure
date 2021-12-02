@@ -69,7 +69,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 			for {
 				// Let Us GO GO GO !!!!!!
 				// 1. add liquididy
-				res, err := cli.Evm().SendTxEthereum(privkey, dyfAddr, "", goPayloadStr, 1500000, accInfo.GetSequence()+offset)
+				res, err := cli.Evm().SendTxEthereum2(privkey, dyfAddr, "", goPayloadStr, 1500000, accInfo.GetSequence()+offset)
 				if err != nil {
 					log.Printf("(%d)[%s] %s failed to excute dyf in %s: %s\n", fail.Add(), res.TxHash, ethAddr, dyfAddr, err)
 					continue

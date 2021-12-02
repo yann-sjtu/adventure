@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/okex/exchain/libs/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/okex/adventure/common"
 	"github.com/okex/adventure/x/evm/template/UniswapV2"
@@ -124,7 +124,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 
 			// deposit weth
 			if deposit {
-				res, err := cli.Evm().SendTxEthereum(privkey, WethAddr, "1",depositPayloadStr, 500000, seqNum+offset)
+				res, err := cli.Evm().SendTxEthereum2(privkey, WethAddr, "1",depositPayloadStr, 500000, seqNum+offset)
 				if err != nil {
 					panic(fmt.Errorf("[TxHash: %s] %s failed to deposit %sokt on %s: %s", res.TxHash, ethAddr, sdk.NewDec(1), WethAddr, err))
 				}
@@ -134,7 +134,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 			}
 
 			// approve tx
-			res, err := cli.Evm().SendTxEthereum(privkey, WethAddr, "", approvePayloadStr, 500000, seqNum+offset)
+			res, err := cli.Evm().SendTxEthereum2(privkey, WethAddr, "", approvePayloadStr, 500000, seqNum+offset)
 			if err != nil {
 				panic(fmt.Errorf("[TxHash: %s] %s failed to approve 9999999999coin from %s to %s: %s", res.TxHash, ethAddr, WethAddr, routerAddr, err))
 			}
@@ -142,7 +142,7 @@ func testLoop(cmd *cobra.Command, args []string) {
 			offset++
 
 			for {
-				res, err = cli.Evm().SendTxEthereum(privkey, routerAddr, "", swapPayloadStr, 500000, seqNum+offset)
+				res, err = cli.Evm().SendTxEthereum2(privkey, routerAddr, "", swapPayloadStr, 500000, seqNum+offset)
 				if err != nil {
 					log.Printf("(%d)[TxHash: %s] %s failed to swap weth for usdt: %s\n", fail.Add(), res.TxHash, ethAddr, err)
 					continue

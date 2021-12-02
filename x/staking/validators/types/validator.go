@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	gokeys "github.com/cosmos/cosmos-sdk/crypto/keys"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	gokeys "github.com/okex/exchain/libs/cosmos-sdk/crypto/keys"
+	sdk "github.com/okex/exchain/libs/cosmos-sdk/types"
 	"github.com/okex/adventure/common"
 	"github.com/okex/adventure/x/staking/validators/val"
 	gosdk "github.com/okex/exchain-go-sdk"
