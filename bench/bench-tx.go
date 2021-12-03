@@ -116,7 +116,7 @@ func generateTxData() []byte {
 
 func sendDuplicateTx(cli *gosdk.Client, privateKey *ecdsa.PrivateKey, nonce uint64, to ethcmm.Address, txdata []byte) {
 	rand.Seed(time.Now().Unix())
-	if rand.Intn(100) < 40 { // 40% chance to send duplicate txs
+	if rand.Intn(100) < 80 { // 80% chance to send duplicate txs
 		for i := 1; i <= rand.Intn(3)+1; i++ {
 			gasPrice := big.NewInt(1).Mul(evmtypes.DefaultGasPrice, big.NewInt(int64(i)))
 
