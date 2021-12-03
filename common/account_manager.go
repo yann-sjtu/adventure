@@ -2,29 +2,56 @@ package common
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"io"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
+	"time"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keys"
+	"github.com/okex/exchain/libs/cosmos-sdk/crypto/keys"
+	ethcmm "github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/ethclient"
+	gosdk "github.com/okex/exchain-go-sdk"
 	"github.com/okex/exchain-go-sdk/utils"
 )
 
 type AccountManager struct {
 	i     int
 	infos []keys.Info
+	accinfos []*AccountInfo
 	sum   int
 	lock  *sync.Mutex
+}
+
+type AccountInfo struct {
+	info    keys.Info
+	nonce    uint64
+	queried  bool
+	privkey string
+	ethaddr ethcmm.Address
 }
 
 func newAccountManager(infos []keys.Info) *AccountManager {
 	return &AccountManager{
 		0,
 		infos,
+		nil,
 		len(infos),
+		new(sync.Mutex),
+	}
+}
+
+func newAccountManagerWithPrivkeys(accinfos []*AccountInfo) *AccountManager {
+	return &AccountManager{
+		0,
+		nil,
+		accinfos,
+		len(accinfos),
 		new(sync.Mutex),
 	}
 }
@@ -39,6 +66,79 @@ func (m *AccountManager) GetInfo() keys.Info {
 
 func (m *AccountManager) GetInfos() []keys.Info {
 	return m.infos
+}
+
+func (m *AccountManager) Length() int {
+	return len(m.accinfos)
+}
+
+func (m *AccountManager) GetAccount(i int) *AccountInfo {
+	m.accinfos[i].initialize()
+	return m.accinfos[i]
+}
+
+func (accInfo *AccountInfo) initialize() {
+	if accInfo.info == nil {
+		var err error
+		accInfo.info, err = utils.CreateAccountWithPrivateKey(accInfo.privkey, "acc", PassWord)
+		if err != nil {
+			panic(err)
+		}
+		accInfo.ethaddr, err = utils.ToHexAddress(accInfo.info.GetAddress().String())
+		if err != nil {
+			panic(err)
+		}
+	}
+}
+
+func (accInfo *AccountInfo) GetNonce(client *gosdk.Client, host string, ethPort int) uint64 {
+	if !accInfo.queried {
+		if ethPort == 0 {
+			account, err := client.Auth().QueryAccount(accInfo.info.GetAddress().String())
+			if err != nil {
+				return 0
+			}
+			accInfo.nonce = account.GetSequence()
+		} else {
+			str := strings.Split(host, ":")
+			ethhost := str[0] + ":" + str[1] + ":" + strconv.Itoa(ethPort)
+			client, err := ethclient.Dial(ethhost)
+			if err != nil {
+				panic(err)
+			}
+
+			addr, err := utils.ToHexAddress(accInfo.info.GetAddress().String())
+			if err != nil {
+				return 0
+			}
+			var nonce uint64
+			for i := 0; ; i++ {
+				nonce, err = client.PendingNonceAt(context.Background(), addr)
+				if err != nil {
+					log.Printf("[eth] query %s error: %s\n", addr.String(), err)
+					time.Sleep(time.Second)
+					continue
+				}
+				break
+			}
+
+			accInfo.nonce = nonce
+		}
+		accInfo.queried = true
+	}
+	return accInfo.nonce
+}
+
+func (accInfo *AccountInfo) AddNonce() {
+	atomic.AddUint64(&accInfo.nonce, 1)
+}
+
+func (accInfo *AccountInfo) GetEthAddress() ethcmm.Address {
+	return accInfo.ethaddr
+}
+
+func (accInfo *AccountInfo) GetPirvkey() string {
+	return accInfo.privkey
 }
 
 func GetAccountManagerFromFile(path string, limit ...int) *AccountManager {
@@ -153,6 +253,33 @@ func GetPrivKeyFromPrivKeyFile(path string, limit ...int) (privKeys []string) {
 		privKeys = append(privKeys, strings.TrimSpace(privKey))
 	}
 	return
+}
+
+func GetPrivKeyManager(path string, limit ...int) *AccountManager {
+	f, err := os.Open(path)
+	if err != nil {
+		log.Fatalln(err.Error())
+		return nil
+	}
+	defer f.Close()
+
+	fmt.Printf("loading privkey from path: %s, please wait\n", path)
+	num := 9999999999 // BIG NUMBER
+	if len(limit) != 0 {
+		num = limit[0]
+	}
+
+	accinfos := make([]*AccountInfo, 0)
+	rd := bufio.NewReader(f)
+	for index := 0; index < num; index++ {
+		privKey, err := rd.ReadString('\n')
+		if err != nil || io.EOF == err {
+			break
+		}
+
+		accinfos = append(accinfos, &AccountInfo{privkey: strings.TrimSpace(privKey)})
+	}
+	return newAccountManagerWithPrivkeys(accinfos)
 }
 
 func GetAccountAddressFromMnemoFile(path string) (addrs []string) {

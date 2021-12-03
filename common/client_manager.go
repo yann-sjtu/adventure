@@ -9,6 +9,8 @@ import (
 	"github.com/okex/exchain-go-sdk/types"
 )
 
+const AUTO = "auto"
+
 type ClientManager struct {
 	i       int
 	clients []*gosdk.Client
@@ -49,13 +51,14 @@ func getAllInvariantClients(hosts []string, fee string, gas ...uint64) []*gosdk.
 }
 
 func initClientConfig(fee string, host string, gas ...uint64) (cfg types.ClientConfig) {
+	chainid := GlobalConfig.Networks[NetworkType].ChainId
 	if fee == AUTO {
-		cfg, _ = types.NewClientConfig(host, GlobalConfig.Networks[""].ChainId, types.BroadcastBlock, "", 350000, 1.5, "0.000000001"+NativeToken)
+		cfg, _ = types.NewClientConfig(host, chainid, types.BroadcastBlock, "", 350000, 1.5, "0.000000001"+NativeToken)
 	} else {
 		if len(gas) != 0 {
-			cfg, _ = types.NewClientConfig(host, GlobalConfig.Networks[""].ChainId, types.BroadcastBlock, fee, gas[0], 0, "")
+			cfg, _ = types.NewClientConfig(host, chainid, types.BroadcastBlock, fee, gas[0], 0, "")
 		} else {
-			cfg, _ = types.NewClientConfig(host, GlobalConfig.Networks[""].ChainId, types.BroadcastBlock, fee, 200000, 0, "")
+			cfg, _ = types.NewClientConfig(host, chainid, types.BroadcastBlock, fee, 200000, 0, "")
 		}
 	}
 	return
@@ -82,13 +85,14 @@ func getAllInvariantClientsWithMode(hosts []string, fee string, mode string, gas
 }
 
 func initClientConfigWithMode(fee string, host string, mode string, gas ...uint64) (cfg types.ClientConfig) {
+	chainid := GlobalConfig.Networks[NetworkType].ChainId
 	if fee == AUTO {
-		cfg, _ = types.NewClientConfig(host, GlobalConfig.Networks[""].ChainId, mode, "", 350000, 1.5, "0.000000001"+NativeToken)
+		cfg, _ = types.NewClientConfig(host, chainid, mode, "", 350000, 1.5, "0.000000001"+NativeToken)
 	} else {
 		if len(gas) != 0 {
-			cfg, _ = types.NewClientConfig(host, GlobalConfig.Networks[""].ChainId, mode, fee, gas[0], 0, "")
+			cfg, _ = types.NewClientConfig(host, chainid, mode, fee, gas[0], 0, "")
 		} else {
-			cfg, _ = types.NewClientConfig(host, GlobalConfig.Networks[""].ChainId, mode, fee, 200000, 0, "")
+			cfg, _ = types.NewClientConfig(host, chainid, mode, fee, 200000, 0, "")
 		}
 	}
 	return

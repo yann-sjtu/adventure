@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/types"
+	"github.com/okex/exchain/libs/cosmos-sdk/types"
 	"github.com/okex/adventure/common"
 	gosdk "github.com/okex/exchain-go-sdk"
 	tokenTypes "github.com/okex/exchain-go-sdk/module/token/types"
@@ -131,7 +131,7 @@ func transferTokenScript1(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	clients := common.NewClientManager(common.GlobalConfig.Networks[""].Hosts, common.AUTO)
+	clients := common.NewClientManager(common.GlobalConfig.Networks[common.NetworkType].Hosts, common.AUTO)
 	cli := clients.GetRandomClient()
 	err = SendCoins(cli, addrs, coinStr, richMnemonic)
 	if err != nil {

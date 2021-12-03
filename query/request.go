@@ -5,14 +5,13 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"net/url"
+	"strconv"
 	"time"
 )
 
 const (
 	success = "sucess"
 	fail    = "failed"
-
 )
 
 type Request struct {
@@ -43,19 +42,19 @@ func CreateRequest(method string, params interface{}) Request {
 	}
 }
 
-func CallWithProxy(postBody []byte, reqType int,proxyIP string) (*Response, error) {
+func CallWithProxy(postBody []byte, reqType int, proxyIP string) (*Response, error) {
 	client := &http.Client{}
-
-	//是否使用代理IP
-	if proxyIP != "" {
-		proxy := func(_ *http.Request) (*url.URL, error) {
-			return url.Parse(proxyIP)
-		}
-		transport := &http.Transport{Proxy: proxy}
-		client = &http.Client{Transport: transport}
-	} else {
-		client = &http.Client{}
-	}
+	//
+	////是否使用代理IP
+	//if proxyIP != "" {
+	//	proxy := func(_ *http.Request) (*url.URL, error) {
+	//		return url.Parse(proxyIP)
+	//	}
+	//	transport := &http.Transport{Proxy: proxy}
+	//	client = &http.Client{Transport: transport}
+	//} else {
+	//	client = &http.Client{}
+	//}
 
 	//post请求
 	req, err := http.NewRequest("POST", host, bytes.NewBuffer(postBody))
@@ -68,31 +67,28 @@ func CallWithProxy(postBody []byte, reqType int,proxyIP string) (*Response, erro
 	resp, reqErr := client.Do(req)
 	elapsed := time.Since(startTime)
 	if reqErr != nil {
-		log.Println(reqType, elapsed, fail, reqErr, proxyIP)
+		log.Println(reqType, strconv.FormatInt(elapsed.Milliseconds(), 10)+"ms", fail, reqErr)
 		return nil, reqErr
 	}
+	defer resp.Body.Close()
+
 	//返回内容
 	var rpcRes *Response
 	decoder := json.NewDecoder(resp.Body)
 	rpcRes = new(Response)
 	err = decoder.Decode(&rpcRes)
 	if err != nil {
+		log.Println(reqType, strconv.FormatInt(elapsed.Milliseconds(), 10)+"ms", fail, err)
 		return nil, err
 	}
-	var resStr string
-	if len(rpcRes.Result) < 8 {
-		resStr = string(rpcRes.Result[:len(rpcRes.Result)])
-	} else {
-		resStr = string(rpcRes.Result[:6])
-	}
-	log.Println(reqType, elapsed, success, resStr, proxyIP)
-	err = resp.Body.Close()
-	if err != nil {
+	if rpcRes.Error != nil {
+		log.Println(reqType, strconv.FormatInt(elapsed.Milliseconds(), 10)+"ms", fail, rpcRes.Error)
 		return nil, err
 	}
 
+	log.Println(reqType, strconv.FormatInt(elapsed.Milliseconds(), 10)+"ms", success)
 	//return rpcRes, nil
-	return &Response{}, nil
+	return rpcRes, nil
 }
 
 func Call(request Request) (*Response, error) {

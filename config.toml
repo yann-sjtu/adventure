@@ -14,7 +14,7 @@
       "http://18.162.176.55:26657",
   ]
 
-  chain-id = "okexchain-65"
+  chain-id = "exchain-65"
 
   ############# testnet-ali #############
   [networks.testnet-ali]
@@ -22,7 +22,7 @@
       "https://exchaintesttmrpc.okex.org",
   ]
 
-  chain-id = "okexchain-65"
+  chain-id = "exchain-65"
 
   ############# mainnet-ali #############
   [networks.mainnet-ali]
@@ -39,3 +39,11 @@
   ]
 
   chain-id = "exchainevm-8"
+
+  ############# local-testnet #############
+  [networks.local-testnet]
+  hosts = [
+      "http://10.0.240.32:20057",
+  ]
+
+  chain-id = "exchain-65"

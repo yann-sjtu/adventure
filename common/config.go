@@ -13,6 +13,11 @@ const (
 	Localnet   = "local"
 )
 
+var (
+	ConfigPath string
+	NetworkType string
+)
+
 var GlobalConfig Config
 
 type Config struct {

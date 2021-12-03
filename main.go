@@ -5,18 +5,17 @@ import (
 	"os"
 	"path"
 
+	"github.com/okex/adventure/bench"
 	"github.com/okex/adventure/common"
+	evm_transfer "github.com/okex/adventure/evm-transfer"
+	evmtx2 "github.com/okex/adventure/evm-tx-enhance"
+	"github.com/okex/adventure/evmtx"
 	"github.com/okex/adventure/query"
 	"github.com/okex/adventure/tools/account"
 	"github.com/okex/adventure/tools/version"
-	"github.com/okex/adventure/x/monitor"
-	"github.com/okex/adventure/x/simple"
-	"github.com/okex/adventure/x/strategy/evm"
-	evmweb3 "github.com/okex/adventure/x/strategy/evm-web3"
-	"github.com/okex/adventure/x/strategy/staking/validators"
-	"github.com/okex/adventure/x/strategy/token"
+	"github.com/okex/adventure/x/evm"
+	"github.com/okex/adventure/x/staking/validators"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 const (
@@ -48,27 +47,30 @@ adventure is a very powerful cli tool for OKChain. It supports JSON-file and Sub
 		Run: func(cmd *cobra.Command, args []string) {
 			_ = cmd.Help()
 
-			common.InitConfig(viper.GetString(ConfigFlag))
 			return
+		},
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			common.InitConfig(common.ConfigPath)
 		},
 	}
 
 	mainCmd.AddCommand(
-		monitor.MonitorCmd(),
+		evm.EvmCmd(),
+		query.BenchQueryCmd(),
+		evmtx2.BenchTxCmd(),
+		evmtx2.DeployCmd(),
+		evmtx.BenchTxCmd(),
+		evm_transfer.TransferCmd(),
+
+		version.Cmd,
+
 		account.Cmd(),
 		validators.StakingCmd(),
-		token.TokenCmd(),
-		evm.EvmCmd(),
-		evmweb3.EvmCmd(),
-		version.Cmd,
-		query.BenchQueryCmd(),
-
-		//TODO:
-		simple.TxCmd(),
+		bench.BenchCmd(),
 	)
 
-	mainCmd.PersistentFlags().StringP(ConfigFlag, "c", path.Join(os.ExpandEnv("$HOME/.adventure"), "config.toml"),"setting of config path")
-	mainCmd.PersistentFlags().StringP(NetworkFlag, "n", "","setting of network type")
+	mainCmd.PersistentFlags().StringVarP(&common.ConfigPath, ConfigFlag, "c", path.Join(os.ExpandEnv("$HOME/.adventure"), "config.toml"), "setting of config path")
+	mainCmd.PersistentFlags().StringVarP(&common.NetworkType, NetworkFlag, "n", "", "setting of network type")
 
 	if err := mainCmd.Execute(); err != nil {
 		log.Println(err)
