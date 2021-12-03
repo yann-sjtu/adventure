@@ -1,7 +1,6 @@
 package bench
 
-const RouterABI =
-`[
+const RouterABI = `[
 	{
 		"inputs": [
 			{
@@ -59,8 +58,7 @@ const RouterABI =
 	}
 ]`
 
-const ReadABI =
-`[
+const OperateABI = `[
 	{
 		"inputs": [
 			{
