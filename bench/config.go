@@ -32,7 +32,8 @@ func RunTxs(p Param, e func(*gosdk.Client, *Account)) {
 	for i := 0; i < p.concurrency; i++ {
 		go func(index int) {
 			for j := 0; ; j++ {
-				account := accounts[index%len(accounts)]
+				id := index + j*p.concurrency%len(accounts)
+				account := accounts[id]
 				host := p.rpcHosts[index%len(p.rpcHosts)]
 				account.SetNonce(host, p.chainID, p.ethPort)
 
