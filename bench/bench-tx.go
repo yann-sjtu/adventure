@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"math/big"
+	"math/rand"
 	"strconv"
 	"strings"
 	"time"
@@ -16,12 +17,13 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/okex/adventure/common"
 	gosdk "github.com/okex/exchain-go-sdk"
-	"github.com/okex/exchain-go-sdk/types"
 	evmtypes "github.com/okex/exchain-go-sdk/module/evm/types"
+	"github.com/okex/exchain-go-sdk/types"
 	"github.com/spf13/cobra"
 )
 
 var (
+	duplicate bool
 	ethPort int
 
 	contract string
@@ -53,6 +55,7 @@ func OperateCmd() *cobra.Command {
 
 	flags.StringVar(&contract, "contract", "","")
 	flags.BoolVar(&direct, "direct", false,"")
+	flags.BoolVar(&duplicate, "duplicate", false,"")
 	flags.IntVar(&ethPort, "eth-port", 0,"if not zero, query on eth port 26659")
 	return cmd
 }
@@ -101,6 +104,9 @@ func operate(privateKey *ecdsa.PrivateKey, host string, txdata []byte) {
 			continue
 		} else {
 			log.Printf("txhash: %s\n", res.TxHash)
+			if duplicate {
+				sendDuplicateTx(cli, privateKey, nonce, to, txdata)
+			}
 		}
 
 		nonce++
@@ -174,6 +180,22 @@ func queryNonce(host string, privateKey *ecdsa.PrivateKey) (nonce uint64) {
 				continue
 			}
 			return
+		}
+	}
+}
+
+func sendDuplicateTx(cli gosdk.Client, privateKey *ecdsa.PrivateKey, nonce uint64, to ethcmm.Address, txdata []byte) {
+	rand.Seed(time.Now().Unix())
+	if rand.Intn(100) < 25 { // 25% chance to send duplicate txs
+		for i := 1; i <= rand.Intn(3) + 1; i++ {
+			gasPrice := big.NewInt(1).Mul(evmtypes.DefaultGasPrice, big.NewInt(int64(i)))
+
+			res, err := cli.Evm().SendTxEthereum(privateKey, nonce, to, nil,2000000, gasPrice, txdata)
+			if err != nil {
+				log.Printf("[duplicate] error: %s\n", err)
+			} else {
+				log.Printf("[duplicate] txhash: %s\n", res.TxHash)
+			}
 		}
 	}
 }
