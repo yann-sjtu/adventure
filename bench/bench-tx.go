@@ -70,6 +70,10 @@ func operateFunc(cli *gosdk.Client, account *Account) {
 	res, err := cli.Evm().SendTxEthereum(privateKey, nonce, to, nil, 2000000, evmtypes.DefaultGasPrice, txdata)
 	if err != nil {
 		log.Printf("send tx err: %s\n", err)
+		if strings.Contains(err.Error(), "already exists") {
+			account.AddNonce()
+			return
+		}
 		time.Sleep(time.Second * time.Duration(sleepTime))
 	} else {
 		log.Printf("txhash: %s\n", res.TxHash)

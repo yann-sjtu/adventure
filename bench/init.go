@@ -2,6 +2,7 @@ package bench
 
 import (
 	"crypto/ecdsa"
+	"fmt"
 	"log"
 	"time"
 
@@ -74,8 +75,10 @@ func deploy(privateKey *ecdsa.PrivateKey, host string, txdata []byte) {
 
 	to := ethcmm.HexToAddress(containerContract)
 	for {
+		fmt.Println(getEthAddress(privateKey).String(), nonce, to.String())
 		res, err := cli.Evm().SendTxEthereum(privateKey, nonce, to, nil, 20000000, evmtypes.DefaultGasPrice, txdata)
 		if err != nil {
+			log.Printf("error: %s\n", err)
 			continue
 		} else {
 			log.Printf("txhash: %s\n", res.TxHash)
