@@ -73,6 +73,9 @@ func operateFunc(cli *gosdk.Client, account *Account) {
 		if strings.Contains(err.Error(), "already exists") {
 			account.AddNonce()
 			return
+		} else if strings.Contains(err.Error(), "mempool is full") {
+			time.Sleep(time.Second * 3)
+			return
 		}
 		time.Sleep(time.Second * time.Duration(sleepTime))
 	} else {
