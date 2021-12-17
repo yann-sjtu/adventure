@@ -43,7 +43,7 @@
   ############# local-testnet #############
   [networks.local-testnet]
   hosts = [
-      "http://10.0.240.32:20057",
+      "http://localhost:10057",
   ]
 
   chain-id = "exchain-65"
