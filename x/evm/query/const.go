@@ -3,8 +3,9 @@ package query
 const (
 	latestBlockNumber = "latest"
 
-	startHeight = 7800000
-	endHeight   = 2725525
+	startHeight    = 8000000
+	endHeight      = 8290000
+	intervalHeight = endHeight - startHeight
 
 	usdtContract = "0x24e150093838b3f1737c6481016f247fbfface4b"
 )
