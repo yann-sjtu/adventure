@@ -84,7 +84,7 @@ func transfer(privkey string, host string, to string) {
 		if err != nil {
 			continue
 		} else {
-			log.Printf("txhash: %s\n", res.TxHash)
+			log.Printf("txhash: %s\n, to: %s", res.TxHash, to)
 		}
 
 		nonce++
