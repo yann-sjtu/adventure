@@ -9,7 +9,6 @@ import (
 	"strings"
 	"time"
 
-	sdk "github.com/okex/exchain/libs/cosmos-sdk/types"
 	ethcmm "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -17,21 +16,22 @@ import (
 	gosdk "github.com/okex/exchain-go-sdk"
 	"github.com/okex/exchain-go-sdk/types"
 	"github.com/okex/exchain-go-sdk/utils"
-	"github.com/spf13/cobra"
+	sdk "github.com/okex/exchain/libs/cosmos-sdk/types"
 	"github.com/okex/exchain/libs/tendermint/libs/rand"
+	"github.com/spf13/cobra"
 )
 
 var (
 	ethPort int
 
-	concurrencyTx   int
-	sleepTimeTx     int
-	privkPath       string
-	rpc_hosts    []string
+	concurrencyTx int
+	sleepTimeTx   int
+	privkPath     string
+	rpc_hosts     []string
 
-	chainID       string
+	chainID string
 
-	fixed  bool
+	fixed bool
 )
 
 func TransferCmd() *cobra.Command {
@@ -50,7 +50,7 @@ func TransferCmd() *cobra.Command {
 	flags.StringVar(&chainID, "chain-id", "", "")
 
 	flags.BoolVar(&fixed, "fixed", false, "")
-	flags.IntVar(&ethPort, "eth-port", 0,"if not zero, query on eth port 26659")
+	flags.IntVar(&ethPort, "eth-port", 0, "if not zero, query on eth port 26659")
 	return cmd
 }
 
@@ -80,11 +80,11 @@ func transfer(privkey string, host string, to string) {
 			to = ethcmm.BytesToAddress(crypto.Keccak256(rand.Bytes(64))).String()
 		}
 
-		res, err := cli.Evm().SendTxEthereum2(privkey, to, "0.000000001", "",21000, nonce)
+		res, err := cli.Evm().SendTxEthereum2(privkey, to, "0.000000001", "", 21000, nonce)
 		if err != nil {
 			continue
 		} else {
-			log.Printf("txhash: %s\n", res.TxHash)
+			log.Printf("txhash: %s\n, to: %s", res.TxHash, to)
 		}
 
 		nonce++

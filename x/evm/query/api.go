@@ -36,7 +36,7 @@ func EthGetBalance() Request {
 }
 func EthGetBlockByNumber() Request {
 	rand.Seed(time.Now().UnixNano() + rand.Int63n(11111111111111))
-	height := startHeight + rand.Int63n(2000)
+	height := startHeight + rand.Int63n(intervalHeight)
 	return CreateRequest(ethGetBlockByNumber, []interface{}{hexutil.Uint64(height), false})
 }
 func EthGasPrice() Request {
@@ -65,13 +65,13 @@ func EthCall() Request {
 func generateCallArgs() map[string]string {
 	callArgs := make(map[string]string)
 
-	i := rand.Intn(1000)%6
+	i := rand.Intn(1000) % 6
 	switch i {
 	case 0:
 		callArgs["from"] = "0xd01bf1F0dB0E0F9998Ec01a45Cfc03116D0224bE"
 		callArgs["to"] = "0x4a191907012673c9efde02a10a24c19db48bed0c"
 		callArgs["value"] = "0x0"
-		callArgs["data"] = "0x70a08231000000000000000000000000"+hexAddrs[rand.Intn(len(hexAddrs))][2:]
+		callArgs["data"] = "0x70a08231000000000000000000000000" + hexAddrs[rand.Intn(len(hexAddrs))][2:]
 		callArgs["gas"] = "0x123456789"
 	case 1:
 		callArgs["from"] = "0x5627f50785AE5EcE283FF79635628d505f1e7d3F"

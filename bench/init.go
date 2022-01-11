@@ -6,6 +6,7 @@ import (
 	"time"
 
 	ethcmm "github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/okex/adventure/common"
 	gosdk "github.com/okex/exchain-go-sdk"
@@ -27,19 +28,22 @@ func InitStorageCmd() *cobra.Command {
 		Run:   initStorage,
 	}
 	flags := cmd.Flags()
-	flags.IntVarP(&concurrency, "concurrency","g", 10, "set the number of tx number per second")
-	flags.IntVarP(&sleepTime, "sleepTime", "s",1, "")
+	flags.IntVarP(&concurrency, "concurrency", "g", 10, "set the number of tx number per second")
+	flags.IntVarP(&sleepTime, "sleepTime", "s", 1, "")
 
-	flags.StringVarP(&privkPath, "privkey-path", "p", "","")
-	flags.StringSliceVarP(&rpc_hosts, "rpc-hosts","u", []string{}, "")
-	flags.StringVarP(&chainID, "chain-id", "i","", "")
+	flags.StringVarP(&privkPath, "privkey-path", "p", "", "")
+	flags.StringSliceVarP(&rpc_hosts, "rpc-hosts", "u", []string{}, "")
+	flags.StringVarP(&chainID, "chain-id", "i", "", "")
 
-	flags.StringVar(&containerContract, "container-contract","0xa1ddCC79DAAf7d3bE05E83f8d583EE353713cAe0", "")
+	flags.StringVar(&containerContract, "container-contract", "0xa1ddCC79DAAf7d3bE05E83f8d583EE353713cAe0", "")
 	return cmd
 }
 
 func initStorage(cmd *cobra.Command, args []string) {
-	txdata := ethcmm.Hex2Bytes("0xfe4b84df0000000000000000000000000000000000000000000000000000000000000002")
+	txdata, err := hexutil.Decode("0xfe4b84df0000000000000000000000000000000000000000000000000000000000000002")
+	if err != nil {
+		panic(err)
+	}
 
 	privkeys := common.GetPrivKeyFromPrivKeyFile(privkPath)
 	for i := 0; i < concurrency; i++ {
@@ -70,7 +74,7 @@ func deploy(privateKey *ecdsa.PrivateKey, host string, txdata []byte) {
 
 	to := ethcmm.HexToAddress(containerContract)
 	for {
-		res, err := cli.Evm().SendTxEthereum(privateKey, nonce, to, nil ,20000000, evmtypes.DefaultGasPrice, txdata)
+		res, err := cli.Evm().SendTxEthereum(privateKey, nonce, to, nil, 20000000, evmtypes.DefaultGasPrice, txdata)
 		if err != nil {
 			continue
 		} else {
@@ -81,6 +85,7 @@ func deploy(privateKey *ecdsa.PrivateKey, host string, txdata []byte) {
 		time.Sleep(time.Second * time.Duration(sleepTime))
 	}
 }
+
 //
 //func appends(privkey string, host string) {
 //	cfg, _ := types.NewClientConfig(host, chainID, types.BroadcastSync, "", 30000000, 1.5, "0.0000000001"+common.NativeToken)
