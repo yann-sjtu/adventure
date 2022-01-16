@@ -1,9 +1,0 @@
-[
-	{
-		"inputs": [],
-		"name": "operate",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	}
-]

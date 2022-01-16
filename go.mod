@@ -3,14 +3,12 @@ module github.com/okex/adventure
 go 1.14
 
 require (
-	github.com/BurntSushi/toml v0.3.1
-	github.com/bartekn/go-bip39 v0.0.0-20171116152956-a05967ea095d
-	github.com/cosmos/go-bip39 v0.0.0-20180819234021-555e2067c45d
 	github.com/ethereum/go-ethereum v1.10.8
 	github.com/okex/exchain v1.1.2
-	github.com/okex/exchain-go-sdk v1.1.2
+	github.com/okex/exchain-go-sdk v1.1.3-0.20220116091207-2ab92573a277
 	github.com/rjeczalik/notify v0.9.2 // indirect
 	github.com/spf13/cobra v1.1.1
+	github.com/spf13/viper v1.7.1
 	gopkg.in/yaml.v2 v2.4.0
 )
 

@@ -3,22 +3,10 @@ package main
 import (
 	"log"
 	"os"
-	"path"
 
-	"github.com/okex/adventure/bench"
-	"github.com/okex/adventure/common"
-	"github.com/okex/adventure/tools/account"
+	"github.com/okex/adventure/evm"
 	"github.com/okex/adventure/tools/version"
-	"github.com/okex/adventure/x/evm"
-	"github.com/okex/adventure/x/evm/evm-transfer"
-	"github.com/okex/adventure/x/evm/query"
-	"github.com/okex/adventure/x/staking/validators"
 	"github.com/spf13/cobra"
-)
-
-const (
-	ConfigFlag  = "config"
-	NetworkFlag = "network"
 )
 
 func main() {
@@ -47,25 +35,12 @@ adventure is a very powerful cli tool for OKChain. It supports JSON-file and Sub
 
 			return
 		},
-		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			common.InitConfig(common.ConfigPath)
-		},
 	}
 
 	mainCmd.AddCommand(
+		version.VersionCmd(),
 		evm.EvmCmd(),
-		query.BenchQueryCmd(),
-		evm_transfer.TransferCmd(),
-
-		version.Cmd,
-
-		account.Cmd(),
-		validators.StakingCmd(),
-		bench.BenchCmd(),
 	)
-
-	mainCmd.PersistentFlags().StringVarP(&common.ConfigPath, ConfigFlag, "c", path.Join(os.ExpandEnv("$HOME/.adventure"), "config.toml"), "setting of config path")
-	mainCmd.PersistentFlags().StringVarP(&common.NetworkType, NetworkFlag, "n", "", "setting of network type")
 
 	if err := mainCmd.Execute(); err != nil {
 		log.Println(err)
