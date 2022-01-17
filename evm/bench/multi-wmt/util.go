@@ -128,6 +128,7 @@ func SendTxs(txs []*types.Transaction) error {
 			fmt.Println("send tx index", index)
 		}
 	}
+	time.Sleep(2 * time.Second)
 	return nil
 }
 
