@@ -10,7 +10,6 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"io"
 	"math/big"
-	"math/rand"
 	"os"
 	"strings"
 	"sync"
@@ -32,18 +31,17 @@ type wmtManager struct {
 	contracList []SwapContract
 	superAcc    *acc
 
-	worker []*acc
-
-	groupList []*group
-	paraNum   int
+	worker          []*acc
+	workMapContract map[int]int
+	paraNum         int
 }
 
 func newManager(cList []SwapContract, superAcc *acc, workPath string, paraNum int) *wmtManager {
 	m := &wmtManager{
-		contracList: cList,
-		superAcc:    superAcc,
-		groupList:   make([]*group, 0),
-		paraNum:     paraNum,
+		contracList:     cList,
+		superAcc:        superAcc,
+		workMapContract: make(map[int]int, 0),
+		paraNum:         paraNum,
 	}
 	m.prePareWorker(workPath)
 	m.calGroup()
@@ -75,24 +73,14 @@ func (m *wmtManager) prePareWorker(path string) {
 }
 
 func (m *wmtManager) calGroup() {
-	workSizePreContract := len(m.worker) / len(m.contracList)
-	currentWorkerIndex := 0
-	for index := 0; index < len(m.contracList); index++ {
-		tm := make([]*acc, 0)
-		for i := 0; i < workSizePreContract; i++ {
-			tm = append(tm, m.worker[currentWorkerIndex])
-			currentWorkerIndex++
-		}
-		groupInstance := &group{
-			worker:   tm,
-			contract: m.contracList[index],
-		}
-		m.groupList = append(m.groupList, groupInstance)
+	contractIndex := 0
+	for index, _ := range m.worker {
+		m.workMapContract[index] = contractIndex % len(m.contracList)
+		contractIndex++
 	}
 }
 
-func GetNonce(key string) uint64 {
-	privateKey := getPrivateKey(key)
+func GetNonce(privateKey *ecdsa.PrivateKey) uint64 {
 	publicKey := privateKey.Public()
 	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
 	if !ok {
@@ -116,44 +104,37 @@ func GetNonce(key string) uint64 {
 }
 
 func (m *wmtManager) Loop() {
-	cList := make([]SwapContract, 0)
-	accList := make([]*acc, 0)
-
-	for _, group := range m.groupList {
-		for _, acc := range group.worker {
-			if len(cList) >= m.paraNum {
-				break
-			}
-			cList = append(cList, group.contract)
-			accList = append(accList, acc)
-		}
-	}
 
 	h, err := client.HeaderByNumber(context.Background(), nil)
 	panicerr(err)
 	fmt.Printf("begin send wmt : currBlockHeight:%d goRountineNums:%d\n", h.Number, m.paraNum)
 
 	var wg sync.WaitGroup
-	for k, contract := range cList {
+	workerIndex := 0
+
+	for index := 0; index < m.paraNum; index++ {
+		workIndexList := make([]int, 0)
+		for i := 0; i < len(m.worker)/m.paraNum; i++ {
+			workIndexList = append(workIndexList, workerIndex)
+			workerIndex++
+		}
+
 		wg.Add(1)
-		cc := contract
-		kk := k
 		go func() {
 			defer wg.Done()
-			m.run(cc, accList[kk])
+			m.run(workIndexList)
+
 		}()
 	}
+
 	wg.Wait()
 }
 
 func (m *wmtManager) needTransferToWorker() bool {
-	for _, group := range m.groupList {
-		for _, acc := range group.worker {
-			bal, err := client.BalanceAt(context.Background(), acc.ethAddress, nil)
-			if err == nil && bal.Int64() == 0 {
-				return true
-			}
-
+	for _, acc := range m.worker {
+		bal, err := client.BalanceAt(context.Background(), acc.ethAddress, nil)
+		if err == nil && bal.Int64() == 0 {
+			return true
 		}
 	}
 	return false
@@ -166,34 +147,31 @@ var (
 func (m *wmtManager) TransferToken0ToAccount() {
 	needTransferToWorker := m.needTransferToWorker()
 
-	nonce := GetNonce(m.superAcc.privateKey)
-	fmt.Println("Begin TransferToken0ToAccount", "transferOkT", needTransferToWorker, "nonce", nonce)
+	nonce := GetNonce(m.superAcc.ecdsaPriv)
+	fmt.Println("Begin TransferToken0ToAccount", "transferOkT:", needTransferToWorker)
 	txs := make([]*types.Transaction, 0)
 	accCnt := 0
-	for _, group := range m.groupList {
-		for _, acc := range group.worker {
-			if accCnt >= m.paraNum {
-				break
-			}
-			if needTransferToWorker {
-				tx := transferOkt(m.superAcc.privateKey, acc.ethAddress, nonce, ether)
-				nonce++
-				txs = append(txs, tx)
-			}
-
-			payload, err := erc20Builder.Build("transfer", acc.ethAddress, new(big.Int).SetInt64(10000000000))
-			panicerr(err)
-			tx := SendTxWithNonce(m.superAcc.privateKey, group.contract.Token0, payload, nonce)
+	for index, acc := range m.worker {
+		c := m.contracList[m.workMapContract[index]]
+		if needTransferToWorker {
+			tx := transferOkt(m.superAcc.privateKey, acc.ethAddress, nonce, ether)
 			nonce++
 			txs = append(txs, tx)
-
-			tx = SendTxWithNonce(m.superAcc.privateKey, group.contract.Token2, payload, nonce)
-			nonce++
-			txs = append(txs, tx)
-			accCnt++
-
 		}
+
+		payload, err := erc20Builder.Build("transfer", acc.ethAddress, new(big.Int).SetInt64(10000000000))
+		panicerr(err)
+		tx := SignTxWithNonce(m.superAcc.ecdsaPriv, c.Token0, payload, nonce)
+		nonce++
+		txs = append(txs, tx)
+
+		tx = SignTxWithNonce(m.superAcc.ecdsaPriv, c.Token2, payload, nonce)
+		nonce++
+		txs = append(txs, tx)
+		accCnt++
+
 	}
+	SendTxs(txs)
 	if err := getReceipt(txs); err != nil {
 		panic(err)
 	}
@@ -213,15 +191,13 @@ func (m *wmtManager) runPool(poolIndex int, c SwapContract, a *acc) error {
 		stakeRewards = c.StakingRewards2
 	}
 
-	var payload []byte
-	var err error
-
+	nonce := GetNonce(a.ecdsaPriv)
+	txList := make([]*types.Transaction, 0)
 	// approve token0
-	payload, err = erc20Builder.Build("approve", c.Router, new(big.Int).SetInt64(1000))
+	payload, err := erc20Builder.Build("approve", c.Router, new(big.Int).SetInt64(1000))
 	panicerr(err)
-	if err = SendTx(a.privateKey, token0, payload); err != nil {
-		return err
-	}
+	txList = append(txList, SignTxWithNonce(a.ecdsaPriv, token0, payload, nonce))
+	nonce++
 
 	// swap token0->token1
 	payload, err = routerBuilder.Build("swapExactTokensForTokens",
@@ -230,80 +206,80 @@ func (m *wmtManager) runPool(poolIndex int, c SwapContract, a *acc) error {
 		a.ethAddress, big.NewInt(1956981781),
 	)
 	panicerr(err)
-	if err = SendTx(a.privateKey, c.Router, payload); err != nil {
-		return err
-	}
+	txList = append(txList, SignTxWithNonce(a.ecdsaPriv, c.Router, payload, nonce))
+	nonce++
 
 	// approve token0 (for addLiquidity)
 	payload, err = erc20Builder.Build("approve", c.Router, new(big.Int).SetInt64(30))
 	panicerr(err)
-	if err = SendTx(a.privateKey, token0, payload); err != nil {
-		return err
-	}
+	txList = append(txList, SignTxWithNonce(a.ecdsaPriv, token0, payload, nonce))
+	nonce++
 
 	// approve token1 (for addLiquidity)
 	payload, err = erc20Builder.Build("approve", c.Router, new(big.Int).SetInt64(30))
 	panicerr(err)
-	if err = SendTx(a.privateKey, token1, payload); err != nil {
-		return err
-	}
+	txList = append(txList, SignTxWithNonce(a.ecdsaPriv, token1, payload, nonce))
+	nonce++
 
 	// addLiquidity
 	payload, err = routerBuilder.Build("addLiquidity", token0, token1, new(big.Int).SetInt64(30), new(big.Int).SetInt64(30), new(big.Int), new(big.Int), a.ethAddress, big.NewInt(1956981781))
 	panicerr(err)
-	if err = SendTx(a.privateKey, c.Router, payload); err != nil {
-		return err
-	}
+	txList = append(txList, SignTxWithNonce(a.ecdsaPriv, c.Router, payload, nonce))
+	nonce++
 
 	// approve lp for stakingRewards
 	payload, err = erc20Builder.Build("approve", stakeRewards, new(big.Int).SetInt64(10))
 	panicerr(err)
-	if err = SendTx(a.privateKey, lp, payload); err != nil {
-		return err
-	}
+	txList = append(txList, SignTxWithNonce(a.ecdsaPriv, lp, payload, nonce))
+	nonce++
 
 	// stake lp for stakingRewards
 	payload, err = StakingRewardsBuilder.Build("stake", big.NewInt(10))
 	panicerr(err)
-	if err = SendTx(a.privateKey, stakeRewards, payload); err != nil {
-		return err
-	}
+	txList = append(txList, SignTxWithNonce(a.ecdsaPriv, stakeRewards, payload, nonce))
+	nonce++
 
 	// getReward for stakingRewards
 	payload, err = StakingRewardsBuilder.Build("getReward")
 	panicerr(err)
-	if err = SendTx(a.privateKey, stakeRewards, payload); err != nil {
-		return err
-	}
+	txList = append(txList, SignTxWithNonce(a.ecdsaPriv, stakeRewards, payload, nonce))
+	nonce++
 
 	payload, err = StakingRewardsBuilder.Build("withdraw", big.NewInt(3))
 	panicerr(err)
-	if err = SendTx(a.privateKey, stakeRewards, payload); err != nil {
-		return err
-	}
+	txList = append(txList, SignTxWithNonce(a.ecdsaPriv, stakeRewards, payload, nonce))
+	nonce++
 
 	payload, err = StakingRewardsBuilder.Build("exit")
 	panicerr(err)
-	if err = SendTx(a.privateKey, stakeRewards, payload); err != nil {
-		return err
-	}
-	return nil
+	txList = append(txList, SignTxWithNonce(a.ecdsaPriv, stakeRewards, payload, nonce))
+	nonce++
+	SendTxs(txList)
+	return getReceipt(txList)
 }
 
-func (m *wmtManager) run(c SwapContract, a *acc) {
-	rand.Seed(time.Now().UnixNano())
-	sleepTime := rand.Intn(20)
-	fmt.Println("run---", c.Token0.String(), a.ethAddress.String(), sleepTime)
-	for true {
-		time.Sleep(time.Duration(sleepTime) * time.Second)
-		if err := m.runPool(0, c, a); err != nil {
-			fmt.Println("runErr-0", c.Token0, a.ethAddress, err)
-			continue
-		}
+var (
+	mapp = make(map[common.Address]bool)
+)
 
-		if err := m.runPool(1, c, a); err != nil {
-			fmt.Println("runErr-1", c.Token0, a.ethAddress, err)
-			continue
+func (m *wmtManager) run(tasks []int) {
+	for true {
+		for _, workIndex := range tasks {
+			a := m.worker[workIndex]
+			c := m.contracList[m.workMapContract[workIndex]]
+			fmt.Println("run---", "contractIndex", m.workMapContract[workIndex], workIndex)
+			for true {
+				if err := m.runPool(0, c, a); err != nil {
+					fmt.Println("runErr-0", c.Token0, a.ethAddress, err)
+					continue
+				}
+
+				if err := m.runPool(1, c, a); err != nil {
+					fmt.Println("runErr-1", c.Token0, a.ethAddress, err)
+					continue
+				}
+			}
 		}
 	}
+
 }

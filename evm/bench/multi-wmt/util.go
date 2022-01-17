@@ -5,6 +5,7 @@ import (
 	"crypto/ecdsa"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -29,17 +30,10 @@ func getReceipt(txs []*types.Transaction) error {
 	cnt := 0
 	for cnt < 100 {
 		time.Sleep(2000 * time.Millisecond)
-		succCnt := 0
-		for _, tx := range txs {
-			_, err := client.TransactionReceipt(context.Background(), calHash(tx))
-			if err == nil {
-				succCnt++
-			} else {
-				break
-			}
-		}
 
-		if succCnt == len(txs) {
+		_, errFirst := client.TransactionReceipt(context.Background(), calHash(txs[0]))
+		_, errLast := client.TransactionReceipt(context.Background(), calHash(txs[len(txs)-1]))
+		if errFirst == nil && errLast == nil {
 			return nil
 		}
 		cnt++
@@ -63,51 +57,13 @@ func transferOkt(key string, to common.Address, nonce uint64, value *big.Int) *t
 
 	tx, err := types.SignTx(types.NewTransaction(nonce, to, value, gasLimit, gasPrice, nil), signer, privateKey)
 	panicerr(err)
-	err = client.SendTransaction(context.Background(), tx)
-	panicerr(err)
 	return tx
 }
 
-func SendTxWithNonce(key string, to common.Address, payLoad []byte, nonce uint64) *types.Transaction {
-	privateKey := getPrivateKey(key)
-
+func SignTxWithNonce(privateKey *ecdsa.PrivateKey, to common.Address, payLoad []byte, nonce uint64) *types.Transaction {
 	tx, err := types.SignTx(types.NewTransaction(nonce, to, new(big.Int), gasLimit, gasPrice, payLoad), signer, privateKey)
-	panicerr(err)
-	err = client.SendTransaction(context.Background(), tx)
 	panicerr(err)
 	return tx
-}
-
-func SendTx(key string, to common.Address, payLoad []byte) error {
-	privateKey := getPrivateKey(key)
-	publicKey := privateKey.Public()
-	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
-	if !ok {
-		panic("should panic")
-	}
-
-	fromAddress := crypto.PubkeyToAddress(*publicKeyECDSA)
-	nonce, err := client.PendingNonceAt(context.Background(), fromAddress)
-	if err != nil {
-		return err
-	}
-
-	tx, err := types.SignTx(types.NewTransaction(nonce, to, new(big.Int), gasLimit, gasPrice, payLoad), signer, privateKey)
-	panicerr(err)
-
-	cnt := 0
-	for true {
-		cnt++
-		err = client.SendTransaction(context.Background(), tx)
-		if err == nil {
-			break
-		}
-		if err != nil && cnt > 10 {
-			return err
-		}
-	}
-
-	return getReceipt([]*types.Transaction{tx})
 }
 
 func panicerr(err error) {
@@ -151,6 +107,21 @@ func keyToAcc(key string) *acc {
 		privateKey: key,
 		ecdsaPriv:  privateKey,
 		ethAddress: fromAddress,
+	}
+}
+
+func SendTxs(txs []*types.Transaction) {
+	for _, v := range txs {
+		cnt := 0
+		for cnt < 10 {
+			cnt++
+			if err := client.SendTransaction(context.Background(), v); err != nil {
+				fmt.Println("SendTx err", err)
+				time.Sleep(1 * time.Second)
+			} else {
+				break
+			}
+		}
 	}
 }
 
