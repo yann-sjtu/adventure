@@ -124,6 +124,7 @@ func SendTxs(txs []*types.Transaction) error {
 			}
 		}
 	}
+	return nil
 }
 
 type wmtConfig struct {
