@@ -37,13 +37,12 @@ func RunTxs(p BasepParam, e func(ethcmm.Address) []TxParam) {
 	for i := 0; i < p.concurrency; i++ {
 		go func(gIndex int) {
 			for j := 0; ; j++ {
-				time.Sleep(time.Millisecond * time.Duration(p.sleep))
-
 				aIndex := (gIndex + j*p.concurrency) % len(accounts) // make sure accounts will be picked in order by round-robin
 				acc := accounts[aIndex]
 				cli := clients[aIndex%len(clients)]
 
 				execute(gIndex, cli, acc, e)
+				time.Sleep(time.Millisecond * time.Duration(p.sleep))
 			}
 		}(i)
 	}
