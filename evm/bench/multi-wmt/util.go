@@ -36,7 +36,7 @@ func getReceipt(txs []*types.Transaction) error {
 		if errFirst == nil && errLast == nil {
 			return nil
 		}
-		//fmt.Println("errMsg", errFirst, errLast)
+		fmt.Println("errMsg", errFirst, errLast, calHash(txs[0]).String(), calHash(txs[len(txs)-1]).String())
 		cnt++
 	}
 
