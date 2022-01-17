@@ -11,6 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 	"io"
 	"math/big"
+	"math/rand"
 	"os"
 	"strings"
 	"sync"
@@ -28,21 +29,18 @@ type wmtManager struct {
 	contracList []SwapContract
 	superAcc    *acc
 
-	worker          []*acc
-	workMapContract map[int]int
-	paraNum         int
+	worker  []*acc
+	paraNum int
 }
 
 func newManager(cList []SwapContract, superAcc *acc, workPath string, paraNum int, clients []*ethclient.Client) *wmtManager {
 	m := &wmtManager{
-		clientList:      clients,
-		contracList:     cList,
-		superAcc:        superAcc,
-		workMapContract: make(map[int]int, 0),
-		paraNum:         paraNum,
+		clientList:  clients,
+		contracList: cList,
+		superAcc:    superAcc,
+		paraNum:     paraNum,
 	}
 	m.prePareWorker(workPath)
-	m.calGroup()
 	m.displayDetail()
 	return m
 }
@@ -68,14 +66,6 @@ func (m *wmtManager) prePareWorker(path string) {
 		accList = append(accList, acc)
 	}
 	m.worker = accList
-}
-
-func (m *wmtManager) calGroup() {
-	contractIndex := 0
-	for index, _ := range m.worker {
-		m.workMapContract[index] = contractIndex % len(m.contracList)
-		contractIndex++
-	}
 }
 
 func GetNonce(client *ethclient.Client, privateKey *ecdsa.PrivateKey) uint64 {
@@ -146,25 +136,24 @@ func (m *wmtManager) TransferToken0ToAccount() {
 	nonce := GetNonce(m.clientList[0], m.superAcc.ecdsaPriv)
 	fmt.Println("Begin TransferToken0ToAccount", "transferOkT:", needTransferToWorker)
 	txs := make([]*types.Transaction, 0)
-	accCnt := 0
-	for index, acc := range m.worker {
-		c := m.contracList[m.workMapContract[index]]
-		if needTransferToWorker {
-			tx := transferOkt(m.superAcc.privateKey, acc.ethAddress, nonce, ether)
+	for _, acc := range m.worker {
+		for _, c := range m.contracList {
+			if needTransferToWorker {
+				tx := transferOkt(m.superAcc.privateKey, acc.ethAddress, nonce, ether)
+				nonce++
+				txs = append(txs, tx)
+			}
+
+			payload, err := erc20Builder.Build("transfer", acc.ethAddress, new(big.Int).SetInt64(1000000000000))
+			panicerr(err)
+			tx := SignTxWithNonce(m.superAcc.ecdsaPriv, c.Token0, payload, nonce)
+			nonce++
+			txs = append(txs, tx)
+
+			tx = SignTxWithNonce(m.superAcc.ecdsaPriv, c.Token2, payload, nonce)
 			nonce++
 			txs = append(txs, tx)
 		}
-
-		payload, err := erc20Builder.Build("transfer", acc.ethAddress, new(big.Int).SetInt64(5000000000000))
-		panicerr(err)
-		tx := SignTxWithNonce(m.superAcc.ecdsaPriv, c.Token0, payload, nonce)
-		nonce++
-		txs = append(txs, tx)
-
-		tx = SignTxWithNonce(m.superAcc.ecdsaPriv, c.Token2, payload, nonce)
-		nonce++
-		txs = append(txs, tx)
-		accCnt++
 
 	}
 	fmt.Println("sendTx", len(txs), "use one node,may slow")
@@ -174,9 +163,15 @@ func (m *wmtManager) TransferToken0ToAccount() {
 	fmt.Println("end transferToken0ToAccount")
 }
 
+func (m *wmtManager) randomContract() int {
+	rand.Seed(time.Now().UnixNano())
+	return rand.Intn(5)
+}
 func (m *wmtManager) runPool(poolIndex int, workIndex int) error {
 	a := m.worker[workIndex]
-	c := m.contracList[m.workMapContract[workIndex]]
+	contractIndex := m.randomContract()
+	c := m.contracList[contractIndex]
+	fmt.Println("run---", "workerIndex", workIndex, "contractIndex", contractIndex)
 
 	token0 := c.Token0
 	token1 := c.Token1
@@ -192,15 +187,16 @@ func (m *wmtManager) runPool(poolIndex int, workIndex int) error {
 
 	nonce := GetNonce(m.clientList[workIndex%len(m.clientList)], a.ecdsaPriv)
 	txList := make([]*types.Transaction, 0)
+
 	// approve token0
-	payload, err := erc20Builder.Build("approve", c.Router, new(big.Int).SetInt64(10))
+	payload, err := erc20Builder.Build("approve", c.Router, new(big.Int).SetInt64(1000))
 	panicerr(err)
 	txList = append(txList, SignTxWithNonce(a.ecdsaPriv, token0, payload, nonce))
 	nonce++
 
 	// swap token0->token1
 	payload, err = routerBuilder.Build("swapExactTokensForTokens",
-		new(big.Int).SetInt64(5), new(big.Int),
+		new(big.Int).SetInt64(500), new(big.Int),
 		[]common.Address{token0, token1},
 		a.ethAddress, big.NewInt(1956981781),
 	)
@@ -209,31 +205,31 @@ func (m *wmtManager) runPool(poolIndex int, workIndex int) error {
 	nonce++
 
 	// approve token0 (for addLiquidity)
-	payload, err = erc20Builder.Build("approve", c.Router, new(big.Int).SetInt64(3))
+	payload, err = erc20Builder.Build("approve", c.Router, new(big.Int).SetInt64(30))
 	panicerr(err)
 	txList = append(txList, SignTxWithNonce(a.ecdsaPriv, token0, payload, nonce))
 	nonce++
 
 	// approve token1 (for addLiquidity)
-	payload, err = erc20Builder.Build("approve", c.Router, new(big.Int).SetInt64(3))
+	payload, err = erc20Builder.Build("approve", c.Router, new(big.Int).SetInt64(30))
 	panicerr(err)
 	txList = append(txList, SignTxWithNonce(a.ecdsaPriv, token1, payload, nonce))
 	nonce++
 
 	// addLiquidity
-	payload, err = routerBuilder.Build("addLiquidity", token0, token1, new(big.Int).SetInt64(3), new(big.Int).SetInt64(3), new(big.Int), new(big.Int), a.ethAddress, big.NewInt(1956981781))
+	payload, err = routerBuilder.Build("addLiquidity", token0, token1, new(big.Int).SetInt64(30), new(big.Int).SetInt64(30), new(big.Int), new(big.Int), a.ethAddress, big.NewInt(1956981781))
 	panicerr(err)
 	txList = append(txList, SignTxWithNonce(a.ecdsaPriv, c.Router, payload, nonce))
 	nonce++
 
 	// approve lp for stakingRewards
-	payload, err = erc20Builder.Build("approve", stakeRewards, new(big.Int).SetInt64(2))
+	payload, err = erc20Builder.Build("approve", stakeRewards, new(big.Int).SetInt64(5))
 	panicerr(err)
 	txList = append(txList, SignTxWithNonce(a.ecdsaPriv, lp, payload, nonce))
 	nonce++
 
 	// stake lp for stakingRewards
-	payload, err = StakingRewardsBuilder.Build("stake", big.NewInt(2))
+	payload, err = StakingRewardsBuilder.Build("stake", big.NewInt(10))
 	panicerr(err)
 	txList = append(txList, SignTxWithNonce(a.ecdsaPriv, stakeRewards, payload, nonce))
 	nonce++
@@ -244,7 +240,7 @@ func (m *wmtManager) runPool(poolIndex int, workIndex int) error {
 	txList = append(txList, SignTxWithNonce(a.ecdsaPriv, stakeRewards, payload, nonce))
 	nonce++
 
-	payload, err = StakingRewardsBuilder.Build("withdraw", big.NewInt(1))
+	payload, err = StakingRewardsBuilder.Build("withdraw", big.NewInt(3))
 	panicerr(err)
 	txList = append(txList, SignTxWithNonce(a.ecdsaPriv, stakeRewards, payload, nonce))
 	nonce++
@@ -257,7 +253,7 @@ func (m *wmtManager) runPool(poolIndex int, workIndex int) error {
 		return err
 	}
 
-	time.Sleep(4 * time.Second)
+	time.Sleep(2 * time.Second)
 	return nil
 }
 
@@ -266,9 +262,11 @@ var (
 )
 
 func (m *wmtManager) run(tasks []int) {
+	rand.Seed(time.Now().UnixNano())
+	sleepTime := rand.Intn(30)
+	time.Sleep(time.Duration(sleepTime) * time.Second)
 	for true {
 		for _, workIndex := range tasks {
-			fmt.Println("run---", "contractIndex", m.workMapContract[workIndex], "workerIndex", workIndex)
 			if err := m.runPool(0, workIndex); err != nil {
 				fmt.Println("runErr-0", workIndex)
 				continue
@@ -280,6 +278,7 @@ func (m *wmtManager) run(tasks []int) {
 			}
 
 		}
+		break
 	}
 
 }
