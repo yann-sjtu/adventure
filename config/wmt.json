@@ -3,5 +3,5 @@
   "ContractPath": "./config/cList.json",
   "SuperAcc": "8ff3ca2d9985c3a52b459e2f6e7822b23e1af845961e22128d5f372fb9aa5f17",
   "WorkerPath": "./config/normal_1000_1",
-  "ParaNum": 5
+  "ParaNum": 100
 }

@@ -27,6 +27,16 @@ func MultiWmtInit() *cobra.Command {
 	return wmtCmd
 }
 
+func MultiTokenBalance() *cobra.Command {
+	var wmtCmd = &cobra.Command{
+		Use:   "multitoken",
+		Short: "wmt-token",
+		Args:  cobra.NoArgs,
+		Run:   wmtToken,
+	}
+	return wmtCmd
+}
+
 var (
 	chainID  = new(big.Int).SetUint64(65)
 	signer   = types.NewEIP155Signer(chainID)
@@ -57,4 +67,9 @@ func wmtRun(cmd *cobra.Command, args []string) {
 func wmtInit(cmd *cobra.Command, args []string) {
 	m := getM()
 	m.TransferToken0ToAccount()
+}
+
+func wmtToken(cmd *cobra.Command, args []string) {
+	m := getM()
+	m.DisPlayToken()
 }

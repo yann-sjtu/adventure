@@ -5,6 +5,7 @@ import (
 	"context"
 	"crypto/ecdsa"
 	"fmt"
+	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -130,6 +131,32 @@ var (
 	ether = new(big.Int).Mul(new(big.Int).SetInt64(1000000000), new(big.Int).SetInt64(1000000000))
 )
 
+func display(client *ethclient.Client, acc *acc, to common.Address, payload []byte) {
+	data, err := client.CallContract(context.Background(), ethereum.CallMsg{
+		From:     acc.ethAddress,
+		To:       &to,
+		Gas:      gasLimit,
+		GasPrice: gasPrice,
+		Data:     payload,
+	}, nil)
+	if err == nil {
+		fmt.Println("token balance", acc.ethAddress.String(), new(big.Int).SetBytes(data).String())
+	} else {
+		fmt.Println("err", err)
+	}
+}
+
+func (m *wmtManager) DisPlayToken() {
+	for _, acc := range m.worker {
+		for _, c := range m.contracList {
+			payload, err := erc20Builder.Build("balanceOf", acc.ethAddress)
+			panicerr(err)
+			display(m.clientList[0], acc, c.Token0, payload)
+			display(m.clientList[0], acc, c.Token2, payload)
+		}
+	}
+}
+
 func (m *wmtManager) TransferToken0ToAccount() {
 	needTransferToWorker := m.needTransferToWorker()
 
@@ -164,11 +191,10 @@ func (m *wmtManager) TransferToken0ToAccount() {
 }
 
 func (m *wmtManager) randomContract() int {
-	return 0
 	rand.Seed(time.Now().UnixNano())
 	return rand.Intn(5)
 }
-func (m *wmtManager) runPool(poolIndex int, workIndex int) error {
+func (m *wmtManager) runPool(poolIndex int, workIndex int, getReward bool) error {
 	a := m.worker[workIndex]
 	contractIndex := m.randomContract()
 	c := m.contracList[contractIndex]
@@ -235,21 +261,26 @@ func (m *wmtManager) runPool(poolIndex int, workIndex int) error {
 	txList = append(txList, SignTxWithNonce(a.ecdsaPriv, stakeRewards, payload, nonce))
 	nonce++
 
-	// getReward for stakingRewards
-	payload, err = StakingRewardsBuilder.Build("getReward")
-	panicerr(err)
-	txList = append(txList, SignTxWithNonce(a.ecdsaPriv, stakeRewards, payload, nonce))
-	nonce++
+	if getReward {
+		// getReward for stakingRewards
+		payload, err = StakingRewardsBuilder.Build("getReward")
+		panicerr(err)
+		txList = append(txList, SignTxWithNonce(a.ecdsaPriv, stakeRewards, payload, nonce))
+		nonce++
+	}
 
 	payload, err = StakingRewardsBuilder.Build("withdraw", big.NewInt(3))
 	panicerr(err)
 	txList = append(txList, SignTxWithNonce(a.ecdsaPriv, stakeRewards, payload, nonce))
 	nonce++
 
-	payload, err = StakingRewardsBuilder.Build("exit")
-	panicerr(err)
-	txList = append(txList, SignTxWithNonce(a.ecdsaPriv, stakeRewards, payload, nonce))
-	nonce++
+	if getReward {
+		payload, err = StakingRewardsBuilder.Build("exit")
+		panicerr(err)
+		txList = append(txList, SignTxWithNonce(a.ecdsaPriv, stakeRewards, payload, nonce))
+		nonce++
+	}
+
 	if err := SendTxs(m.clientList[workIndex%len(m.clientList)], txList); err != nil {
 		return err
 	}
@@ -258,29 +289,25 @@ func (m *wmtManager) runPool(poolIndex int, workIndex int) error {
 	return nil
 }
 
-var (
-	mapp = make(map[common.Address]bool)
-)
-
 func (m *wmtManager) run(tasks []int) {
 	rand.Seed(time.Now().UnixNano())
-	sleepTime := rand.Intn(30)
+	sleepTime := rand.Intn(10)
 	time.Sleep(time.Duration(sleepTime) * time.Second)
+	cnt := 0
 	for true {
 		for _, workIndex := range tasks {
-			if err := m.runPool(0, workIndex); err != nil {
+			getReward := cnt%2 == 1
+
+			if err := m.runPool(0, workIndex, getReward); err != nil {
 				fmt.Println("runErr-0", workIndex)
 				continue
 			}
 
-			if err := m.runPool(1, workIndex); err != nil {
+			if err := m.runPool(1, workIndex, getReward); err != nil {
 				fmt.Println("runErr-1", workIndex)
 				continue
 			}
-			break
-
 		}
-		break
+		cnt++
 	}
-
 }

@@ -24,6 +24,7 @@ func BenchCmd() *cobra.Command {
 		query.QueryCmd(),
 		multiwmt.MultiWmtCmt(),
 		multiwmt.MultiWmtInit(),
+		multiwmt.MultiTokenBalance(),
 	)
 
 	cmd.PersistentFlags().IntP(constant.FlagConcurrency, "c", 1, "The number of fixed goroutines that need to be set")
