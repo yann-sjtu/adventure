@@ -164,6 +164,7 @@ func (m *wmtManager) TransferToken0ToAccount() {
 }
 
 func (m *wmtManager) randomContract() int {
+	return 0
 	rand.Seed(time.Now().UnixNano())
 	return rand.Intn(5)
 }
@@ -223,7 +224,7 @@ func (m *wmtManager) runPool(poolIndex int, workIndex int) error {
 	nonce++
 
 	// approve lp for stakingRewards
-	payload, err = erc20Builder.Build("approve", stakeRewards, new(big.Int).SetInt64(5))
+	payload, err = erc20Builder.Build("approve", stakeRewards, new(big.Int).SetInt64(10))
 	panicerr(err)
 	txList = append(txList, SignTxWithNonce(a.ecdsaPriv, lp, payload, nonce))
 	nonce++
@@ -276,6 +277,7 @@ func (m *wmtManager) run(tasks []int) {
 				fmt.Println("runErr-1", workIndex)
 				continue
 			}
+			break
 
 		}
 		break
