@@ -13,7 +13,6 @@ import (
 	"os"
 	"strings"
 	"sync"
-	"time"
 )
 
 type acc struct {
@@ -85,7 +84,6 @@ func GetNonce(privateKey *ecdsa.PrivateKey) uint64 {
 
 	cnt := 0
 	for cnt < 10 {
-		time.Sleep(3 * time.Second)
 		nonce, err := client.PendingNonceAt(context.Background(), fromAddress)
 		if err != nil {
 
