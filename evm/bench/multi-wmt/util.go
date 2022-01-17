@@ -112,7 +112,7 @@ func keyToAcc(key string) *acc {
 
 func SendTxs(txs []*types.Transaction) error {
 	for index, v := range txs {
-		time.Sleep(1000 * time.Microsecond)
+		time.Sleep(200 * time.Microsecond)
 		cnt := 0
 		for cnt < 10 {
 			cnt++
