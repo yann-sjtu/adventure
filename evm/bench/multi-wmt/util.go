@@ -110,15 +110,15 @@ func keyToAcc(key string) *acc {
 	}
 }
 
-func SendTxs(txs []*types.Transaction) {
-	for _, v := range txs {
+func SendTxs(txs []*types.Transaction) error {
+	for index, v := range txs {
 		time.Sleep(1000 * time.Microsecond)
 		cnt := 0
 		for cnt < 10 {
 			cnt++
 			if err := client.SendTransaction(context.Background(), v); err != nil {
-				fmt.Println("SendTx err", err)
-				time.Sleep(1 * time.Second)
+				fmt.Println("index", index, err)
+				return err
 			} else {
 				break
 			}

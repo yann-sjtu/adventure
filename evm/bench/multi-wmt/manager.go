@@ -254,7 +254,9 @@ func (m *wmtManager) runPool(poolIndex int, c SwapContract, a *acc) error {
 	panicerr(err)
 	txList = append(txList, SignTxWithNonce(a.ecdsaPriv, stakeRewards, payload, nonce))
 	nonce++
-	SendTxs(txList)
+	if err := SendTxs(txList); err != nil {
+		return err
+	}
 	return getReceipt(txList)
 }
 
