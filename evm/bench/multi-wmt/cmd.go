@@ -40,6 +40,6 @@ func wmt(cmd *cobra.Command, args []string) {
 	superAcc := keyToAcc(c.SuperAcc)
 	m := newManager(cList, superAcc, c.WorkerPath, c.ParaNum, clients)
 
-	m.TransferToken0ToAccount()
+	//m.TransferToken0ToAccount()
 	m.Loop()
 }
