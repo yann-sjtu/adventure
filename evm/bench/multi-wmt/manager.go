@@ -171,7 +171,7 @@ func (m *wmtManager) TransferToken0ToAccount() {
 				txs = append(txs, tx)
 			}
 
-			payload, err := erc20Builder.Build("transfer", acc.ethAddress, new(big.Int).SetInt64(1000000000000))
+			payload, err := erc20Builder.Build("transfer", acc.ethAddress, new(big.Int).SetInt64(10000000000))
 			panicerr(err)
 			tx := SignTxWithNonce(m.superAcc.ecdsaPriv, c.Token0, payload, nonce)
 			nonce++
@@ -296,7 +296,7 @@ func (m *wmtManager) run(tasks []int) {
 	cnt := 0
 	for true {
 		for _, workIndex := range tasks {
-			getReward := cnt%2 == 1
+			getReward := cnt%3 == 2
 
 			if err := m.runPool(0, workIndex, getReward); err != nil {
 				fmt.Println("runErr-0", workIndex)
