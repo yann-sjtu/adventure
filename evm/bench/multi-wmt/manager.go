@@ -167,11 +167,11 @@ func (m *wmtManager) TransferToken0ToAccount() {
 		accCnt++
 
 	}
-	fmt.Println("SendTx", len(txs))
+	fmt.Println("sendTx", len(txs), "use one node,may slow")
 	if err := SendTxs(m.clientList[0], txs); err != nil {
 		panic(err)
 	}
-	fmt.Println("End TransferToken0ToAccount")
+	fmt.Println("end transferToken0ToAccount")
 }
 
 func (m *wmtManager) runPool(poolIndex int, workIndex int) error {
