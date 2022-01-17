@@ -268,17 +268,16 @@ func (m *wmtManager) run(tasks []int) {
 			a := m.worker[workIndex]
 			c := m.contracList[m.workMapContract[workIndex]]
 			fmt.Println("run---", "contractIndex", m.workMapContract[workIndex], workIndex)
-			for true {
-				if err := m.runPool(0, c, a); err != nil {
-					fmt.Println("runErr-0", c.Token0, a.ethAddress, err)
-					continue
-				}
-
-				if err := m.runPool(1, c, a); err != nil {
-					fmt.Println("runErr-1", c.Token0, a.ethAddress, err)
-					continue
-				}
+			if err := m.runPool(0, c, a); err != nil {
+				fmt.Println("runErr-0", c.Token0, a.ethAddress, err)
+				continue
 			}
+
+			if err := m.runPool(1, c, a); err != nil {
+				fmt.Println("runErr-1", c.Token0, a.ethAddress, err)
+				continue
+			}
+			
 		}
 	}
 
