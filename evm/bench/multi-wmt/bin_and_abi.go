@@ -1703,6 +1703,4 @@ func initClient(c *wmtConfig) {
 	chainID, err = client.ChainID(context.Background())
 	panicerr(err)
 	signer = types.NewEIP155Signer(chainID)
-
-	useOldTxHash = c.UseOldTxHash
 }
