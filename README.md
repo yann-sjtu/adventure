@@ -8,7 +8,7 @@ make
 ## 2. 操作
 ### 2.1 初始化账户
 ```shell
-adventure evm batch-transfer 10okt -i ${ip} -s ${private_key} -a ${address_file}
+adventure evm batch-transfer 10 -i ${ip} -s ${private_key} -a ${address_file}
 ```
 * -i: ip地址
   * 必填
