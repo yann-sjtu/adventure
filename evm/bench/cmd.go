@@ -1,6 +1,7 @@
 package bench
 
 import (
+	multiwmt "github.com/okex/adventure/evm/bench/multi-wmt"
 	"github.com/okex/adventure/evm/bench/operate"
 	"github.com/okex/adventure/evm/bench/query"
 	"github.com/okex/adventure/evm/bench/transfer"
@@ -21,6 +22,7 @@ func BenchCmd() *cobra.Command {
 		operate.OperateCmd(),
 		wmt.WMTCmd(),
 		query.QueryCmd(),
+		multiwmt.MultiWmtCmt(),
 	)
 
 	cmd.PersistentFlags().IntP(constant.FlagConcurrency, "c", 1, "The number of fixed goroutines that need to be set")
