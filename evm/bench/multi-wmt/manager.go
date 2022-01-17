@@ -22,11 +22,6 @@ type acc struct {
 	ethAddress common.Address
 }
 
-type group struct {
-	contract SwapContract
-	worker   []*acc
-}
-
 type wmtManager struct {
 	contracList []SwapContract
 	superAcc    *acc
