@@ -8,11 +8,13 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/ethclient"
 	"io"
 	"math/big"
 	"os"
 	"strings"
 	"sync"
+	"time"
 )
 
 type acc struct {
@@ -22,6 +24,7 @@ type acc struct {
 }
 
 type wmtManager struct {
+	clientList  []*ethclient.Client
 	contracList []SwapContract
 	superAcc    *acc
 
@@ -30,8 +33,9 @@ type wmtManager struct {
 	paraNum         int
 }
 
-func newManager(cList []SwapContract, superAcc *acc, workPath string, paraNum int) *wmtManager {
+func newManager(cList []SwapContract, superAcc *acc, workPath string, paraNum int, clients []*ethclient.Client) *wmtManager {
 	m := &wmtManager{
+		clientList:      clients,
 		contracList:     cList,
 		superAcc:        superAcc,
 		workMapContract: make(map[int]int, 0),
@@ -44,7 +48,7 @@ func newManager(cList []SwapContract, superAcc *acc, workPath string, paraNum in
 }
 
 func (m *wmtManager) displayDetail() {
-	fmt.Println("contract size", len(m.contracList), "worker size:", len(m.worker), "paraNum", m.paraNum)
+	fmt.Println("contract size", len(m.contracList), "worker size:", len(m.worker), "paraNum", m.paraNum, "clientNum", len(m.clientList))
 }
 
 func (m *wmtManager) prePareWorker(path string) {
@@ -74,7 +78,7 @@ func (m *wmtManager) calGroup() {
 	}
 }
 
-func GetNonce(privateKey *ecdsa.PrivateKey) uint64 {
+func GetNonce(client *ethclient.Client, privateKey *ecdsa.PrivateKey) uint64 {
 	publicKey := privateKey.Public()
 	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
 	if !ok {
@@ -97,10 +101,7 @@ func GetNonce(privateKey *ecdsa.PrivateKey) uint64 {
 }
 
 func (m *wmtManager) Loop() {
-
-	h, err := client.HeaderByNumber(context.Background(), nil)
-	panicerr(err)
-	fmt.Printf("begin send wmt : currBlockHeight:%d goRountineNums:%d\n", h.Number, m.paraNum)
+	fmt.Printf("begin send wmt")
 
 	var wg sync.WaitGroup
 	workerIndex := 0
@@ -124,13 +125,15 @@ func (m *wmtManager) Loop() {
 }
 
 func (m *wmtManager) needTransferToWorker() bool {
-	for _, acc := range m.worker {
-		bal, err := client.BalanceAt(context.Background(), acc.ethAddress, nil)
-		if err == nil && bal.Int64() == 0 {
-			return true
-		}
-	}
 	return false
+	// TODO : later to fix
+	//for _, acc := range m.worker {
+	//	bal, err := client.BalanceAt(context.Background(), acc.ethAddress, nil)
+	//	if err == nil && bal.Int64() == 0 {
+	//		return true
+	//	}
+	//}
+	//return false
 }
 
 var (
@@ -140,7 +143,7 @@ var (
 func (m *wmtManager) TransferToken0ToAccount() {
 	needTransferToWorker := m.needTransferToWorker()
 
-	nonce := GetNonce(m.superAcc.ecdsaPriv)
+	nonce := GetNonce(m.clientList[0], m.superAcc.ecdsaPriv)
 	fmt.Println("Begin TransferToken0ToAccount", "transferOkT:", needTransferToWorker)
 	txs := make([]*types.Transaction, 0)
 	accCnt := 0
@@ -165,17 +168,16 @@ func (m *wmtManager) TransferToken0ToAccount() {
 
 	}
 	fmt.Println("SendTx", len(txs))
-	if err := SendTxs(txs); err != nil {
-		panic(err)
-	}
-	fmt.Println("GetReceipt")
-	if err := getReceipt(txs); err != nil {
+	if err := SendTxs(m.clientList[0], txs); err != nil {
 		panic(err)
 	}
 	fmt.Println("End TransferToken0ToAccount")
 }
 
-func (m *wmtManager) runPool(poolIndex int, c SwapContract, a *acc) error {
+func (m *wmtManager) runPool(poolIndex int, workIndex int) error {
+	a := m.worker[workIndex]
+	c := m.contracList[m.workMapContract[workIndex]]
+
 	token0 := c.Token0
 	token1 := c.Token1
 	lp := c.Lp1
@@ -188,7 +190,7 @@ func (m *wmtManager) runPool(poolIndex int, c SwapContract, a *acc) error {
 		stakeRewards = c.StakingRewards2
 	}
 
-	nonce := GetNonce(a.ecdsaPriv)
+	nonce := GetNonce(m.clientList[workIndex%len(m.clientList)], a.ecdsaPriv)
 	txList := make([]*types.Transaction, 0)
 	// approve token0
 	payload, err := erc20Builder.Build("approve", c.Router, new(big.Int).SetInt64(1000))
@@ -251,10 +253,12 @@ func (m *wmtManager) runPool(poolIndex int, c SwapContract, a *acc) error {
 	panicerr(err)
 	txList = append(txList, SignTxWithNonce(a.ecdsaPriv, stakeRewards, payload, nonce))
 	nonce++
-	if err := SendTxs(txList); err != nil {
+	if err := SendTxs(m.clientList[workIndex%len(m.clientList)], txList); err != nil {
 		return err
 	}
-	return getReceipt(txList)
+
+	time.Sleep(2 * time.Second)
+	return nil
 }
 
 var (
@@ -264,16 +268,14 @@ var (
 func (m *wmtManager) run(tasks []int) {
 	for true {
 		for _, workIndex := range tasks {
-			a := m.worker[workIndex]
-			c := m.contracList[m.workMapContract[workIndex]]
 			fmt.Println("run---", "contractIndex", m.workMapContract[workIndex], "workerIndex", workIndex)
-			if err := m.runPool(0, c, a); err != nil {
-				fmt.Println("runErr-0", c.Token0, a.ethAddress, err)
+			if err := m.runPool(0, workIndex); err != nil {
+				fmt.Println("runErr-0", workIndex)
 				continue
 			}
 
-			if err := m.runPool(1, c, a); err != nil {
-				fmt.Println("runErr-1", c.Token0, a.ethAddress, err)
+			if err := m.runPool(1, workIndex); err != nil {
+				fmt.Println("runErr-1", workIndex)
 				continue
 			}
 

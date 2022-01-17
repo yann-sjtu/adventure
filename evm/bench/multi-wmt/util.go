@@ -4,48 +4,14 @@ import (
 	"context"
 	"crypto/ecdsa"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	ethcompatible "github.com/okex/exchain-ethereum-compatible/utils"
+	"github.com/ethereum/go-ethereum/ethclient"
 	"io/ioutil"
 	"math/big"
-	"time"
 )
-
-func calHash(tx *types.Transaction) common.Hash {
-	if !useOldTxHash {
-		return tx.Hash()
-	}
-	h, err := ethcompatible.Hash(tx)
-	if err == nil {
-		return h
-	}
-	return common.Hash{}
-}
-
-func getReceipt(txs []*types.Transaction) error {
-	cnt := 0
-	for cnt < 100 {
-		time.Sleep(2000 * time.Millisecond)
-
-		_, errFirst := client.TransactionReceipt(context.Background(), calHash(txs[0]))
-		_, errLast := client.TransactionReceipt(context.Background(), calHash(txs[len(txs)-1]))
-		if errFirst == nil && errLast == nil {
-			return nil
-		}
-		fmt.Println("errMsg", errFirst, errLast, calHash(txs[0]).String(), calHash(txs[len(txs)-1]).String())
-		cnt++
-	}
-
-	panicLog := "failed txs:"
-	for _, v := range txs {
-		panicLog += v.Hash().String() + "  "
-	}
-	return errors.New(panicLog)
-}
 
 func getPrivateKey(key string) *ecdsa.PrivateKey {
 	privateKey, err := crypto.HexToECDSA(key)
@@ -111,7 +77,7 @@ func keyToAcc(key string) *acc {
 	}
 }
 
-func SendTxs(txs []*types.Transaction) error {
+func SendTxs(client *ethclient.Client, txs []*types.Transaction) error {
 	for index, v := range txs {
 		//time.Sleep(200 * time.Microsecond)
 		cnt := 0
@@ -133,7 +99,7 @@ func SendTxs(txs []*types.Transaction) error {
 }
 
 type wmtConfig struct {
-	RPC          string
+	RPC          []string
 	ContractPath string
 	SuperAcc     string
 	WorkerPath   string

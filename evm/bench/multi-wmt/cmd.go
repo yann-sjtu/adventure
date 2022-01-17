@@ -1,7 +1,6 @@
 package multiwmt
 
 import (
-	"context"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/spf13/cobra"
@@ -19,8 +18,7 @@ func MultiWmtCmt() *cobra.Command {
 }
 
 var (
-	client, _    = ethclient.Dial("http://18.167.142.95:26659")
-	chainID, _   = client.ChainID(context.Background())
+	chainID      = new(big.Int).SetUint64(65)
 	signer       = types.NewEIP155Signer(chainID)
 	gasPrice     = new(big.Int).SetUint64(1000000000)
 	gasLimit     = uint64(3000000)
@@ -33,8 +31,14 @@ func wmt(cmd *cobra.Command, args []string) {
 	initBuilder()
 	initClient(c)
 	cList := LoadContractList(c.ContractPath)
+	clients := make([]*ethclient.Client, 0)
+	for _, v := range c.RPC {
+		c, err := ethclient.Dial(v)
+		panicerr(err)
+		clients = append(clients, c)
+	}
 	superAcc := keyToAcc(c.SuperAcc)
-	m := newManager(cList, superAcc, c.WorkerPath, c.ParaNum)
+	m := newManager(cList, superAcc, c.WorkerPath, c.ParaNum, clients)
 
 	m.TransferToken0ToAccount()
 	m.Loop()
