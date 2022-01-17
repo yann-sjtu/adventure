@@ -171,7 +171,11 @@ func (m *wmtManager) TransferToken0ToAccount() {
 		accCnt++
 
 	}
-	SendTxs(txs)
+	fmt.Println("SendTx")
+	if err := SendTxs(txs); err != nil {
+		panic(err)
+	}
+	fmt.Println("GetReceipt")
 	if err := getReceipt(txs); err != nil {
 		panic(err)
 	}
