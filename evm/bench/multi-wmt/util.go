@@ -36,6 +36,7 @@ func getReceipt(txs []*types.Transaction) error {
 		if errFirst == nil && errLast == nil {
 			return nil
 		}
+		fmt.Println("errMsg", errFirst, errLast)
 		cnt++
 	}
 
@@ -122,6 +123,9 @@ func SendTxs(txs []*types.Transaction) error {
 			} else {
 				break
 			}
+		}
+		if index != 0 && index%200 == 0 {
+			fmt.Println("send tx index", index)
 		}
 	}
 	return nil
