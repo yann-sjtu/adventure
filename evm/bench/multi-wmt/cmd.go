@@ -10,22 +10,31 @@ import (
 func MultiWmtCmt() *cobra.Command {
 	var wmtCmd = &cobra.Command{
 		Use:   "multiwmt",
-		Short: "evm cli of test strategy",
+		Short: "wmt-run",
 		Args:  cobra.NoArgs,
-		Run:   wmt,
+		Run:   wmtRun,
+	}
+	return wmtCmd
+}
+
+func MultiWmtInit() *cobra.Command {
+	var wmtCmd = &cobra.Command{
+		Use:   "multiinit",
+		Short: "wmt-init",
+		Args:  cobra.NoArgs,
+		Run:   wmtInit,
 	}
 	return wmtCmd
 }
 
 var (
-	chainID      = new(big.Int).SetUint64(65)
-	signer       = types.NewEIP155Signer(chainID)
-	gasPrice     = new(big.Int).SetUint64(1000000000)
-	gasLimit     = uint64(3000000)
-	useOldTxHash = bool(false)
+	chainID  = new(big.Int).SetUint64(65)
+	signer   = types.NewEIP155Signer(chainID)
+	gasPrice = new(big.Int).SetUint64(1000000000)
+	gasLimit = uint64(3000000)
 )
 
-func wmt(cmd *cobra.Command, args []string) {
+func getM() *wmtManager {
 	c := loadWMTConfig("./config/wmt.json")
 
 	initBuilder()
@@ -38,8 +47,14 @@ func wmt(cmd *cobra.Command, args []string) {
 		clients = append(clients, c)
 	}
 	superAcc := keyToAcc(c.SuperAcc)
-	m := newManager(cList, superAcc, c.WorkerPath, c.ParaNum, clients)
-
-	//m.TransferToken0ToAccount()
+	return newManager(cList, superAcc, c.WorkerPath, c.ParaNum, clients)
+}
+func wmtRun(cmd *cobra.Command, args []string) {
+	m := getM()
 	m.Loop()
+}
+
+func wmtInit(cmd *cobra.Command, args []string) {
+	m := getM()
+	m.TransferToken0ToAccount()
 }
