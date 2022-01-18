@@ -62,7 +62,7 @@ func execute(gIndex int, cli client.Client, acc *EthAccount, e func(ethcmm.Addre
 
 	eParams := e(caller)
 	for _, eParam := range eParams {
-		txhash, err := cli.SendTx(acc.GetPrivateKey(), acc.GetNonce(), eParam.to, eParam.amount, eParam.gasLimit, eParam.gasPrice, eParam.data)
+		txhash, err := cli.SendEthereumTx(acc.GetPrivateKey(), acc.GetNonce(), eParam.to, eParam.amount, eParam.gasLimit, eParam.gasPrice, eParam.data)
 		if err != nil {
 			log.Printf("[g%d] %s send tx err: %s\n", gIndex, caller, err)
 			if strings.Contains(err.Error(), "already exists") {

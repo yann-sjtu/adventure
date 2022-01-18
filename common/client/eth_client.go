@@ -41,7 +41,7 @@ func (e EthClient) QueryNonce(hexAddr string) (uint64, error) {
 	return nonce, nil
 }
 
-func (e EthClient) SendTx(privatekey *ecdsa.PrivateKey, nonce uint64, to ethcmn.Address, amount *big.Int, gasLimit uint64, gasPrice *big.Int, data []byte) (ethcmn.Hash, error) {
+func (e EthClient) SendEthereumTx(privatekey *ecdsa.PrivateKey, nonce uint64, to ethcmn.Address, amount *big.Int, gasLimit uint64, gasPrice *big.Int, data []byte) (ethcmn.Hash, error) {
 	// 1. make tx
 	unsignedTx := types.NewTransaction(nonce, to, amount, gasLimit, gasPrice, data)
 

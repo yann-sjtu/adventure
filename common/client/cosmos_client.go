@@ -66,7 +66,7 @@ func (c *CosmosClient) QueryNonce(hexAddr string) (uint64, error) {
 	return account.GetSequence(), nil
 }
 
-func (c *CosmosClient) SendTx(privatekey *ecdsa.PrivateKey, nonce uint64, to ethcmn.Address, amount *big.Int, gasLimit uint64, gasPrice *big.Int, data []byte) (ethcmn.Hash, error) {
+func (c *CosmosClient) SendEthereumTx(privatekey *ecdsa.PrivateKey, nonce uint64, to ethcmn.Address, amount *big.Int, gasLimit uint64, gasPrice *big.Int, data []byte) (ethcmn.Hash, error) {
 	res, err := c.Evm().SendTxEthereum(privatekey, nonce, to, amount, gasLimit, gasPrice, data)
 	if err != nil {
 		return ethcmn.Hash{}, err
