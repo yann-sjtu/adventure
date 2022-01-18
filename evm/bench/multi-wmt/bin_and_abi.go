@@ -1698,12 +1698,9 @@ func initBuilder() {
 }
 
 func initClient(c *wmtConfig) {
-	var err error
-	client, err = ethclient.Dial(c.RPC)
+	client, err := ethclient.Dial(c.RPC[0])
 	panicerr(err)
 	chainID, err = client.ChainID(context.Background())
 	panicerr(err)
 	signer = types.NewEIP155Signer(chainID)
-
-	useOldTxHash = c.UseOldTxHash
 }
