@@ -138,7 +138,7 @@ func display(client *ethclient.Client, acc *acc, to common.Address, payload []by
 		Data:     payload,
 	}, nil)
 	if err == nil {
-		fmt.Println("token balance", acc.ethAddress.String(), new(big.Int).SetBytes(data).String())
+		fmt.Println("addr", acc.ethAddress.String(), "token balance", new(big.Int).SetBytes(data).String())
 	} else {
 		fmt.Println("err", err)
 	}

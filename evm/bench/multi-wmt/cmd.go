@@ -19,7 +19,7 @@ func MultiWmtCmt() *cobra.Command {
 
 func MultiWmtInit() *cobra.Command {
 	var wmtCmd = &cobra.Command{
-		Use:   "multiinit",
+		Use:   "multiwmt-init",
 		Short: "wmt-init",
 		Args:  cobra.NoArgs,
 		Run:   wmtInit,
@@ -29,7 +29,7 @@ func MultiWmtInit() *cobra.Command {
 
 func MultiTokenBalance() *cobra.Command {
 	var wmtCmd = &cobra.Command{
-		Use:   "multitoken",
+		Use:   "multiwmt-token",
 		Short: "wmt-token",
 		Args:  cobra.NoArgs,
 		Run:   wmtToken,
