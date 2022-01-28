@@ -78,10 +78,10 @@ func GetNonce(client *ethclient.Client, privateKey *ecdsa.PrivateKey) uint64 {
 	fromAddress := crypto.PubkeyToAddress(*publicKeyECDSA)
 
 	cnt := 0
-	for cnt < 10 {
+	for cnt < 50 {
 		nonce, err := client.PendingNonceAt(context.Background(), fromAddress)
 		if err != nil {
-
+			time.Sleep(2 * time.Second)
 		} else {
 			return nonce
 		}
