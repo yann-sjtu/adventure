@@ -99,12 +99,12 @@ func SendTxs(client *ethclient.Client, txs []*types.Transaction) error {
 }
 
 type wmtConfig struct {
-	RPC          []string
-	ContractPath string
-	SuperAcc     string
-	WorkerPath   string
-	ParaNum      int
-	UseOldTxHash bool
+	RPC             []string
+	ContractPath    string
+	SuperAcc        string
+	WorkerPath      string
+	ParaNum         int
+	SendOKTToWorker bool
 }
 
 func loadWMTConfig(file string) *wmtConfig {

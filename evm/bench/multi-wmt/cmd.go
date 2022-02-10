@@ -57,7 +57,7 @@ func getM() *wmtManager {
 		clients = append(clients, c)
 	}
 	superAcc := keyToAcc(c.SuperAcc)
-	return newManager(cList, superAcc, c.WorkerPath, c.ParaNum, clients)
+	return newManager(cList, superAcc, c.WorkerPath, c.ParaNum, clients, c.SendOKTToWorker)
 }
 func wmtRun(cmd *cobra.Command, args []string) {
 	m := getM()

@@ -30,16 +30,18 @@ type wmtManager struct {
 	contracList []SwapContract
 	superAcc    *acc
 
-	worker  []*acc
-	paraNum int
+	worker          []*acc
+	paraNum         int
+	sendOKTToWorker bool
 }
 
-func newManager(cList []SwapContract, superAcc *acc, workPath string, paraNum int, clients []*ethclient.Client) *wmtManager {
+func newManager(cList []SwapContract, superAcc *acc, workPath string, paraNum int, clients []*ethclient.Client, sendOKTToWorker bool) *wmtManager {
 	m := &wmtManager{
-		clientList:  clients,
-		contracList: cList,
-		superAcc:    superAcc,
-		paraNum:     paraNum,
+		clientList:      clients,
+		contracList:     cList,
+		superAcc:        superAcc,
+		paraNum:         paraNum,
+		sendOKTToWorker: sendOKTToWorker,
 	}
 	m.prePareWorker(workPath)
 	m.displayDetail()
@@ -156,18 +158,17 @@ func (m *wmtManager) DisPlayToken() {
 }
 
 func (m *wmtManager) TransferToken0ToAccount() {
-	needTransferToWorker := m.needTransferToWorker()
 
 	nonce := GetNonce(m.clientList[0], m.superAcc.ecdsaPriv)
-	fmt.Println("Begin TransferToken0ToAccount", "transferOkT:", needTransferToWorker)
+	fmt.Println("Begin TransferToken0ToAccount", "transferOkT:", m.sendOKTToWorker)
 	txs := make([]*types.Transaction, 0)
 	for _, acc := range m.worker {
+		if m.sendOKTToWorker {
+			tx := transferOkt(m.superAcc.privateKey, acc.ethAddress, nonce, ether)
+			nonce++
+			txs = append(txs, tx)
+		}
 		for _, c := range m.contracList {
-			if needTransferToWorker {
-				tx := transferOkt(m.superAcc.privateKey, acc.ethAddress, nonce, ether)
-				nonce++
-				txs = append(txs, tx)
-			}
 
 			payload, err := erc20Builder.Build("transfer", acc.ethAddress, new(big.Int).SetInt64(10000000000))
 			panicerr(err)
