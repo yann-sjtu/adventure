@@ -67,10 +67,10 @@ func execute(gIndex int, cli client.Client, acc *EthAccount, e func(ethcmm.Addre
 			log.Printf("[g%d] %s send tx err: %s\n", gIndex, caller, err)
 			if strings.Contains(err.Error(), "already exists") {
 				acc.AddNonce()
-				return
 			} else if strings.Contains(err.Error(), "mempool is full") {
 				time.Sleep(time.Second)
-				return
+			} else if strings.Contains(err.Error(), "invalid nonce") {
+				acc.AddNonce()
 			}
 		} else {
 			log.Printf("[g%d] %s txhash: %s\n", gIndex, caller, txhash)
