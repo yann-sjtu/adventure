@@ -32,7 +32,7 @@ func GetBalTxBal(p BasepParam, e func(ethcmm.Address) []TxParam) {
 				acc := accounts[aIndex]
 				cli := clients[aIndex%len(clients)]
 
-				log.Println(fmt.Printf("[g%d] start to run test: %s", gIndex))
+				log.Println(fmt.Printf("[g%d] start to run scenaria test\n", gIndex))
 
 				//获取余额
 				resp, _ := GetAccBalance(gIndex, acc, TestNetUrl)
@@ -58,7 +58,7 @@ func GetBalTxBal(p BasepParam, e func(ethcmm.Address) []TxParam) {
  */
 
 func AssertCompare(val1 string, val2 string, errInfo string)  {
-
+	log.Println(fmt.Printf("*********start to do comparison AssertCompare *******\n"))
 	a, err1 := hex.DecodeString(val1)
 	b, err2 := hex.DecodeString(val2)
 	if err1 != nil || err2 !=nil {
@@ -68,10 +68,10 @@ func AssertCompare(val1 string, val2 string, errInfo string)  {
 	intB := new(big.Int).SetBytes(b)
 	n := intA.Cmp(intB)
 	if n >0 {
-		log.Println("success to assert")
+		log.Println(fmt.Printf("success to assert"))
 		return
 	}
-	log.Println("fail to assert, error happen: %s, val1 is: %s; val2 is : %s", errInfo, intA, intB)
+	log.Println("fail to assert, error happen: %s, val1 is: %s; val2 is : %s\n", errInfo, intA, intB)
 	return
 }
 

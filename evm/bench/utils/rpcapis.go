@@ -156,7 +156,7 @@ curl -X POST --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id
 
  */
 func EthBlockNumberApi(url string) (*http.Response, error) {
-	log.Println(fmt.Printf("*********start to run api function EthGetBalanceApi *******"))
+	log.Println(fmt.Printf("*********start to run api function EthBlockNumberApi *******"))
 	method := EthBlockNumber
 	request := NewReqBody(jsonrpc,method,nil, id)
 	//处理成为[]byte类型的req
@@ -193,7 +193,7 @@ curl -X POST --data '{"jsonrpc":"2.0","method":"eth_sendRawTransaction","params"
 {"jsonrpc":"2.0","id":1,"result":"0xac2fe3ac6bd424b8b6fb80d74b88ecfdc9347ceeee14d68f9eebf8ebe6f037a6"}
 */
 func EthSendRawTransactionApi(url string, params interface{}) (*http.Response, error) {
-	log.Println(fmt.Printf("*********start to run api function EthGetBalanceApi *******"))
+	log.Println(fmt.Printf("*********start to run api function EthSendRawTransactionApi *******"))
 	method := EthSendRawTransaction
 	request := NewReqBody(jsonrpc, method, params, id)
 	req, err := json.Marshal(*request)
