@@ -32,6 +32,8 @@ func GetBalTxBal(p BasepParam, e func(ethcmm.Address) []TxParam) {
 				acc := accounts[aIndex]
 				cli := clients[aIndex%len(clients)]
 
+				log.Println(fmt.Printf("[g%d] start to run test: %s", gIndex))
+
 				//获取余额
 				resp, _ := GetAccBalance(gIndex, acc, TestNetUrl)
 				bal1 := string(resp.Result)
@@ -74,8 +76,8 @@ func AssertCompare(val1 string, val2 string, errInfo string)  {
 }
 
 func GetAccBalance(gIndex int, acc *EthAccount, url string)(rpcResp *RPCResp, err error){
-	acc.Lock()
-	defer acc.Unlock()
+	//acc.Lock()
+	//defer acc.Unlock()
 	params := make([]string, 0, 5)
 	//构造request
 	address := common.GetEthAddressFromPK(acc.GetPrivateKey())
@@ -94,8 +96,8 @@ func GetAccBalance(gIndex int, acc *EthAccount, url string)(rpcResp *RPCResp, er
 }
 
 func GetBlockNumber(gIndex int, acc *EthAccount, url string)(rpcResp *RPCResp, err error) {
-	acc.Lock()
-	defer acc.Unlock()
+	//acc.Lock()
+	//defer acc.Unlock()
 
 	resp, _ := EthBlockNumberApi(url)
 	body, e := GetRespBody(resp)
