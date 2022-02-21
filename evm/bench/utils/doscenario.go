@@ -33,11 +33,13 @@ func GetBalTxBal(p BasepParam, e func(ethcmm.Address) []TxParam) {
 				cli := clients[aIndex%len(clients)]
 
 				//获取余额
-				bal1 := GetAccBalance(gIndex, acc, TestNetUrl)
+				resp, _ := GetAccBalance(gIndex, acc, TestNetUrl)
+				bal1 := string(resp.Result)
 				//执行tx
 				execute(gIndex, cli, acc, e)
 				//再次获取余额
-				bal2 := GetAccBalance(gIndex, acc, TestNetUrl)
+				resp2, _ := GetAccBalance(gIndex, acc, TestNetUrl)
+				bal2 := string(resp2.Result)
 
 				//验证bal2 小于 bal1
 				AssertCompare(bal1, bal2, "bal1 should be greater than bal2")
@@ -71,41 +73,37 @@ func AssertCompare(val1 string, val2 string, errInfo string)  {
 	return
 }
 
-func GetAccBalance(gIndex int, acc *EthAccount, url string)(balance string){
+func GetAccBalance(gIndex int, acc *EthAccount, url string)(rpcResp *RPCResp, err error){
 	acc.Lock()
 	defer acc.Unlock()
 	params := make([]string, 0, 5)
 	//构造request
 	address := common.GetEthAddressFromPK(acc.GetPrivateKey())
-	nBlock := GetBlockNumber(gIndex,acc, url)
+	res, _:= GetBlockNumber(gIndex,acc,url)
 
 	params = append(params, address.String())
-	params = append(params, nBlock)
+	params = append(params, string(res.Result))
 
-	resp, err := EthGetBalanceApi(url, params)
-	if  err != nil {
+	resp, _ := EthGetBalanceApi(url, params)
+	rpcResp, e := GetRespBody(resp)
+	if  e != nil {
 		log.Println(fmt.Errorf("[g%d] failed to get block number, error: %s", gIndex, err))
-		return err.Error()
+		return nil, e
 	}
-	map1 := RespToMap(resp)
-	balance = map1["result"].(string)
-	defer resp.Body.Close()
-	return
+	return rpcResp,nil
 }
 
-func GetBlockNumber(gIndex int, acc *EthAccount, url string)(nBlock string) {
-	//acc.Lock()
-	//defer acc.Unlock()
+func GetBlockNumber(gIndex int, acc *EthAccount, url string)(rpcResp *RPCResp, err error) {
+	acc.Lock()
+	defer acc.Unlock()
 
-	resp, err := EthBlockNumberApi(url)
-	if  err != nil {
+	resp, _ := EthBlockNumberApi(url)
+	body, e := GetRespBody(resp)
+	if  e != nil {
 		log.Println(fmt.Errorf("[g%d] failed to get block number, error: %s", gIndex, err))
-		return err.Error()
+		return nil, e
 	}
-	map1 := RespToMap(resp)
-	nBlock = map1["result"].(string)
-	defer resp.Body.Close()
-	return
+	return body, nil
 }
 
 
@@ -114,7 +112,7 @@ func RespToMap(resp *http.Response) map[string]interface{}{
 	tmp := make(map[string]interface{})
 	r, e := ioutil.ReadAll(resp.Body)
 	if e != nil {
-		log.Println("Response to map is err: %s", e)
+		log.Println(fmt.Errorf("Response to map is err: %s", e))
 	}
 	json.Unmarshal([]byte(string(r)),&tmp)
 	return tmp

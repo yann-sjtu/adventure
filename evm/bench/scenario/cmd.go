@@ -4,7 +4,7 @@ import "github.com/spf13/cobra"
 
 func ScenarioCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use: "Scenario",
+		Use: "scenario",
 		Short: "Scenario test including getBalance, tx and getBalance",
 		Run: scenario,
 	}

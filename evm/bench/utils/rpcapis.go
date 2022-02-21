@@ -62,18 +62,32 @@ const (
 )
 
 type ReqBody struct {
-	jsonrpc  	string
-	method 		string
-	params		interface{}
-	id			int
+	Jsonrpc  	string  		`json:"jsonrpc"`
+	Method 		string			`json:"method"`
+	Params		interface{}		`json:"params"`
+	Id			int				`json:"id"`
 }
+
+type RPCError struct {
+	Code    int         `json:"code"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data,omitempty"`
+}
+
+type RPCResp struct {
+	Error  		*RPCError       `json:"error"`
+	Jsonrpc  	string  		`json:"jsonrpc"`
+	Id     		int             `json:"id"`
+	Result 		json.RawMessage `json:"result,omitempty"`
+}
+
 
 func NewReqBody(jsonrpc string, method string, params interface{}, id int) *ReqBody {
 	return &ReqBody{
-		jsonrpc: jsonrpc,
-		method: method,
-		params: params,
-		id: 	id,
+		Jsonrpc: jsonrpc,
+		Method: method,
+		Params: params,
+		Id: 	id,
 	}
 }
 
@@ -81,6 +95,7 @@ func NewReqBody(jsonrpc string, method string, params interface{}, id int) *ReqB
 url:
 测试网 https://exchaintestrpc.okex.org
 主网 https://exchainrpc.okex.org
+保留 http.Response 是为了做更多的字段验证
  */
 func DoPost(url string, postBody []byte) (*http.Response, error) {
 	client := &http.Client{}
@@ -105,7 +120,24 @@ func DoPost(url string, postBody []byte) (*http.Response, error) {
 	return resp, nil
 }
 
+/**
+将response的body解码成RPCResp结构
+只验证body中的返回信息
+ */
+func GetRespBody(resp *http.Response)(rpcResp *RPCResp, err error){
+	err = json.NewDecoder(resp.Body).Decode(&rpcResp)
 
+	if err != nil {
+		log.Println("fail", err)
+		return nil, err
+	}
+	if rpcResp.Error != nil {
+		log.Println("fail", rpcResp.Error)
+		return nil, err
+	}
+	log.Println("success", string(rpcResp.Result))
+	return rpcResp, nil
+}
 
 func PanicErr(err error){
 	if err != nil {
@@ -143,7 +175,7 @@ curl -X POST --data '{"jsonrpc":"2.0","method":"eth_getBalance","params":["0xAeF
 func EthGetBalanceApi(url string, params interface{}) (*http.Response, error) {
 	method := EthGetBalance
 	request := NewReqBody(jsonrpc, method, params, id)
-	req, err := json.Marshal(request)
+	req, err := json.Marshal(*request)
 	PanicErr(err)
 	return DoPost(url, req)
 }
@@ -160,7 +192,7 @@ curl -X POST --data '{"jsonrpc":"2.0","method":"eth_sendRawTransaction","params"
 func EthSendRawTransactionApi(url string, params interface{}) (*http.Response, error) {
 	method := EthSendRawTransaction
 	request := NewReqBody(jsonrpc, method, params, id)
-	req, err := json.Marshal(request)
+	req, err := json.Marshal(*request)
 	PanicErr(err)
 	return DoPost(url, req)
 }
