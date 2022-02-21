@@ -3,7 +3,6 @@ package common
 import (
 	"crypto/ecdsa"
 	"fmt"
-
 	ethcmm "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 )
@@ -15,3 +14,6 @@ func GetEthAddressFromPK(privateKey *ecdsa.PrivateKey) ethcmm.Address {
 	}
 	return crypto.PubkeyToAddress(*pubkeyECDSA)
 }
+
+
+

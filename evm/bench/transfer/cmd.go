@@ -10,6 +10,5 @@ func TransferCmd() *cobra.Command {
 	}
 
 	cmd.Flags().BoolVarP(&fixed, "fixed", "f", false, "if true, transfer to one address; otherwise, transfer to a random address")
-
 	return cmd
 }
