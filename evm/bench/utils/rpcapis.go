@@ -115,8 +115,7 @@ func DoPost(url string, postBody []byte) (rpcResp *RPCResp, err error) {
 		log.Println(strconv.FormatInt(elapsed.Milliseconds(),10) + "ms", "Fail to Post", respErr)
 		return nil, respErr
 	}
-
-	log.Println(strconv.FormatInt(elapsed.Milliseconds(),10) + "ms", "Success to Post")
+	//log.Println(strconv.FormatInt(elapsed.Milliseconds(),10) + "ms", "Success to Post")
 	defer resp.Body.Close()
 	return GetRespBody(resp)
 }
@@ -135,7 +134,7 @@ func GetRespBody(resp *http.Response)(rpcResp *RPCResp, err error){
 		log.Println("rpcResp fail to get body", rpcResp.Error)
 		return nil, err
 	}
-	log.Println("success to get response result: ", string(rpcResp.Result))
+	//log.Println("success to get response result: ", string(rpcResp.Result))
 	return rpcResp, nil
 }
 
@@ -155,7 +154,7 @@ curl -X POST --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id
 
  */
 func EthBlockNumberApi(url string) (rpcResp *RPCResp, err error) {
-	log.Println(fmt.Errorf("*********start to run api function EthBlockNumberApi *******"))
+	log.Println(fmt.Errorf("start to run api function EthBlockNumberApi"))
 	method := EthBlockNumber
 	request := NewReqBody(jsonrpc,method,nil, id)
 	//处理成为[]byte类型的req
@@ -174,7 +173,7 @@ curl -X POST --data '{"jsonrpc":"2.0","method":"eth_getBalance","params":["0xAeF
 {"jsonrpc":"2.0","id":1,"result":"0x1708e7a6bc8d6c00"}
  */
 func EthGetBalanceApi(url string, params interface{}) (rpcResp *RPCResp, err error) {
-	log.Println(fmt.Errorf("*********start to run api function EthGetBalanceApi *******"))
+	log.Println(fmt.Errorf("start to run api function EthGetBalanceApi"))
 	method := EthGetBalance
 	request := NewReqBody(jsonrpc, method, params, id)
 	req, err := json.Marshal(*request)
@@ -192,7 +191,7 @@ curl -X POST --data '{"jsonrpc":"2.0","method":"eth_sendRawTransaction","params"
 {"jsonrpc":"2.0","id":1,"result":"0xac2fe3ac6bd424b8b6fb80d74b88ecfdc9347ceeee14d68f9eebf8ebe6f037a6"}
 */
 func EthSendRawTransactionApi(url string, params interface{}) (rpcResp *RPCResp, err error) {
-	log.Println(fmt.Errorf("*********start to run api function EthSendRawTransactionApi *******"))
+	log.Println(fmt.Errorf("start to run api function EthSendRawTransactionApi"))
 	method := EthSendRawTransaction
 	request := NewReqBody(jsonrpc, method, params, id)
 	req, err := json.Marshal(*request)
