@@ -22,7 +22,7 @@ import (
 遍历账户，获取账户余额， 转账，然后再次获取用户余额，验证下余额变化，余额减少
 */
 
-func GetBalTxBal(p BasepParam, e func(ethcmm.Address) []TxParam) {
+func GetBalTxBal_bak(p BasepParam, e func(ethcmm.Address) []TxParam) {
 	clients := client.GenerateClients(p.ips)    // generate CosmosClient or EthClient
 	accounts := generateAccounts(p.privateKeys) // generate accounts
 	aIndex := 0
@@ -32,7 +32,7 @@ func GetBalTxBal(p BasepParam, e func(ethcmm.Address) []TxParam) {
 	execBalTxBal(aIndex, cli, acc, e)
 }
 
-func GetBalTxBal_bak(p BasepParam, e func(ethcmm.Address) []TxParam) {
+func GetBalTxBal(p BasepParam, e func(ethcmm.Address) []TxParam) {
 	clients := client.GenerateClients(p.ips)    // generate CosmosClient or EthClient
 	accounts := generateAccounts(p.privateKeys) // generate accounts
 
@@ -95,7 +95,7 @@ func AssertCompare(val1 string, val2 string, errInfo string) (bRet bool) {
 	intB := new(big.Int).SetBytes(b)
 	n := intA.Cmp(intB)
 	if n >0 || n ==0  {
-		log.Println(fmt.Printf("success to assert comparison"))
+		log.Println(fmt.Errorf(("success to do assert comparison")))
 		bRet = true
 		return bRet
 	}
