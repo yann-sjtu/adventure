@@ -96,12 +96,12 @@ func AssertCompare(val1 string, val2 string, errInfo string) (bRet bool) {
 
 func GetAccBalance(gIndex int, acc *EthAccount, url string)(rpcResp *RPCResp, err error){
 
+	prefix := "0x"
 	params := make([]string, 0, 5)
 	//构造request
 	address := common.GetEthAddressFromPK(acc.GetPrivateKey())
 	res, _:= GetBlockNumber(gIndex,acc,url)
-
-	params = append(params, address.String())
+	params = append(params, prefix + address.String())
 	params = append(params, string(res.Result))
 	//调用函数，获得返回
 	rpcResp, err = EthGetBalanceApi(url, params)
