@@ -65,12 +65,12 @@ func execBalTxBal(gIndex int, cli client.Client, acc *EthAccount, e func(ethcmm.
 	bal2 := string(resp2.Result)[1:len(string(resp2.Result))-1]
 
 	//验证bal2 小于 bal1
-	bRet := AssertCompare(bal1, bal2, "bal1 should be greater than bal2")
+	bRet := AssertCompare(bal1, bal2, "bal1 should be greater than or equal to bal2")
 	sRet := "FAIL"
 	if bRet == true{
 		sRet = "SUCCESS"
 	}
-	log.Println(fmt.Errorf(" ****[%d] finish execBalTxBal, and %s\n", gIndex,sRet))
+	log.Println(fmt.Errorf("[%d] finish execBalTxBal, and %s\n", gIndex,sRet))
 }
 
 /**
@@ -117,7 +117,7 @@ func GetAccBalance(gIndex int, acc *EthAccount, url string)(rpcResp *RPCResp, er
 	}
 	//这里注意，拿到的result是包含两个引号的，需要想办法去掉
 	params = append(params, string(res.Result)[1:len(string(res.Result))-1])
-	log.Println(fmt.Errorf("params[0] is : %s;  params[1] is : %s; ", params[0], params[1]))
+	//log.Println(fmt.Errorf("params[0] is : %s;  params[1] is : %s; ", params[0], params[1]))
 	//调用函数，获得返回
 	rpcResp, err = EthGetBalanceApi(url, params)
 

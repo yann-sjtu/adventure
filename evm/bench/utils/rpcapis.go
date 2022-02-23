@@ -112,11 +112,11 @@ func DoPost(url string, postBody []byte) (rpcResp *RPCResp, err error) {
 	elapsed := time.Since(startTime)
 
 	if respErr != nil {
-		log.Println(postBody, strconv.FormatInt(elapsed.Milliseconds(),10) + "ms", "Fail to Post", respErr)
+		log.Println(strconv.FormatInt(elapsed.Milliseconds(),10) + "ms", "Fail to Post", respErr)
 		return nil, respErr
 	}
 
-	log.Println(postBody, strconv.FormatInt(elapsed.Milliseconds(),10) + "ms", "Success to Post")
+	log.Println(strconv.FormatInt(elapsed.Milliseconds(),10) + "ms", "Success to Post")
 	defer resp.Body.Close()
 	return GetRespBody(resp)
 }
@@ -135,7 +135,7 @@ func GetRespBody(resp *http.Response)(rpcResp *RPCResp, err error){
 		log.Println("rpcResp fail to get body", rpcResp.Error)
 		return nil, err
 	}
-	log.Println("success to get body ", string(rpcResp.Result))
+	log.Println("success to get response result: ", string(rpcResp.Result))
 	return rpcResp, nil
 }
 
@@ -178,7 +178,6 @@ func EthGetBalanceApi(url string, params interface{}) (rpcResp *RPCResp, err err
 	method := EthGetBalance
 	request := NewReqBody(jsonrpc, method, params, id)
 	req, err := json.Marshal(*request)
-	log.Println("EthGetBalanceApi req is : ",string(req))
 	PanicErr(err)
 	return DoPost(url, req)
 }
