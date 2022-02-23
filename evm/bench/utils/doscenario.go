@@ -70,7 +70,7 @@ func execBalTxBal(gIndex int, cli client.Client, acc *EthAccount, e func(ethcmm.
 	if bRet == true{
 		sRet = "SUCCESS"
 	}
-	log.Println(fmt.Errorf("[%d] finish execBalTxBal, and %s\n", gIndex,sRet))
+	log.Println(fmt.Errorf("[g%d] finish to do execBalTxBal assertion, and %s\n", gIndex,sRet))
 }
 
 /**
@@ -78,7 +78,6 @@ func execBalTxBal(gIndex int, cli client.Client, acc *EthAccount, e func(ethcmm.
  */
 
 func AssertCompare(val1 string, val2 string, errInfo string) (bRet bool) {
-	log.Println(fmt.Errorf("*********start to do comparison AssertCompare: val1 is %s; val2 is %s", val1, val2))
 	if strings.Contains(val1, "0x"){
 		val1 = val1[2:len(val1)]
 	}
@@ -136,8 +135,6 @@ func GetBlockNumber(gIndex int, acc *EthAccount, url string)(rpcResp *RPCResp, e
 	}
 	return rpcResp, nil
 }
-
-
 
 func RespToMap(resp *http.Response) map[string]interface{}{
 	tmp := make(map[string]interface{})
