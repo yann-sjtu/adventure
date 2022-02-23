@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"math/big"
 	"net/http"
+	"strings"
 	"time"
 	"log"
 
@@ -78,6 +79,12 @@ func execBalTxBal(gIndex int, cli client.Client, acc *EthAccount, e func(ethcmm.
 
 func AssertCompare(val1 string, val2 string, errInfo string) (bRet bool) {
 	log.Println(fmt.Errorf("*********start to do comparison AssertCompare: val1 is %s; val2 is %s", val1, val2))
+	if strings.Contains(val1, "0x"){
+		val1 = val1[2:len(val1)]
+	}
+	if strings.Contains(val2, "0x"){
+		val2 = val2[2:len(val2)]
+	}
 	bRet = false
 	a, err1 := hex.DecodeString(val1)
 	b, err2 := hex.DecodeString(val2)
@@ -87,12 +94,12 @@ func AssertCompare(val1 string, val2 string, errInfo string) (bRet bool) {
 	intA := new(big.Int).SetBytes(a)
 	intB := new(big.Int).SetBytes(b)
 	n := intA.Cmp(intB)
-	if n >0 {
-		log.Println(fmt.Printf("success to assert"))
+	if n >0 || n ==0  {
+		log.Println(fmt.Printf("success to assert comparison"))
 		bRet = true
 		return bRet
 	}
-	log.Println(fmt.Errorf("fail to assert, error happen: %s, val1 is: %s; val2 is : %s", errInfo, intA, intB))
+	log.Println(fmt.Errorf("fail to assert, error happen: %s, intA is: %s; intB is : %s", errInfo, intA, intB))
 	return bRet
 }
 
