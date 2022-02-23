@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	ethcmm "github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/okex/adventure/common"
 	"github.com/okex/adventure/common/client"
 	"io/ioutil"
