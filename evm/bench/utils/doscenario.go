@@ -31,20 +31,8 @@ func GetBalTxBal(p BasepParam, e func(ethcmm.Address) []TxParam) {
 				aIndex := (gIndex + j*p.concurrency) % len(accounts) // make sure accounts will be picked in order by round-robin
 				acc := accounts[aIndex]
 				cli := clients[aIndex%len(clients)]
-
-				log.Println(fmt.Printf("[g%d] start to run scenaria test\n", gIndex))
-
-				//获取余额
-				resp, _ := GetAccBalance(gIndex, acc, TestNetUrl)
-				bal1 := string(resp.Result)
-				//执行tx
-				execute(gIndex, cli, acc, e)
-				//再次获取余额
-				resp2, _ := GetAccBalance(gIndex, acc, TestNetUrl)
-				bal2 := string(resp2.Result)
-
-				//验证bal2 小于 bal1
-				AssertCompare(bal1, bal2, "bal1 should be greater than bal2")
+				log.Println(fmt.Errorf("[g%d] start to run scenaria test\n", gIndex))
+				execBalTxBal(gIndex, cli, acc, e)
 				time.Sleep(time.Millisecond * time.Duration(p.sleep))
 			}
 		}(i)
@@ -53,12 +41,32 @@ func GetBalTxBal(p BasepParam, e func(ethcmm.Address) []TxParam) {
 	select {}
 }
 
+func execBalTxBal(gIndex int, cli client.Client, acc *EthAccount, e func(ethcmm.Address) []TxParam){
+	//获取余额
+	resp, _ := GetAccBalance(gIndex, acc, TestNetUrl)
+	bal1 := string(resp.Result)
+	//执行tx
+	execute(gIndex, cli, acc, e)
+	//再次获取余额
+	resp2, _ := GetAccBalance(gIndex, acc, TestNetUrl)
+	bal2 := string(resp2.Result)
+
+	//验证bal2 小于 bal1
+	bRet := AssertCompare(bal1, bal2, "bal1 should be greater than bal2")
+	sRet := "FAIL"
+	if bRet == true{
+		sRet = "SUCCESS"
+	}
+	log.Println(fmt.Errorf(" ****[%d] finish execBalTxBal, and %s\n", gIndex,sRet))
+}
+
 /**
 16进制数据比较，使用Big.Int
  */
 
-func AssertCompare(val1 string, val2 string, errInfo string)  {
+func AssertCompare(val1 string, val2 string, errInfo string) (bRet bool) {
 	log.Println(fmt.Printf("*********start to do comparison AssertCompare *******\n"))
+	bRet = false
 	a, err1 := hex.DecodeString(val1)
 	b, err2 := hex.DecodeString(val2)
 	if err1 != nil || err2 !=nil {
@@ -69,15 +77,15 @@ func AssertCompare(val1 string, val2 string, errInfo string)  {
 	n := intA.Cmp(intB)
 	if n >0 {
 		log.Println(fmt.Printf("success to assert"))
-		return
+		bRet = true
+		return bRet
 	}
 	log.Println("fail to assert, error happen: %s, val1 is: %s; val2 is : %s\n", errInfo, intA, intB)
-	return
+	return bRet
 }
 
 func GetAccBalance(gIndex int, acc *EthAccount, url string)(rpcResp *RPCResp, err error){
-	//acc.Lock()
-	//defer acc.Unlock()
+
 	params := make([]string, 0, 5)
 	//构造request
 	address := common.GetEthAddressFromPK(acc.GetPrivateKey())
@@ -87,23 +95,21 @@ func GetAccBalance(gIndex int, acc *EthAccount, url string)(rpcResp *RPCResp, er
 	params = append(params, string(res.Result))
 
 	resp, _ := EthGetBalanceApi(url, params)
-	rpcResp, e := GetRespBody(resp)
-	if  e != nil {
-		log.Println(fmt.Errorf("[g%d] failed to get block number, error: %s", gIndex, err))
-		return nil, e
+	rpcResp, err = GetRespBody(resp)
+	if  err != nil {
+		log.Println(fmt.Errorf("[g%d] failed to get account balance, error: %s", gIndex, err))
+		return nil, err
 	}
 	return rpcResp,nil
 }
 
 func GetBlockNumber(gIndex int, acc *EthAccount, url string)(rpcResp *RPCResp, err error) {
-	//acc.Lock()
-	//defer acc.Unlock()
 
 	resp, _ := EthBlockNumberApi(url)
-	body, e := GetRespBody(resp)
-	if  e != nil {
+	body, err := GetRespBody(resp)
+	if  err != nil {
 		log.Println(fmt.Errorf("[g%d] failed to get block number, error: %s", gIndex, err))
-		return nil, e
+		return nil, err
 	}
 	return body, nil
 }
