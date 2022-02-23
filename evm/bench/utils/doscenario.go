@@ -102,8 +102,13 @@ func GetAccBalance(gIndex int, acc *EthAccount, url string)(rpcResp *RPCResp, er
 	address := common.GetEthAddressFromPK(acc.GetPrivateKey())
 	res, _:= GetBlockNumber(gIndex,acc,url)
 	params = append(params, address.String())
-	params = append(params, string(res.Result))
-	log.Println(fmt.Errorf("params[0] is : %s;params[1] is : %s; ", params[0], params[1]))
+
+	if res.Result == nil{
+		log.Println(fmt.Errorf("Error: block num is nil "))
+	}
+	//这里注意，拿到的result是包含两个引号的，需要想办法去掉
+	params = append(params, string(res.Result)[1:len(string(res.Result))-1])
+	log.Println(fmt.Errorf("params[0] is : %s;  params[1] is : %s; ", params[0], params[1]))
 	//调用函数，获得返回
 	rpcResp, err = EthGetBalanceApi(url, params)
 
