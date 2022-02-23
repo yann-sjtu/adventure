@@ -98,7 +98,7 @@ url:
 主网 https://exchainrpc.okex.org
 保留 http.Response 是为了做更多的字段验证
  */
-func DoPost(url string, postBody []byte) (*http.Response, error) {
+func DoPost(url string, postBody []byte) (rpcResp *RPCResp, err error) {
 	client := &http.Client{}
 
 	req, err := http.NewRequest(post, url, bytes.NewBuffer(postBody))
@@ -118,7 +118,7 @@ func DoPost(url string, postBody []byte) (*http.Response, error) {
 
 	log.Println(postBody, strconv.FormatInt(elapsed.Milliseconds(),10) + "ms", "Success")
 	defer resp.Body.Close()
-	return resp, nil
+	return GetRespBody(resp)
 }
 
 /**
@@ -155,7 +155,7 @@ curl -X POST --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id
 {"jsonrpc":"2.0","id":1,"result":"0x92e29c"}
 
  */
-func EthBlockNumberApi(url string) (*http.Response, error) {
+func EthBlockNumberApi(url string) (rpcResp *RPCResp, err error) {
 	log.Println(fmt.Errorf("*********start to run api function EthBlockNumberApi *******"))
 	method := EthBlockNumber
 	request := NewReqBody(jsonrpc,method,nil, id)
@@ -174,7 +174,7 @@ func EthBlockNumberApi(url string) (*http.Response, error) {
 curl -X POST --data '{"jsonrpc":"2.0","method":"eth_getBalance","params":["0xAeFA44f2E8cb4871A0cA862a4E7C5f2761111886", "0x92e23d"],"id":1}' -H "Content-Type: application/json" https://exchaintestrpc.okex.org
 {"jsonrpc":"2.0","id":1,"result":"0x1708e7a6bc8d6c00"}
  */
-func EthGetBalanceApi(url string, params interface{}) (*http.Response, error) {
+func EthGetBalanceApi(url string, params interface{}) (rpcResp *RPCResp, err error) {
 	log.Println(fmt.Errorf("*********start to run api function EthGetBalanceApi *******"))
 	method := EthGetBalance
 	request := NewReqBody(jsonrpc, method, params, id)
@@ -192,7 +192,7 @@ curl -X POST --data '{"jsonrpc":"2.0","method":"eth_sendRawTransaction","params"
 -H "Content-Type: application/json" https://exchaintestrpc.okex.org
 {"jsonrpc":"2.0","id":1,"result":"0xac2fe3ac6bd424b8b6fb80d74b88ecfdc9347ceeee14d68f9eebf8ebe6f037a6"}
 */
-func EthSendRawTransactionApi(url string, params interface{}) (*http.Response, error) {
+func EthSendRawTransactionApi(url string, params interface{}) (rpcResp *RPCResp, err error) {
 	log.Println(fmt.Errorf("*********start to run api function EthSendRawTransactionApi *******"))
 	method := EthSendRawTransaction
 	request := NewReqBody(jsonrpc, method, params, id)

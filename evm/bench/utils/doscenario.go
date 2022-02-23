@@ -104,10 +104,8 @@ func GetAccBalance(gIndex int, acc *EthAccount, url string)(rpcResp *RPCResp, er
 	params = append(params, address.String())
 	params = append(params, string(res.Result))
 	//调用函数，获得返回
-	resp, _ := EthGetBalanceApi(url, params)
+	rpcResp, err = EthGetBalanceApi(url, params)
 
-	//parse 返回结果中的数据
-	rpcResp, err = GetRespBody(resp)
 	if  err != nil {
 		log.Println(fmt.Errorf("[g%d] failed to get account balance, error: %s", gIndex, err))
 		return nil, err
@@ -117,13 +115,12 @@ func GetAccBalance(gIndex int, acc *EthAccount, url string)(rpcResp *RPCResp, er
 
 func GetBlockNumber(gIndex int, acc *EthAccount, url string)(rpcResp *RPCResp, err error) {
 
-	resp, _ := EthBlockNumberApi(url)
-	body, err := GetRespBody(resp)
+	rpcResp, err = EthBlockNumberApi(url)
 	if  err != nil {
 		log.Println(fmt.Errorf("[g%d] failed to get block number, error: %s", gIndex, err))
 		return nil, err
 	}
-	return body, nil
+	return rpcResp, nil
 }
 
 
