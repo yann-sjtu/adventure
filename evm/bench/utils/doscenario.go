@@ -54,12 +54,14 @@ func GetBalTxBal_bak(p BasepParam, e func(ethcmm.Address) []TxParam) {
 func execBalTxBal(gIndex int, cli client.Client, acc *EthAccount, e func(ethcmm.Address) []TxParam){
 	//获取余额
 	resp, _ := GetAccBalance(gIndex, acc, TestNetUrl)
-	bal1 := string(resp.Result)
+	//切片是去除""
+	bal1 := string(resp.Result)[1:len(string(resp.Result))-1]
 	//执行tx
 	execute(gIndex, cli, acc, e)
 	//再次获取余额
 	resp2, _ := GetAccBalance(gIndex, acc, TestNetUrl)
-	bal2 := string(resp2.Result)
+	//切片是去除""
+	bal2 := string(resp2.Result)[1:len(string(resp2.Result))-1]
 
 	//验证bal2 小于 bal1
 	bRet := AssertCompare(bal1, bal2, "bal1 should be greater than bal2")
@@ -75,7 +77,7 @@ func execBalTxBal(gIndex int, cli client.Client, acc *EthAccount, e func(ethcmm.
  */
 
 func AssertCompare(val1 string, val2 string, errInfo string) (bRet bool) {
-	log.Println(fmt.Errorf("*********start to do comparison AssertCompare *******"))
+	log.Println(fmt.Errorf("*********start to do comparison AssertCompare: val1 is %s; val2 is %s", val1, val2))
 	bRet = false
 	a, err1 := hex.DecodeString(val1)
 	b, err2 := hex.DecodeString(val2)
