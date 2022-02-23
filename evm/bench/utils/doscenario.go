@@ -42,7 +42,6 @@ func GetBalTxBal(p BasepParam, e func(ethcmm.Address) []TxParam) {
 				aIndex := (gIndex + j*p.concurrency) % len(accounts) // make sure accounts will be picked in order by round-robin
 				acc := accounts[aIndex]
 				cli := clients[aIndex%len(clients)]
-				log.Println(fmt.Errorf("[concurrency%d][gIndex%d] start to execBalTxBal test",i,gIndex))
 				execBalTxBal(gIndex, cli, acc, e)
 				time.Sleep(time.Millisecond * time.Duration(p.sleep))
 			}
@@ -70,7 +69,7 @@ func execBalTxBal(gIndex int, cli client.Client, acc *EthAccount, e func(ethcmm.
 	if bRet == true{
 		sRet = "SUCCESS"
 	}
-	log.Println(fmt.Errorf("[g%d] finish to do execBalTxBal assertion, and %s\n", gIndex,sRet))
+	log.Println(fmt.Errorf("[g%d] finish to do execBalTxBal assertion, and %s", gIndex,sRet))
 }
 
 /**
