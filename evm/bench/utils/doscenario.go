@@ -24,6 +24,16 @@ import (
 func GetBalTxBal(p BasepParam, e func(ethcmm.Address) []TxParam) {
 	clients := client.GenerateClients(p.ips)    // generate CosmosClient or EthClient
 	accounts := generateAccounts(p.privateKeys) // generate accounts
+	aIndex := 0
+	acc := accounts[aIndex]
+	cli := clients[aIndex%len(clients)]
+	log.Println(fmt.Errorf("[concurrency%d][aIndex%d] start to execBalTxBal test",0,0))
+	execBalTxBal(aIndex, cli, acc, e)
+}
+
+func GetBalTxBal_bak(p BasepParam, e func(ethcmm.Address) []TxParam) {
+	clients := client.GenerateClients(p.ips)    // generate CosmosClient or EthClient
+	accounts := generateAccounts(p.privateKeys) // generate accounts
 
 	for i := 0; i < p.concurrency; i++ {
 		go func(gIndex int) {
@@ -31,7 +41,7 @@ func GetBalTxBal(p BasepParam, e func(ethcmm.Address) []TxParam) {
 				aIndex := (gIndex + j*p.concurrency) % len(accounts) // make sure accounts will be picked in order by round-robin
 				acc := accounts[aIndex]
 				cli := clients[aIndex%len(clients)]
-				log.Println(fmt.Errorf("[g%d] start to run scenaria test\n", gIndex))
+				log.Println(fmt.Errorf("[concurrency%d][gIndex%d] start to execBalTxBal test",i,gIndex))
 				execBalTxBal(gIndex, cli, acc, e)
 				time.Sleep(time.Millisecond * time.Duration(p.sleep))
 			}
@@ -65,12 +75,12 @@ func execBalTxBal(gIndex int, cli client.Client, acc *EthAccount, e func(ethcmm.
  */
 
 func AssertCompare(val1 string, val2 string, errInfo string) (bRet bool) {
-	log.Println(fmt.Printf("*********start to do comparison AssertCompare *******\n"))
+	log.Println(fmt.Errorf("*********start to do comparison AssertCompare *******"))
 	bRet = false
 	a, err1 := hex.DecodeString(val1)
 	b, err2 := hex.DecodeString(val2)
 	if err1 != nil || err2 !=nil {
-		log.Println("err1 is : %s; err2 is : %s", err1, err2)
+		log.Println(fmt.Errorf("err1 is : %s; err2 is : %s", err1, err2))
 	}
 	intA := new(big.Int).SetBytes(a)
 	intB := new(big.Int).SetBytes(b)
@@ -80,7 +90,7 @@ func AssertCompare(val1 string, val2 string, errInfo string) (bRet bool) {
 		bRet = true
 		return bRet
 	}
-	log.Println("fail to assert, error happen: %s, val1 is: %s; val2 is : %s\n", errInfo, intA, intB)
+	log.Println(fmt.Errorf("fail to assert, error happen: %s, val1 is: %s; val2 is : %s", errInfo, intA, intB))
 	return bRet
 }
 
@@ -93,8 +103,10 @@ func GetAccBalance(gIndex int, acc *EthAccount, url string)(rpcResp *RPCResp, er
 
 	params = append(params, address.String())
 	params = append(params, string(res.Result))
-
+	//调用函数，获得返回
 	resp, _ := EthGetBalanceApi(url, params)
+
+	//parse 返回结果中的数据
 	rpcResp, err = GetRespBody(resp)
 	if  err != nil {
 		log.Println(fmt.Errorf("[g%d] failed to get account balance, error: %s", gIndex, err))
