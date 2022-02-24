@@ -8,12 +8,11 @@ import (
 	"github.com/okex/adventure/common"
 	"github.com/okex/adventure/common/client"
 	"io/ioutil"
+	"log"
 	"math/big"
 	"net/http"
 	"strings"
 	"time"
-	"log"
-
 )
 
 
@@ -21,17 +20,6 @@ import (
 /**
 遍历账户，获取账户余额， 转账，然后再次获取用户余额，验证下余额变化，余额减少
 */
-
-func GetBalTxBal_single(p BasepParam, e func(ethcmm.Address) []TxParam) {
-	clients := client.GenerateClients(p.ips)    // generate CosmosClient or EthClient
-	accounts := generateAccounts(p.privateKeys) // generate accounts
-	aIndex := 0
-	acc := accounts[aIndex]
-	cli := clients[aIndex%len(clients)]
-	log.Println(fmt.Errorf("[concurrency%d][aIndex%d] start to execBalTxBal test",0,0))
-	execBalTxBal(aIndex, cli, acc, e)
-}
-
 func GetBalTxBal(p BasepParam, e func(ethcmm.Address) []TxParam) {
 	clients := client.GenerateClients(p.ips)    // generate CosmosClient or EthClient
 	accounts := generateAccounts(p.privateKeys) // generate accounts
@@ -102,7 +90,6 @@ func AssertCompare(val1 string, val2 string, errInfo string) (bRet bool) {
 
 func GetAccBalance(gIndex int, acc *EthAccount, url string)(rpcResp *RPCResp, err error){
 
-	//prefix := "0x"
 	params := make([]string, 0, 5)
 	//构造request
 	address := common.GetEthAddressFromPK(acc.GetPrivateKey())
@@ -112,7 +99,7 @@ func GetAccBalance(gIndex int, acc *EthAccount, url string)(rpcResp *RPCResp, er
 	if res.Result == nil{
 		log.Println(fmt.Errorf("Error: block num is nil "))
 	}
-	//这里注意，拿到的result是包含两个引号的，需要想办法去掉
+	//这里注意，拿到的result是包含两个引号的，通过切片去除
 	params = append(params, string(res.Result)[1:len(string(res.Result))-1])
 	//log.Println(fmt.Errorf("params[0] is : %s;  params[1] is : %s; ", params[0], params[1]))
 	//调用函数，获得返回

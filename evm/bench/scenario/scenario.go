@@ -45,11 +45,9 @@ func scenario(cmd *cobra.Command, args []string) {
 
 }
 
-
 /**
 遍历账户，获取账户余额， 转账，然后再次获取用户余额，验证下余额变化，余额减少
  */
-
 
 func LoadAddress() []ethcmm.Address {
 	privateKeyFile := viper.GetString(constant.FlagPrivateKeyFile);
