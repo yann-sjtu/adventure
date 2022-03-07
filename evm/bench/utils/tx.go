@@ -23,17 +23,19 @@ type TxParam struct {
 }
 
 var (
-	txhash	string
 	lstTxHash = make([]string, 0)
 	duration	int64
+	ratio		float32
+	tps			int64
 
 )
 /**
 作用：用来计算并发携程一次发送完毕后的的成功率
  */
-func GetTxSuccessRatio(lstTxHash []string, cocurrent int)(ratio float32){
-	len := len(lstTxHash)
-	ratio = float32(len)/float32(cocurrent)
+func GetTxTpsAndSuccessRatio(lstTxHash []string, cocurrent int64)(ratio float32, tps int64){
+	num := len(lstTxHash)
+	ratio = float32(num)/float32(cocurrent)
+	tps = cocurrent/duration/1000
 	return
 }
 
@@ -103,7 +105,9 @@ func RunTxRpc(p BasepParam, e func(ethcmm.Address) []TxParam) {
 	wg.Wait()
 	duration = time.Since(startTime).Milliseconds()
 	elapsed := strconv.FormatInt(time.Since(startTime).Milliseconds(), 10) + "ms"
+	ratio, tps = GetTxTpsAndSuccessRatio(lstTxHash,int64(p.concurrency))
 	log.Printf(" %s tx send and receive txhash and cost time: %s\n", p.concurrency, elapsed)
+	log.Printf(" tx send success ratio is : %s, and tx tps is : %s\n", ratio, tps)
 }
 
 func RunTxs(p BasepParam, e func(ethcmm.Address) []TxParam) {
