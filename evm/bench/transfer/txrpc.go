@@ -8,9 +8,11 @@ import (
 	sdk "github.com/okex/exchain/libs/cosmos-sdk/types"
 	"github.com/okex/exchain/libs/tendermint/libs/rand"
 	"github.com/spf13/cobra"
+	"runtime"
 )
 
 func txrpc(cmd *cobra.Command, args []string) {
+	runtime.GOMAXPROCS(64)
 	amount := sdk.MustNewDecFromStr("0.00001").Int
 	fixedAddr := ethcmm.BytesToAddress(crypto.Keccak256(rand.Bytes(64)))
 	var toAddrs []ethcmm.Address
