@@ -12,6 +12,15 @@ func ScenarioCmd() *cobra.Command {
 	return cmd
 }
 
+func SmokeTestCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use: "smoketest",
+		Short: "smoketest covers all eth rpc supported",
+		Run: smoketest,
+	}
+	return cmd
+}
+
 
 
 
