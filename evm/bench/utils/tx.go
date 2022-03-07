@@ -35,7 +35,7 @@ var (
 func GetTxTpsAndSuccessRatio(lstTxHash []string, cocurrent int64)(ratio float32, tps int64){
 	num := len(lstTxHash)
 	ratio = float32(num)/float32(cocurrent)
-	tps = cocurrent*1000/duration
+	tps = int64(num*1000)/duration
 	return
 }
 
