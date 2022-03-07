@@ -106,8 +106,8 @@ func RunTxRpc(p BasepParam, e func(ethcmm.Address) []TxParam) {
 	duration = time.Since(startTime).Milliseconds()
 	elapsed := strconv.FormatInt(time.Since(startTime).Milliseconds(), 10) + "ms"
 	ratio, tps = GetTxTpsAndSuccessRatio(lstTxHash,int64(p.concurrency))
-	log.Printf(" %s tx send and receive txhash and cost time: %s\n", p.concurrency, elapsed)
-	log.Printf(" tx send success ratio is : %s, and tx tps is : %s\n", ratio, tps)
+	log.Printf(" %d tx send and receive txhash and cost time: %s\n", p.concurrency, elapsed)
+	log.Printf(" tx send success ratio is : %d, and tx tps is : %d\n", ratio, tps)
 }
 
 func RunTxs(p BasepParam, e func(ethcmm.Address) []TxParam) {
