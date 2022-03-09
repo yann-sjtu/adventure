@@ -14,6 +14,3 @@ func GetEthAddressFromPK(privateKey *ecdsa.PrivateKey) ethcmm.Address {
 	}
 	return crypto.PubkeyToAddress(*pubkeyECDSA)
 }
-
-
-
