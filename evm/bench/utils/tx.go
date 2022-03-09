@@ -80,7 +80,7 @@ func getTxHashList(gIndex int, cli client.Client, acc *EthAccount, e func(ethcmm
 /**
 功能：获取返回所有账户的rlpencode
  */
-func getTxRlpEncodeList(cli client.Client, acc *EthAccount, e func(ethcmm.Address) []TxParam) ([]string){
+func getTxRlpEncodeList(cli client.Client, acc *EthAccount, e func(ethcmm.Address) []TxParam) {
 	caller := common.GetEthAddressFromPK(acc.GetPrivateKey())
 	if err := acc.SetNonce(cli); err != nil {
 		log.Println(err)
@@ -95,7 +95,7 @@ func getTxRlpEncodeList(cli client.Client, acc *EthAccount, e func(ethcmm.Addres
 			lstRlpEncode = append(lstRlpEncode, rlpencode)
 		}
 	}
-	return lstRlpEncode
+	//return lstRlpEncode
 }
 /**
 功能：获取到单个交易的rlpencode
@@ -112,6 +112,7 @@ func GetEthTxRlpEncode(pk *ecdsa.PrivateKey, nonce uint64, to ethcmm.Address, am
 	//当需要调用 eth_sendRawTransaction 函数中的 params的时候，通过下面这个rlp来构造
 	b, err := rlp.EncodeToBytes(signedTx)
 	params := "0x" + hex.EncodeToString(b)
+	log.Printf("%s\n", params)
 	return params, nil
 }
 
@@ -125,9 +126,9 @@ func RunTxGetRlpEncodeList(p BasepParam, e func(ethcmm.Address) []TxParam) {
 		getTxRlpEncodeList(cli, acc, e)
 	}
 
-	for i :=0; i<len(lstRlpEncode); i++{
-		log.Printf("%s\n", lstRlpEncode[i])
-	}
+	//for i :=0; i<len(lstRlpEncode); i++{
+	//	log.Printf("%s\n", lstRlpEncode[i])
+	//}
 }
 
 func NewTxParam(to ethcmm.Address, amount *big.Int, gasLimit uint64, gasPrice *big.Int, data []byte) TxParam {
