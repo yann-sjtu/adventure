@@ -1,7 +1,11 @@
 package utils
 
 import (
+	"crypto/ecdsa"
+	"encoding/hex"
 	"fmt"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/rlp"
 	"log"
 	"math/big"
 	"strconv"
@@ -27,6 +31,9 @@ var (
 	duration	int64
 	ratio		float32
 	tps			int64
+	lstRlpEncode = make([]string, 0)
+	chainId		 = new(big.Int).SetUint64(65)
+	signer       = types.NewLondonSigner(chainId)
 
 )
 /**
@@ -70,6 +77,58 @@ func getTxHashList(gIndex int, cli client.Client, acc *EthAccount, e func(ethcmm
 	return lstTxHash
 }
 
+/**
+功能：获取返回所有账户的rlpencode
+ */
+func getTxRlpEncodeList(cli client.Client, acc *EthAccount, e func(ethcmm.Address) []TxParam) ([]string){
+	caller := common.GetEthAddressFromPK(acc.GetPrivateKey())
+	if err := acc.SetNonce(cli); err != nil {
+		log.Println(err)
+	}
+
+	eParams := e(caller)
+	for _, eParam := range eParams {
+		rlpencode, err := GetEthTxRlpEncode(acc.GetPrivateKey(), acc.GetNonce(), eParam.to, eParam.amount, eParam.gasLimit, eParam.gasPrice, eParam.data)
+		if err != nil {
+			log.Println(err)
+		} else {
+			lstRlpEncode = append(lstRlpEncode, rlpencode)
+		}
+	}
+	return lstRlpEncode
+}
+/**
+功能：获取到单个交易的rlpencode
+ */
+func GetEthTxRlpEncode(pk *ecdsa.PrivateKey, nonce uint64, to ethcmm.Address, amount *big.Int, gaslimit uint64, gasprice *big.Int, data []byte)(string, error){
+	//make tx
+	unsignedTx := types.NewTransaction(nonce,to,amount,gaslimit,gasprice,data)
+
+	//sign tx
+	signedTx, err := types.SignTx(unsignedTx, signer, pk)
+	if err != nil {
+		log.Println(err)
+	}
+	//当需要调用 eth_sendRawTransaction 函数中的 params的时候，通过下面这个rlp来构造
+	b, err := rlp.EncodeToBytes(signedTx)
+	params := "0x" + hex.EncodeToString(b)
+	return params, nil
+}
+
+func RunTxGetRlpEncodeList(p BasepParam, e func(ethcmm.Address) []TxParam) {
+	clients := client.GenerateClients(p.ips)    // generate CosmosClient or EthClient
+	accounts := generateAccounts(p.privateKeys) // generate accounts
+
+	for j := 0; j<len(accounts) ; j++ {
+		acc := accounts[j]
+		cli := clients[0]
+		getTxRlpEncodeList(cli, acc, e)
+	}
+
+	for i :=0; i<len(lstRlpEncode); i++{
+		log.Printf("%s\n", lstRlpEncode[i])
+	}
+}
 
 func NewTxParam(to ethcmm.Address, amount *big.Int, gasLimit uint64, gasPrice *big.Int, data []byte) TxParam {
 	return TxParam{
@@ -80,6 +139,11 @@ func NewTxParam(to ethcmm.Address, amount *big.Int, gasLimit uint64, gasPrice *b
 		data,
 	}
 }
+
+
+/**
+功能：获取同时并发的交易，收到tx时候花费的总时间，并统计成功率和tps
+ */
 
 func RunTxRpc(p BasepParam, e func(ethcmm.Address) []TxParam) {
 	clients := client.GenerateClients(p.ips)    // generate CosmosClient or EthClient
