@@ -106,10 +106,11 @@ func (m *wmtManager) Loop() {
 			workerIndex++
 		}
 
+		contractIndex := index % len(m.contracList)
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			m.run(workIndexList)
+			m.run(workIndexList, contractIndex)
 		}()
 	}
 	wg.Wait()
@@ -288,7 +289,8 @@ func (m *wmtManager) runPool(poolIndex int, workIndex int, contractIndex int, ge
 	return nil
 }
 
-func (m *wmtManager) run(tasks []int) {
+func (m *wmtManager) run(tasks []int, contractIndex int) {
+
 	rand.Seed(time.Now().UnixNano())
 	sleepTime := rand.Intn(10)
 	time.Sleep(time.Duration(sleepTime) * time.Second)
@@ -296,17 +298,16 @@ func (m *wmtManager) run(tasks []int) {
 	for true {
 		for _, workIndex := range tasks {
 			getReward := turns%2 == 1
-			for contractIndex, _ := range m.contracList {
-				if err := m.runPool(0, workIndex, contractIndex, getReward); err != nil {
-					fmt.Println("runErr-0", workIndex)
-					continue
-				}
-
-				if err := m.runPool(1, workIndex, contractIndex, getReward); err != nil {
-					fmt.Println("runErr-1", workIndex)
-					continue
-				}
+			if err := m.runPool(0, workIndex, contractIndex, getReward); err != nil {
+				fmt.Println("runErr-0", workIndex, contractIndex, err)
+				continue
 			}
+
+			if err := m.runPool(1, workIndex, contractIndex, getReward); err != nil {
+				fmt.Println("runErr-1", workIndex, contractIndex, err)
+				continue
+			}
+
 		}
 		turns++
 	}
