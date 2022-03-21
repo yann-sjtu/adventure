@@ -3,10 +3,21 @@ package constant
 /*
 pragma solidity 0.6.12;
 
+interface IERC20 {
+    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
+}
+
 contract BatchTransfer {
-    function transfers(address[] calldata _tos, uint256 _amount) public payable {
+    function batchTransferOKT(address[] calldata _tos, uint256 _amount) public payable {
         for (uint256 i = 0; i < _tos.length; i++) {
             (bool sent, bytes memory data) = payable(_tos[i]).call{value: _amount}("");
+            require(sent, "Failed to send native token");
+        }
+    }
+
+    function batchTransferERC20(address[] calldata _tos, address token, uint256 _amount) public {
+        for (uint256 i = 0; i < _tos.length; i++) {
+            bool sent = IERC20(token).transferFrom(msg.sender, _tos[i], _amount);
             require(sent, "Failed to send native token");
         }
     }
