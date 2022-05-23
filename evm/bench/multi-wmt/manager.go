@@ -230,13 +230,7 @@ func (m *wmtManager) runPool(poolIndex int, workIndex int, contractIndex int, ge
 	panicerr(err)
 	txList = append(txList, SignTxWithNonce(a.ecdsaPriv, c.Router, payload, nonce))
 	nonce++
-
-	// approve token0 (for addLiquidity)
-	payload, err = erc20Builder.Build("approve", c.Router, new(big.Int).SetInt64(30))
-	panicerr(err)
-	txList = append(txList, SignTxWithNonce(a.ecdsaPriv, token0, payload, nonce))
-	nonce++
-
+	
 	// approve token1 (for addLiquidity)
 	payload, err = erc20Builder.Build("approve", c.Router, new(big.Int).SetInt64(30))
 	panicerr(err)

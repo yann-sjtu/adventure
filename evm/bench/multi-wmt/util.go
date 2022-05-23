@@ -11,6 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 	"io/ioutil"
 	"math/big"
+	"time"
 )
 
 func getPrivateKey(key string) *ecdsa.PrivateKey {
@@ -81,15 +82,23 @@ func SendTxs(client *ethclient.Client, txs []*types.Transaction) error {
 	for index, v := range txs {
 		//time.Sleep(200 * time.Microsecond)
 		cnt := 0
-		for cnt < 10 {
+		var err error
+		for cnt < 50 {
 			cnt++
-			if err := client.SendTransaction(context.Background(), v); err != nil {
-				fmt.Println("index", index, err)
-				return err
+			if e := client.SendTransaction(context.Background(), v); e != nil {
+				fmt.Println("index", index, e)
+				err = e
+				time.Sleep(time.Second * 5)
 			} else {
+				err = nil
 				break
 			}
+
 		}
+		if err != nil {
+			return err
+		}
+
 		if index != 0 && index%200 == 0 {
 			fmt.Println("send tx index", index)
 		}
