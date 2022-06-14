@@ -187,7 +187,7 @@ func RunTxs(p BasepParam, e func(ethcmm.Address) []TxParam) {
 				cli := clients[aIndex%len(clients)]
 
 				execute(gIndex, cli, acc, e)
-				time.Sleep(time.Millisecond * time.Duration(p.sleep))
+				//time.Sleep(time.Millisecond * time.Duration(p.sleep))
 			}
 		}(i)
 	}

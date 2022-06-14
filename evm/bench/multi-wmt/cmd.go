@@ -7,6 +7,14 @@ import (
 	"math/big"
 )
 
+var (
+	wmtFile  = "./config/wmt.json"
+	chainID  = new(big.Int).SetUint64(65)
+	signer   = types.NewEIP155Signer(chainID)
+	gasPrice = new(big.Int).SetUint64(1000000000)
+	gasLimit = uint64(3000000)
+)
+
 func MultiWmtCmt() *cobra.Command {
 	var wmtCmd = &cobra.Command{
 		Use:   "multiwmt",
@@ -14,6 +22,7 @@ func MultiWmtCmt() *cobra.Command {
 		Args:  cobra.NoArgs,
 		Run:   wmtRun,
 	}
+	wmtCmd.Flags().StringVar(&wmtFile, "f", "", "the location of wmt config file")
 	return wmtCmd
 }
 
@@ -24,6 +33,7 @@ func MultiWmtInit() *cobra.Command {
 		Args:  cobra.NoArgs,
 		Run:   wmtInit,
 	}
+	wmtCmd.Flags().StringVar(&wmtFile, "f", "", "the location of wmt config file")
 	return wmtCmd
 }
 
@@ -34,18 +44,12 @@ func MultiTokenBalance() *cobra.Command {
 		Args:  cobra.NoArgs,
 		Run:   wmtToken,
 	}
+	wmtCmd.Flags().StringVar(&wmtFile, "f", "", "the location of wmt config file")
 	return wmtCmd
 }
 
-var (
-	chainID  = new(big.Int).SetUint64(65)
-	signer   = types.NewEIP155Signer(chainID)
-	gasPrice = new(big.Int).SetUint64(1000000000)
-	gasLimit = uint64(3000000)
-)
-
 func getM() *wmtManager {
-	c := loadWMTConfig("./config/wmt.json")
+	c := loadWMTConfig(wmtFile)
 
 	initBuilder()
 	initClient(c)

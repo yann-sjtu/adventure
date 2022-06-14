@@ -181,7 +181,6 @@ func (m *wmtManager) TransferToken0ToAccount() {
 			nonce++
 			txs = append(txs, tx)
 		}
-
 	}
 	fmt.Println("sendTx", len(txs), "use one node,may slow")
 	if err := SendTxs(m.clientList[0], txs); err != nil {
