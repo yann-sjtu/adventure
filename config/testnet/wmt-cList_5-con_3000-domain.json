@@ -3,5 +3,5 @@
   "SuperAcc": "8ff3ca2d9985c3a52b459e2f6e7822b23e1af845961e22128d5f372fb9aa5f17",
   "ContractPath": "./config/testnet/cList_5.json",
   "WorkerPath": "./test/addr_20000_wmt",
-  "ParaNum": 30000
+  "ParaNum": 3000
 }
