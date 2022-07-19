@@ -164,6 +164,7 @@ func (m *wmtManager) TransferToken0ToAccount() {
 	fmt.Println("Begin TransferToken0ToAccount", "transferOkT:", m.sendOKTToWorker)
 	txs := make([]*types.Transaction, 0)
 	for _, acc := range m.worker {
+		fmt.Println("addr:", acc.ethAddress.String())
 		if m.sendOKTToWorker {
 			tx := transferOkt(m.superAcc.privateKey, acc.ethAddress, nonce, ether)
 			nonce++
@@ -229,7 +230,7 @@ func (m *wmtManager) runPool(poolIndex int, workIndex int, contractIndex int, ge
 	panicerr(err)
 	txList = append(txList, SignTxWithNonce(a.ecdsaPriv, c.Router, payload, nonce))
 	nonce++
-	
+
 	// approve token1 (for addLiquidity)
 	payload, err = erc20Builder.Build("approve", c.Router, new(big.Int).SetInt64(30))
 	panicerr(err)

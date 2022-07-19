@@ -1,0 +1,8 @@
+{
+  "RPC": ["http://localhost:8545"],
+  "SuperAcc": "8ff3ca2d9985c3a52b459e2f6e7822b23e1af845961e22128d5f372fb9aa5f17",
+  "ContractPath": "./config/devnet/cList_devnet_5.json",
+  "WorkerPath": "./config/devnet/addr_20_wmt",
+  "ParaNum": 20,
+  "SendOKTToWorker": true
+}
